@@ -51,13 +51,15 @@ static int cmd_c(char *args) {
 static int cmd_si(char *args){
 	char *arg=strtok(args," ");
 	int step=0;
-	if(arg=NULL)
+	if(arg==NULL)
 	{
 		cpu_exec(1);
+		return 0;
 	}
 	sscanf(arg,"%d",&step);
 	if(step<-1){
-		printf("Error,N shoule be bigger or equal to -1(MAX) ")
+		printf("Error,N shoule be bigger or equal to -1(MAX) ");
+		return 0;
 	}
 	cpu_exec(step);
 	return 0;
