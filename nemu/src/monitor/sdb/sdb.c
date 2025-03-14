@@ -15,12 +15,13 @@
 
 #include <isa.h>
 #include <cpu/cpu.h>
+#include <readline/chardefs.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <stdio.h>
 #include <string.h>
 #include "sdb.h"
-
+#include <memory/vaddr.h>
 static int is_batch_mode = false;
 
 void init_regex();
@@ -49,7 +50,7 @@ static int cmd_c(char *args) {
   return 0;
 }
 static int cmd_si(char *args){
-	char *arg=strtok(args," ");
+	char *arg=strtok(NULL," ");
 	int step=0;
 	if(arg==NULL)
 	{
@@ -65,9 +66,22 @@ static int cmd_si(char *args){
 	return 0;
 }
 static int cmd_info(char *args){
-	char *arg=strtok(args," ");
+	char *arg=strtok(NULL," ");
 	if(strcmp(arg,"r")==0){
 		isa_reg_display();
+	}
+	return 0;
+}
+static int cmd_x(char *args){
+	char *N=strtok(NULL," ");
+	char *EXPR=strtok(NULL," ");
+	int scan_len;
+	vaddr_t address;
+	sscanf(N,"%d",&scan_len);
+	sscanf(EXPR,"%x",&address);
+	for(int i=0;i<scan_len;i++){
+		printf("0x%x:%x\n",address,vaddr_read(address,4));
+		address+=4;
 	}
 	return 0;
 }
@@ -88,6 +102,7 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   { "si","Single step execution",cmd_si},
   { "info","Print register",cmd_info },
+  { "x","Scan memory",cmd_x},
 
   /* TODO: Add more commands */
 
