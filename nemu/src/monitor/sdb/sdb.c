@@ -17,6 +17,8 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <stdio.h>
+#include <string.h>
 #include "sdb.h"
 
 static int is_batch_mode = false;
@@ -46,7 +48,20 @@ static int cmd_c(char *args) {
   cpu_exec(-1);
   return 0;
 }
-
+static int cmd_si(char *args){
+	char *arg=strtok(args," ");
+	int step=0;
+	if(arg=NULL)
+	{
+		cpu_exec(1);
+	}
+	sscanf(arg,"%d",&step);
+	if(step<-1){
+		printf("Error,N shoule be bigger or equal to -1(MAX) ")
+	}
+	cpu_exec(step);
+	return 0;
+}
 
 static int cmd_q(char *args) {
 //nemu_state.state=NEMU_QUIT;
@@ -63,6 +78,7 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
+  { "si","Single step execution",cmd_si},
 
   /* TODO: Add more commands */
 
