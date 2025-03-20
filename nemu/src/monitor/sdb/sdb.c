@@ -85,8 +85,15 @@ static int cmd_x(char *args){
 	}
 	return 0;
 }
+static int cmd_p(char *args){
+	char *e=strtok(args,"p");
+	bool success= true;
+	printf("e:%s\n",e);
+	printf("answer is:%d\n",expr(e,&success));
+	return 0;
+}
 static int cmd_q(char *args) {
-//nemu_state.state=NEMU_QUIT;
+nemu_state.state=NEMU_QUIT;
   return -1;
 }
 
@@ -103,6 +110,7 @@ static struct {
   { "si","Single step execution",cmd_si},
   { "info","Print register",cmd_info },
   { "x","Scan memory",cmd_x},
+  { "p","Expression Evaluation",cmd_p },
 
   /* TODO: Add more commands */
 
