@@ -27,11 +27,12 @@ const char *regs[] = {
 
 void isa_reg_display() {
 	for(int i=0;i<32;i++){
-		printf("%s \t%x \t%d\n",regs[i],cpu.gpr[i],cpu.gpr[i]);
+		printf("%s \t%x \t%d \t%x\n",regs[i],cpu.gpr[i],cpu.gpr[i],cpu.pc);
 	}
 
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
+
   return 0;
 }

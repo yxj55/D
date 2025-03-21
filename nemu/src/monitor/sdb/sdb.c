@@ -89,7 +89,7 @@ static int cmd_p(char *args){
 	char *e=strtok(args,"p");
 	bool success= true;
 	printf("e:%s\n",e);
-	printf("answer is:%d\n",expr(e,&success));
+	printf("answer is:%u\n",expr(e,&success));
 	return 0;
 }
 static int cmd_q(char *args) {

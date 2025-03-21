@@ -18,10 +18,12 @@
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
+#include <math.h>
 #include <regex.h>
-int eval(int p,int q);
+long eval(int p,int q);
+void hex(char *con);
 enum {
-  TK_NOTYPE = 256, TK_EQ,TK_NUM,TK_AND,TK_OR,TK_NOT,
+  TK_NOTYPE = 256, TK_EQ,TK_NUM=1,TK_AND,TK_OR,TK_NOT,TK_ACRG,TK_H=0,
 
   /* TODO: Add more token types */
 
@@ -44,10 +46,12 @@ static struct rule {
   {"\\/", '/'},
   {"\\(", '('},
   {"\\)", ')'},
-  {"[0-9]+", TK_NUM},
   {"\\&", TK_AND},
   {"\\|", TK_OR},
   {"\\~", TK_NOT},
+  {"\\$[0-9raspgptp]+",TK_ACRG},
+  {"0[xX][0-9a-fA-F]+",TK_H},
+  {"[0-9]+",TK_NUM},
  };
 
 #define NR_REGEX ARRLEN(rules)
@@ -82,12 +86,18 @@ static int nr_token __attribute__((used))  = 0;
 void w_tokens(char *type,int len,int single){
 		if(single==TK_NUM){
 			tokens[nr_token].type=TK_NUM;
-			memset(tokens[nr_token].str,'a',len+1);
+			strncpy(tokens[nr_token].str,"aa",32);
 			//printf("now str %s\n",tokens[nr_token].str);
 			for(int j=0;j<len;j++){	
 			tokens[nr_token].str[j]=*(type+j);
 			}
 			nr_token++;
+		}
+		else if(single==TK_H){
+			//printf("检测成功\n");
+			tokens[nr_token].type=single;
+			nr_token++;
+			hex(type);
 		}
 		else {
 		tokens[nr_token].type=single;
@@ -117,10 +127,10 @@ static bool make_token(char *e) {
          * to record the token in the array `tokens'. For certain types
          * of tokens, some extra actions should be performed.
          */
-
+		printf("len : %d\n",substr_len);
         switch (rules[i].token_type) {
-		case TK_NOTYPE: break;
-          default:w_tokens(substr_start,substr_len,rules[i].token_type);break;
+		case TK_NOTYPE: 
+          default:w_tokens(substr_start,substr_len,rules[i].token_type);
         }
 
         break;
@@ -135,15 +145,8 @@ static bool make_token(char *e) {
 
   return true;
 }
-
-
-word_t expr(char *e, bool *success) {
-  if (!make_token(e)) {
-    *success = false;
-    return 0;
-  }
-  else {
-	  int cnt=0;
+int negative_indication(){//负号预处理
+	int cnt=0;
 	  //通过循环将负号放入str
 	  for(int i=0;i<nr_token;i++){
 		  //判断负号
@@ -162,7 +165,7 @@ word_t expr(char *e, bool *success) {
 			  }
 		  }
 		  //情况2符合不在首位
-		  else if((i>cnt&&tokens[i].type=='-'&&(tokens[i-1].type!=TK_NUM))){
+		  else if(i>cnt&&tokens[i].type=='-'&&(tokens[i-1].type!=TK_NUM&&tokens[i-1].type!='-')){
 			cnt++;
 			//printf("判断负号成功,位于%d\n",i);
 			//printf("输出负号数字长度%ld\n",strlen(tokens[i+1].str));
@@ -173,7 +176,7 @@ word_t expr(char *e, bool *success) {
 				for(int k=i-1;k>=0;k--){
 					tokens[k+1].type=tokens[k].type;
 					if(tokens[k].type==TK_NUM){
-						strcpy(tokens[k+1].str,tokens[k].str);
+						strncpy(tokens[k+1].str,tokens[k].str,32);
 					}
 				}
 		  }
@@ -181,13 +184,46 @@ word_t expr(char *e, bool *success) {
 		  else if(i>cnt&&tokens[i].type=='-'&&tokens[i-1].type=='-'){
 			  for(int k=i-2;k>=0;k--){
 				  tokens[k+1].type=tokens[k].type;
+				  if(tokens[k].type==TK_NUM){
+					  strncpy(tokens[k+1].str,tokens[k].str,32);
+				  }
 			  }
 			tokens[i].type='+';
 			cnt++;
 		  }
 	  }
 	  printf("cnt:%d\n",cnt);
-	return eval(cnt,nr_token-1);
+	  return cnt;
+}
+int Deconstruction(){//解引用预处理
+	int cnt=0;
+	return cnt;
+}
+void hex(char *con){//十六进制转十进制预处理
+	//printf("成功进入\n");
+	//printf("hex的nr_token=%d\n",nr_token);
+	long int sum=0;
+	char *endptr;
+	for(int i=0;i<nr_token;i++){
+		//printf("未找到\n");
+		//printf("此时的字符%d\n",tokens[i].type);
+		if(tokens[i].type==TK_H){
+			sum=strtol(con,&endptr,0);
+			tokens[i].type=TK_NUM;
+			//printf("成功调用，十六进制转化为十进制%ld\n",sum);
+			snprintf(tokens[i].str,32,"%ld",sum);
+			break;
+		}
+	}
+}
+word_t expr(char *e, bool *success) {
+  if (!make_token(e)) {
+    *success = false;
+    return 0;
+  }
+  else {
+	 int position_start=negative_indication();
+	return eval(position_start,nr_token-1);
   }
   return 0;
 }
@@ -245,11 +281,11 @@ int main_operator(int p,int q){
 	return 0;
 }
 
-int eval(int p,int q){
+long eval(int p,int q){
 	if (p > q) {
     /* Bad expression */
-		printf("%d\n",nr_token);
-		printf("now p=%d,q=%d\n",p,q);
+		//printf("%d\n",nr_token);
+		//printf("now p=%d,q=%d\n",p,q);
 		assert(0);
   }
   else if (p == q) {
@@ -257,14 +293,14 @@ int eval(int p,int q){
      * For now this token should be a number.
      * Return the value of the number.
      */
-	  printf("当前数字%d\n",atoi(tokens[p].str));
+	  //printf("当前数字%d\n",atoi(tokens[p].str));
 	 return atoi(tokens[p].str);
   }
   else if (check_parentheses(p, q) == 1) {
     return eval(p + 1, q - 1);//进行去括号操作
   }
   else {
-	  printf("op 's p=%d,q=%d\n",p,q);
+	  //printf("op 's p=%d,q=%d\n",p,q);
     int op = main_operator(p,q);
     uint32_t val1 = eval(p, op - 1);
     uint32_t val2 = eval(op + 1, q);
