@@ -20,11 +20,11 @@
  */
 #include <math.h>
 #include <regex.h>
-long eval(int p,int q);
+uint32_t eval(int p,int q);
 void hex(char *con);
 enum {
   TK_NOTYPE = 256, TK_EQ,TK_NUM=1,TK_AND,TK_OR,TK_NOT,TK_ACRG,TK_H=0,
-
+	TK_DEREF,
   /* TODO: Add more token types */
 
 };
@@ -46,12 +46,12 @@ static struct rule {
   {"\\/", '/'},
   {"\\(", '('},
   {"\\)", ')'},
-  {"\\&", TK_AND},
-  {"\\|", TK_OR},
-  {"\\~", TK_NOT},
-  {"\\$[0-9raspgptp]+",TK_ACRG},
+  {"&&", TK_AND},
+  {"!=", TK_NOT},
+  {"\\$[0-9acgsptr]+",TK_ACRG},
   {"0[xX][0-9a-fA-F]+",TK_H},
   {"[0-9]+",TK_NUM},
+  {"\\*",TK_DEREF},
  };
 
 #define NR_REGEX ARRLEN(rules)
@@ -80,7 +80,7 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[2048] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 void w_tokens(char *type,int len,int single){
@@ -98,6 +98,15 @@ void w_tokens(char *type,int len,int single){
 			tokens[nr_token].type=single;
 			nr_token++;
 			hex(type);
+		}
+		else if(single==TK_ACRG){
+			tokens[nr_token].type=single;
+			strncpy(tokens[nr_token].str,"bb",32);
+			for(int j=1;j<len;j++){
+				tokens[nr_token].str[j-1]=*(type+j);
+			}
+			printf("寄存器:%s\n",tokens[nr_token].str);
+			nr_token++;
 		}
 		else {
 		tokens[nr_token].type=single;
@@ -127,9 +136,9 @@ static bool make_token(char *e) {
          * to record the token in the array `tokens'. For certain types
          * of tokens, some extra actions should be performed.
          */
-		printf("len : %d\n",substr_len);
+		//printf("len : %d\n",substr_len);
         switch (rules[i].token_type) {
-		case TK_NOTYPE: 
+		case TK_NOTYPE: break;
           default:w_tokens(substr_start,substr_len,rules[i].token_type);
         }
 
@@ -195,9 +204,13 @@ int negative_indication(){//负号预处理
 	  printf("cnt:%d\n",cnt);
 	  return cnt;
 }
-int Deconstruction(){//解引用预处理
-	int cnt=0;
-	return cnt;
+void Deconstruction(){//解引用预处理
+	for(int i=0;i<nr_token;i++){
+		if(tokens[i].type=='*'&&(i==0||tokens[i-1].type!=TK_NUM)){
+			tokens[i].type=TK_DEREF;
+		}
+	}
+	
 }
 void hex(char *con){//十六进制转十进制预处理
 	//printf("成功进入\n");
@@ -222,6 +235,7 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
   else {
+	  Deconstruction();//解引用预处理
 	 int position_start=negative_indication();
 	return eval(position_start,nr_token-1);
   }
@@ -230,6 +244,7 @@ word_t expr(char *e, bool *success) {
 int check_parentheses(int p,int q)
 {
 	int cnt=0;
+	if(tokens[p].type!='('||tokens[q].type!=')') return -1;//只要首或尾没有括号，那么表达式就不需要进行去括号操作
 //对表达式进行遍历
 	for(int i=p;i<=q;i++){
 		if(tokens[i].type=='(') cnt++;
@@ -237,51 +252,47 @@ int check_parentheses(int p,int q)
 		if(cnt==0 &&i<q) return -1; // 防止"(4 + 3)) * ((2 - 1)"(4 + 3) * (2 - 1)的情况
 	}
 	if(cnt!=0) return -1;//括号数不匹配
-	if(tokens[p].type!='('||tokens[q].type!=')') return -1;//只要首或尾没有括号，那么表达式就不需要进行去括号操作
-	return 1;
+	else return 1;
 	
+}
+int op_leaval(int op_type){
+	switch(tokens[op_type].type){
+		case '+': return 2;
+		case '-': return 2;
+		case '*': return 1;
+		case '/': return 1;
+		default:return -1;
+	}
 }
 int main_operator(int p,int q){
 	int i;
 	int cnt=0;
-	int cnt_scan=0;
-	int ret=0;
-	for(int j=p;j<=q;j++){
-		if(tokens[j].type=='(') cnt_scan++;
-		while (cnt_scan!=0){
-			j++;
-			if(tokens[j].type=='(') cnt_scan++;
-			else if(tokens[j].type==')') cnt_scan--;
-		}
-		if(tokens[j].type=='+'||tokens[j].type=='-'){
-			ret=1;
-		}
-		else if(tokens[j].type=='*'||tokens[j].type=='/'){
-			ret=2;
-		}
-}
+	int leaval=0;
+	int op_position=0;
 	for(i=p;i<=q;i++){
 		if(tokens[i].type=='(') cnt++;
-		while (cnt!=0) {
+		while(cnt!=0){
 			i++;
-			if(tokens[i].type=='(') {
-				cnt++;
+		if(tokens[i].type=='(') cnt++;
+		else if(tokens[i].type==')'){
+			cnt--;
+			if(cnt<0){
+				printf("error right position:%d\n",i);
+				return -1;
 			}
-			else if(tokens[i].type==')') {
-				cnt--;
-			}
-		}
-		if(tokens[i].type=='+'||tokens[i].type=='-'){
-			return i;
-		}
-		else if((ret==2)&(tokens[i].type=='*'||tokens[i].type=='/')){
-			return i;
 		}
 	}
-	return 0;
+		if(tokens[i].type!=TK_NUM){
+			if(leaval<=op_leaval(i)){
+				leaval=op_leaval(i);
+				op_position=i;
+			}
+		}
+	}
+	return op_position;
 }
 
-long eval(int p,int q){
+uint32_t eval(int p,int q){
 	if (p > q) {
     /* Bad expression */
 		//printf("%d\n",nr_token);
@@ -294,6 +305,11 @@ long eval(int p,int q){
      * Return the value of the number.
      */
 	  //printf("当前数字%d\n",atoi(tokens[p].str));
+	  if(tokens[p].type==TK_ACRG){
+			bool success=true;
+			printf("寄存器%s\n",tokens[p].str);
+			return isa_reg_str2val(tokens[p].str,&success);
+	  }
 	 return atoi(tokens[p].str);
   }
   else if (check_parentheses(p, q) == 1) {
@@ -308,21 +324,21 @@ long eval(int p,int q){
 
     switch (tokens[op].type) {
       case '+': 
-		  printf("'+' now val1=%d,val2=%d\n",val1,val2);
+		 // printf("'+' now val1=%d,val2=%d\n",val1,val2);
 		  return val1 + val2;
       case '-':
-		  printf("'-' now val1=%d,val2=%d\n",val1,val2);
+		//  printf("'-' now val1=%d,val2=%d\n",val1,val2);
 		  return val1 - val2;
       case '*':
-		  printf("'*' now val1=%d,val2=%d\n",val1,val2);
+		//  printf("'*' now val1=%d,val2=%d\n",val1,val2);
 		  return val1 * val2;
 	  case '/':	if(val2==0){
 					printf("val1 =%d p=%d q=%d\n",val1,p,q);
 					printf("error,除数为0，不存在\n");
-					assert(0);
 					return 0;
 				}
 				return val1 / val2;break;
+	  case TK_DEREF:
       default: assert(0);
     }  
   }

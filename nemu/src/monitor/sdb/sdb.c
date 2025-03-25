@@ -18,6 +18,7 @@
 #include <readline/chardefs.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include "sdb.h"
@@ -26,7 +27,6 @@ static int is_batch_mode = false;
 
 void init_regex();
 void init_wp_pool();
-
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
   static char *line_read = NULL;
@@ -58,6 +58,7 @@ static int cmd_si(char *args){
 		return 0;
 	}
 	sscanf(arg,"%d",&step);
+	//printf("%d\n",step);
 	if(step<-1){
 		printf("Error,N shoule be bigger or equal to -1(MAX) ");
 		return 0;
@@ -86,17 +87,36 @@ static int cmd_x(char *args){
 	return 0;
 }
 static int cmd_p(char *args){
-	char *e=strtok(args,"p");
+	//printf("args:%s\n",args);
+	char *e=args;
 	bool success= true;
 	printf("e:%s\n",e);
 	printf("answer is:%u\n",expr(e,&success));
 	return 0;
 }
 static int cmd_q(char *args) {
-nemu_state.state=NEMU_QUIT;
-  return -1;
+	nemu_state.state=NEMU_QUIT;
+	return -1;
 }
-
+static int cmd_test(char *args){
+	FILE *fp=fopen("/home/yuanxiao/ysyx-workbench/nemu/tools/gen-expr/input","r");
+	char line[256];
+	uint32_t expr_count=0;
+	bool success=true;
+	assert(fp!=NULL);
+	while(fgets(line,sizeof(line),fp)){//逐行读取数据
+		line[strcspn(line,"\n")]='\0';//逐个计算，匹配换行符，strcspn用于计数除了\n的字符数
+		char *answer=strtok(line,"_");
+		char *expression=strtok(NULL,"_");
+		word_t result=expr(expression,&success);
+		printf("%s\n answer:%s my_expr:%u\n",expression,answer,result);
+		expr_count++;
+	}
+	if(success) _Log(ANSI_BG_GREEN "Success!" ANSI_NONE "   Total %u expr\n",expr_count);
+  else _Log(ANSI_BG_RED "Fail!" ANSI_NONE "   Total %u expr\n",expr_count);
+  fclose(fp);
+  return 0;
+}
 static int cmd_help(char *args);
 
 static struct {
@@ -111,6 +131,7 @@ static struct {
   { "info","Print register",cmd_info },
   { "x","Scan memory",cmd_x},
   { "p","Expression Evaluation",cmd_p },
+  {"test","test expr",cmd_test}
 
   /* TODO: Add more commands */
 
@@ -186,7 +207,6 @@ void sdb_mainloop() {
 void init_sdb() {
   /* Compile the regular expressions. */
   init_regex();
-
   /* Initialize the watchpoint pool. */
   init_wp_pool();
 }
