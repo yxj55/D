@@ -14,17 +14,17 @@
 ***************************************************************************************/
 
 #include <isa.h>
-
+#include <memory/vaddr.h>
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <math.h>
 #include <regex.h>
+#include <sys/types.h>
 uint32_t eval(int p,int q);
-void hex(char *con);
 enum {
   TK_NOTYPE = 256, TK_EQ,TK_NUM=1,TK_AND,TK_OR,TK_NOT,TK_ACRG,TK_H=0,
-	TK_DEREF,
+	TK_DEREF=114,
   /* TODO: Add more token types */
 
 };
@@ -96,8 +96,10 @@ void w_tokens(char *type,int len,int single){
 		else if(single==TK_H){
 			//printf("检测成功\n");
 			tokens[nr_token].type=single;
+			for(int j=0;j<len;j++){
+				tokens[nr_token].str[j]=*(type+j);
+			}
 			nr_token++;
-			hex(type);
 		}
 		else if(single==TK_ACRG){
 			tokens[nr_token].type=single;
@@ -105,7 +107,7 @@ void w_tokens(char *type,int len,int single){
 			for(int j=1;j<len;j++){
 				tokens[nr_token].str[j-1]=*(type+j);
 			}
-			printf("寄存器:%s\n",tokens[nr_token].str);
+			//printf("寄存器:%s\n",tokens[nr_token].str);
 			nr_token++;
 		}
 		else {
@@ -206,17 +208,22 @@ int negative_indication(){//负号预处理
 }
 void Deconstruction(){//解引用预处理
 	for(int i=0;i<nr_token;i++){
-		if(tokens[i].type=='*'&&(i==0||tokens[i-1].type!=TK_NUM)){
+		if(tokens[i].type=='*'&&(i==0||(tokens[i-1].type!=TK_NUM&&tokens[i-1].type!=')'))){
 			tokens[i].type=TK_DEREF;
 		}
 	}
-	
+	//printf("解引用处理成功\n");
+	//printf("nr_token:%d\n,当前类型%d\n",nr_token,tokens[0].type);
+		
 }
-void hex(char *con){//十六进制转十进制预处理
+uint32_t hex(char *con){//十六进制转十进制预处理
 	//printf("成功进入\n");
 	//printf("hex的nr_token=%d\n",nr_token);
-	long int sum=0;
+	uint32_t sum=0;
 	char *endptr;
+	sum=strtol(con,&endptr,0);
+	return sum;
+	/*
 	for(int i=0;i<nr_token;i++){
 		//printf("未找到\n");
 		//printf("此时的字符%d\n",tokens[i].type);
@@ -224,10 +231,10 @@ void hex(char *con){//十六进制转十进制预处理
 			sum=strtol(con,&endptr,0);
 			tokens[i].type=TK_NUM;
 			//printf("成功调用，十六进制转化为十进制%ld\n",sum);
-			snprintf(tokens[i].str,32,"%ld",sum);
+			snprintf(tokens[i].str,32,"%d",sum);
 			break;
 		}
-	}
+		*/
 }
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -257,6 +264,10 @@ int check_parentheses(int p,int q)
 }
 int op_leaval(int op_type){
 	switch(tokens[op_type].type){
+		case TK_DEREF:return 3;
+		case TK_AND:return 3;
+		case TK_EQ:return 3;
+		case TK_NOT:return 3;
 		case '+': return 2;
 		case '-': return 2;
 		case '*': return 1;
@@ -307,7 +318,7 @@ uint32_t eval(int p,int q){
 	  //printf("当前数字%d\n",atoi(tokens[p].str));
 	  if(tokens[p].type==TK_ACRG){
 			bool success=true;
-			printf("寄存器%s\n",tokens[p].str);
+			//printf("寄存器%s\n",tokens[p].str);
 			return isa_reg_str2val(tokens[p].str,&success);
 	  }
 	 return atoi(tokens[p].str);
@@ -318,9 +329,19 @@ uint32_t eval(int p,int q){
   else {
 	  //printf("op 's p=%d,q=%d\n",p,q);
     int op = main_operator(p,q);
+	if(tokens[op].type==TK_DEREF){
+		if(tokens[op+1].type==TK_H){
+				char *con=tokens[op+1].str; 
+				return vaddr_read(hex(con), 4);			
+		}
+		else if(tokens[op+1].type==TK_ACRG){
+			bool success=true;
+			word_t der_reg=isa_reg_str2val(tokens[op+1].str,&success);
+			return vaddr_read(der_reg,4);
+		}
+	}
     uint32_t val1 = eval(p, op - 1);
     uint32_t val2 = eval(op + 1, q);
-
 
     switch (tokens[op].type) {
       case '+': 
@@ -337,9 +358,11 @@ uint32_t eval(int p,int q){
 					printf("error,除数为0，不存在\n");
 					return 0;
 				}
-				return val1 / val2;break;
-	  case TK_DEREF:
+				return val1 / val2; 
+	  case TK_AND:return val1 && val2;
+	  case TK_EQ:return val1==val2;
+	  case TK_NOT:return val1!=val2;
       default: assert(0);
-    }  
+    }
   }
 }

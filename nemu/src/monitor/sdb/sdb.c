@@ -112,7 +112,7 @@ static int cmd_test(char *args){
 		printf("%s\n answer:%s my_expr:%u\n",expression,answer,result);
 		expr_count++;
 	}
-	if(success) _Log(ANSI_BG_GREEN "Success!" ANSI_NONE "   Total %u expr\n",expr_count);
+	if(success) _Log(ANSI_BG_CYAN"Success!" ANSI_NONE "   Total %u expr\n",expr_count);
   else _Log(ANSI_BG_RED "Fail!" ANSI_NONE "   Total %u expr\n",expr_count);
   fclose(fp);
   return 0;
