@@ -99,6 +99,7 @@ void w_tokens(char *type,int len,int single){
 			for(int j=0;j<len;j++){
 				tokens[nr_token].str[j]=*(type+j);
 			}
+		//	printf("%s\n",tokens[nr_token].str);
 			nr_token++;
 		}
 		else if(single==TK_ACRG){
@@ -320,6 +321,9 @@ uint32_t eval(int p,int q){
 			bool success=true;
 			//printf("寄存器%s\n",tokens[p].str);
 			return isa_reg_str2val(tokens[p].str,&success);
+	  }
+	  else if(tokens[p].type==TK_H){
+		  return hex(tokens[p].str);
 	  }
 	 return atoi(tokens[p].str);
   }
