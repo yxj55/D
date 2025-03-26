@@ -23,6 +23,7 @@
 #include <string.h>
 #include "sdb.h"
 #include <memory/vaddr.h>
+#include "watchpoint.h"
 static int is_batch_mode = false;
 
 void init_regex();
@@ -71,6 +72,9 @@ static int cmd_info(char *args){
 	if(strcmp(arg,"r")==0){
 		isa_reg_display();
 	}
+	if(strcmp(arg,"w")==0){
+		printf_wp();
+	}
 	return 0;
 }
 static int cmd_x(char *args){
@@ -117,6 +121,18 @@ static int cmd_test(char *args){
   fclose(fp);
   return 0;
 }
+static int cmd_w(char *args){
+	bool success=true;
+	//printf("监视点表达式%s\n",args);
+	new_wp(args,expr(args,&success));
+	return 0;
+}
+static int cmd_d(char *args){
+	char *d=strtok(args," ");
+	int no=atoi(d);
+	free_wp(no);
+	return 0;
+}
 static int cmd_help(char *args);
 
 static struct {
@@ -131,7 +147,9 @@ static struct {
   { "info","Print register",cmd_info },
   { "x","Scan memory",cmd_x},
   { "p","Expression Evaluation",cmd_p },
-  {"test","test expr",cmd_test}
+  {"test","test expr",cmd_test},
+  {"w","create monitoring point",cmd_w},
+  {"d","delete monitoring point",cmd_d},
 
   /* TODO: Add more commands */
 

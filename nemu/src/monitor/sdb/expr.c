@@ -203,7 +203,7 @@ int negative_indication(){//负号预处理
 			cnt++;
 		  }
 	  }
-	  printf("cnt:%d\n",cnt);
+	  //printf("cnt:%d\n",cnt);
 	  return cnt;
 }
 void Deconstruction(){//解引用预处理
