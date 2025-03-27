@@ -118,18 +118,38 @@ int update_watchpoint(){
 	if(head==NULL){
 		return 0;
 	}
+	char *str_EQ="==";
+	char *str_pc="$pc";
 	WP *p=head;
 	bool success=true;
-	uint32_t new_answer=expr(p->expr,&success);
+	//uint32_t new_answer=expr(p->expr,&success);
 	if(success==false){
 		printf("wrong expression:%s\n",p->expr);
 		assert(0);
 	}
 	while(p!=NULL){
-		if(p->answer!=new_answer){
+		uint32_t new_answer=expr(p->expr,&success);
+		//printf("p->expr:%s\n",p->expr);
+		//printf("new_answer:%d\n",new_answer);
+		if(strstr(p->expr,str_EQ)!=NULL){
+			//printf("进入成功\n");
+			if(strstr(p->expr,str_pc)!=NULL){
+				//printf("进入成功2.0\n");
+				if(new_answer==1&&p->answer==0){
+				//	printf("返回成功\n");
+					printf(ANSI_FG_YELLOW"Stop!\n");
+
+					printf(ANSI_NONE"No:%d  expr:%s\n",p->NO,p->expr);
+					p->answer=new_answer;
+					single=1;
+				}
+			}
+		}
+		
+		else if(p->answer!=new_answer){
 			printf(ANSI_FG_YELLOW"Change!\n");
 
-			printf(ANSI_NONE"NO:%d\texpr:%s\tnow answer:0x%08x\n",p->NO,p->expr,new_answer);
+			printf(ANSI_NONE"NO:%d  expr:%s  now answer:0x%08x\n",p->NO,p->expr,new_answer);
 			printf("old answer:%d\n",p->answer);
 			printf("new answer:%d\n",new_answer);
 			p->answer=new_answer;
