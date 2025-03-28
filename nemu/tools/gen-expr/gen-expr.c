@@ -30,10 +30,10 @@ static char *code_format =
 "  printf(\"%%u\", result); "
 "  return 0; "
 "}";
-#define MAX_cnt 10//设置大小，防止无限递归
+#define MAX_cnt 5//设置大小，防止无限递归
 void space();
 static void gen_num(){
-	int num=rand() %100-10;
+	int num=rand() %100;
 	char num_str[50];
 	sprintf(num_str,"%d",num);
 	strcat(buf,num_str);

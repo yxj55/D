@@ -300,7 +300,7 @@ int main_operator(int p,int q){
 		if(tokens[i].type!=TK_NUM){
 			//printf("是否判断\n");
 			//printf("op_leaval=%d\n",op_leaval(i));
-			if(leaval<op_leaval(i)){
+			if(leaval<=op_leaval(i)){
 				leaval=op_leaval(i);
 				//printf("判断后的i=%d",i);
 				op_position=i;
@@ -353,7 +353,7 @@ uint32_t eval(int p,int q){
 	}
     uint32_t val1 = eval(p, op - 1);
     uint32_t val2 = eval(op + 1, q);
-
+	//printf("val1：%d\n",val1);
     switch (tokens[op].type) {
       case '+': 
 		 // printf("'+' now val1=%d,val2=%d\n",val1,val2);

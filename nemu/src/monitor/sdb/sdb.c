@@ -110,7 +110,7 @@ static int cmd_test(char *args){
 	assert(fp!=NULL);
 	while(fgets(line,sizeof(line),fp)){//逐行读取数据
 		line[strcspn(line,"\n")]='\0';//逐个计算，匹配换行符，strcspn用于计数除了\n的字符数
-		char *answer=strtok(line,"_");
+		char *answer=strtok(line,"_");//区别于空格
 		char *expression=strtok(NULL,"_");
 		word_t result=expr(expression,&success);
 		printf("%s\n answer:%s my_expr:%u\n",expression,answer,result);
