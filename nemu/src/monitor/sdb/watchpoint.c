@@ -106,7 +106,7 @@ void printf_wp(){
 	else {
 		while(p!=NULL){
 		printf("expr:%s\n",p->expr);
-		printf("NO:%d \texpr:%s \tanswer:%d \t0x%08x\n",p->NO,p->expr,p->answer,p->answer);
+		printf("NO:%d \texpr:%s \tanswer:%u \t0x%08x\n",p->NO,p->expr,p->answer,p->answer);
 		p=p->next;
 		}
 		return;
@@ -135,7 +135,7 @@ int update_watchpoint(){
 			//printf("进入成功\n");
 			if(strstr(p->expr,str_pc)!=NULL){
 				//printf("进入成功2.0\n");
-				if(new_answer==1&&p->answer==0){
+				if(new_answer==1){
 				//	printf("返回成功\n");
 					printf(ANSI_FG_YELLOW"Stop!\n");
 
@@ -150,8 +150,8 @@ int update_watchpoint(){
 			printf(ANSI_FG_YELLOW"Change!\n");
 
 			printf(ANSI_NONE"NO:%d  expr:%s  now answer:0x%08x\n",p->NO,p->expr,new_answer);
-			printf("old answer:%d\n",p->answer);
-			printf("new answer:%d\n",new_answer);
+			printf("old answer:%u\n",p->answer);
+			printf("new answer:%u\n",new_answer);
 			p->answer=new_answer;
 			single=1;
 		}

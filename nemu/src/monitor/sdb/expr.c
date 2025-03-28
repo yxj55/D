@@ -177,7 +177,7 @@ int negative_indication(){//负号预处理
 			  }
 		  }
 		  //情况2符合不在首位
-		  else if(i>cnt&&tokens[i].type=='-'&&(tokens[i-1].type!=TK_NUM&&tokens[i-1].type!='-')){
+		  else if(i>cnt&&tokens[i].type=='-'&&(tokens[i-1].type!=TK_NUM&&tokens[i-1].type!='-'&&tokens[i-1].type!=')')){
 			cnt++;
 			//printf("判断负号成功,位于%d\n",i);
 			//printf("输出负号数字长度%ld\n",strlen(tokens[i+1].str));
@@ -260,7 +260,7 @@ int check_parentheses(int p,int q)
 		if(cnt==0 &&i<q) return -1; // 防止"(4 + 3)) * ((2 - 1)"(4 + 3) * (2 - 1)的情况
 	}
 	if(cnt!=0) return -1;//括号数不匹配
-	else return 1;
+	 return 1;
 	
 }
 int op_leaval(int op_type){
@@ -279,7 +279,7 @@ int op_leaval(int op_type){
 int main_operator(int p,int q){
 	int i;
 	int cnt=0;
-	int leaval=0;
+	int leaval=-1;
 	int op_position=0;
 	for(i=p;i<=q;i++){
 		if(tokens[i].type=='(') cnt++;
@@ -294,13 +294,20 @@ int main_operator(int p,int q){
 			}
 		}
 	}
+		//printf("当前i=%d\n",i);
+		//printf("q=%d\n",q);
+		//printf("当前类型%d\n",tokens[i].type);
 		if(tokens[i].type!=TK_NUM){
-			if(leaval<=op_leaval(i)){
+			//printf("是否判断\n");
+			//printf("op_leaval=%d\n",op_leaval(i));
+			if(leaval<op_leaval(i)){
 				leaval=op_leaval(i);
+				//printf("判断后的i=%d",i);
 				op_position=i;
 			}
 		}
 	}
+	//printf("op_position%d\n",op_position);
 	return op_position;
 }
 

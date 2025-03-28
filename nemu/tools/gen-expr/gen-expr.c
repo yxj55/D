@@ -33,7 +33,7 @@ static char *code_format =
 #define MAX_cnt 10//设置大小，防止无限递归
 void space();
 static void gen_num(){
-	int num=rand() %100;
+	int num=rand() %100-10;
 	char num_str[50];
 	sprintf(num_str,"%d",num);
 	strcat(buf,num_str);
@@ -123,7 +123,10 @@ int main(int argc, char *argv[]) {
     fclose(fp);
 
     int ret = system("gcc /tmp/.code.c -Wall -Werror -o /tmp/.expr");
-    if (ret != 0) continue;
+	if (ret != 0) {
+		i--;
+		continue;
+	}
 
     fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
