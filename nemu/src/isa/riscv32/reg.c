@@ -31,7 +31,7 @@ void isa_reg_display() {
 	word_t	val=isa_reg_str2val(regs[i],&success);
 		printf("%s \t%x \t%d\n",regs[i],val,val);
 	}
-	printf("pc: \t%x \t%d\n",cpu.pc,cpu.pc);
+	printf("pc: \t0x%x \t%d\n",cpu.pc,cpu.pc);
 
 }
 
