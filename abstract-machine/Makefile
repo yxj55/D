@@ -5,6 +5,7 @@ html:
 	cat Makefile | sed 's/^\([^#]\)/    \1/g' | markdown_py > Makefile.html
 .PHONY: html
 
+
 ## 1. Basic Setup and Checks
 
 ### Default to create a bare-metal kernel image
@@ -14,28 +15,37 @@ ifeq ($(MAKECMDGOALS),)
 endif
 
 ### Override checks when `make clean/clean-all/html`
+#### findstring :检查$(MAKECMDGOALS)变量中的字符串是否存在于,clean|clean-all|html
 ifeq ($(findstring $(MAKECMDGOALS),clean|clean-all|html),)
 
 ### Print build info message
+#### info :打印调试信息
 $(info # Building $(NAME)-$(MAKECMDGOALS) [$(ARCH)])
 
 ### Check: environment variable `$AM_HOME` looks sane
+#### wildcard :获得include目录下的am.h的文件路径
 ifeq ($(wildcard $(AM_HOME)/am/include/am.h),)
   $(error $$AM_HOME must be an AbstractMachine repo)
 endif
 
 ### Check: environment variable `$ARCH` must be in the supported list
+#### 首先通过 notdir 函数去除文件路径的目录部分， 然后用 basename函数去除 .mk后缀
+#### filter : 匹配在$(ARCH)变量中所有符合$(ARCHS)变量类型的文件，并返回
+#### 用于匹配ARCH=riscv32-neme
 ARCHS = $(basename $(notdir $(shell ls $(AM_HOME)/scripts/*.mk)))
 ifeq ($(filter $(ARCHS), $(ARCH)), )
   $(error Expected $$ARCH in {$(ARCHS)}, Got "$(ARCH)")
 endif
 
 ### Extract instruction set architecture (`ISA`) and platform from `$ARCH`. Example: `ARCH=x86_64-qemu -> ISA=x86_64; PLATFORM=qemu`
+#### subst:用于将ARCH变量中的"-"全局替换 为 " "
+#### word : 提取ARCH_SPLIT变量中的指定位置的元素
 ARCH_SPLIT = $(subst -, ,$(ARCH))
 ISA        = $(word 1,$(ARCH_SPLIT))
 PLATFORM   = $(word 2,$(ARCH_SPLIT))
 
 ### Check if there is something to build
+#### flavor : 用于检查SRCS变量是否被定义
 ifeq ($(flavor SRCS), undefined)
   $(error Nothing to build)
 endif
@@ -56,6 +66,8 @@ IMAGE     = $(abspath $(IMAGE_REL))
 ARCHIVE   = $(WORK_DIR)/build/$(NAME)-$(ARCH).a
 
 ### Collect the files to be linked: object files (`.o`) and libraries (`.a`)
+#### addsuffix :将basename函数去除后缀的SRCS变量添加, .o 后缀  addprefix :再用addprefix添加前缀
+#### sort : 去除 LIBS 变量和 am klib 中重复的字符串,后根据字符大小进行排序
 OBJS      = $(addprefix $(DST_DIR)/, $(addsuffix .o, $(basename $(SRCS))))
 LIBS     := $(sort $(LIBS) am klib) # lazy evaluation ("=") causes infinite recursions
 LINKAGE   = $(OBJS) \
@@ -99,6 +111,7 @@ LDFLAGS  += -z noexecstack $(addprefix -T, $(LDSCRIPTS))
 ## 5. Compilation Rules
 
 ### Rule (compile): a single `.c` -> `.o` (gcc)
+####
 $(DST_DIR)/%.o: %.c
 	@mkdir -p $(dir $@) && echo + CC $<
 	@$(CC) -std=gnu11 $(CFLAGS) -c -o $@ $(realpath $<)
