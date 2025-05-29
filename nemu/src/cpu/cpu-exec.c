@@ -17,6 +17,7 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
+
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
  * This is useful when you use the `si' command.
@@ -30,6 +31,9 @@ static bool g_print_step = false;
 
 void device_update();
 int update_watchpoint();
+void iringbuf_printf();
+void ftrace_printf();
+void iringbuf_push(vaddr_t pc,uint32_t inst);
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
   if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
@@ -44,9 +48,14 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void exec_once(Decode *s, vaddr_t pc){
+
   s->pc = pc;
   s->snpc = pc;
-  isa_exec_once(s);
+ 
+  isa_exec_once(s);//取指令
+ 
+  //iringbuf_push(s->pc,s->isa.inst);//写入iringbuf
+ // ftrace_printf(s->pc);
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
@@ -101,6 +110,7 @@ void assert_fail_msg() {
 
 /* Simulate how the CPU works. */
 void cpu_exec(uint64_t n) {
+  //printf("cpu进入成功\n");
   g_print_step = (n < MAX_INST_TO_PRINT);
   switch (nemu_state.state) {
     case NEMU_END: case NEMU_ABORT: case NEMU_QUIT:
@@ -125,6 +135,9 @@ void cpu_exec(uint64_t n) {
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
+          if((nemu_state.state==NEMU_ABORT)){
+            iringbuf_printf();
+          }
       // fall through
     case NEMU_QUIT: statistic();
   }

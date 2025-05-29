@@ -38,6 +38,7 @@ static void welcome() {
 #include <getopt.h>
 
 void sdb_set_batch_mode();
+void ftrace_elf(char * elf_file);
 
 static char *log_file = NULL;
 static char *diff_so_file = NULL;
@@ -67,22 +68,26 @@ static long load_img() {
 }
 
 static int parse_args(int argc, char *argv[]) {
+  //printf("argv[5]:%s\n",argv[5]);
   const struct option table[] = {
     {"batch"    , no_argument      , NULL, 'b'},
     {"log"      , required_argument, NULL, 'l'},
     {"diff"     , required_argument, NULL, 'd'},
     {"port"     , required_argument, NULL, 'p'},
     {"help"     , no_argument      , NULL, 'h'},
+    {"ftrace"   , required_argument, NULL, 'f'},
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhl:d:p:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhl:d:p:f:", table, NULL)) != -1) {
+    //printf("o=%d\n",o);
     switch (o) {
+      case 'f': ftrace_elf(optarg);break;
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
-      case 'd': diff_so_file = optarg; break;
-      case 1: img_file = optarg; return 0;
+      case 'd': diff_so_file = optarg;printf("diff_so_file %s\n",diff_so_file); break;
+      case 1: img_file = optarg; printf("right and img_file %s\n",img_file); return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
         printf("\t-b,--batch              run with batch mode\n");

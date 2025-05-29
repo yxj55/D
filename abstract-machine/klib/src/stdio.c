@@ -6,7 +6,49 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-  panic("Not implemented");
+  va_list args;
+  va_start(args,fmt);
+  while(*fmt!= '\0'){
+    if(*fmt == '%'){
+      fmt++;
+      switch(*fmt){
+        case 'd':{
+          int num = va_arg(args,int);
+          if(num<0){
+            putch('-');
+            num = num * (-1);
+          }
+          int num_temp = num;
+          int len =0;
+          while(num_temp){
+            num_temp=num_temp/10;
+            len++;
+          }
+          while(len--){
+            int num_re=num % 10;
+          putch(num_re + 48); //逐个变为字符数字
+            num=num/10;
+          }
+          break;
+        }
+
+      case 's':{
+        char *str=va_arg(args,char*);
+        while(*str != '\0'){
+        putch(*str++);
+        }
+        break;
+      }
+      }
+    }
+    else {
+      putch(*fmt);
+    }
+    fmt++;
+  }
+   va_end(args);
+   putch('\0');
+   return 1;
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
