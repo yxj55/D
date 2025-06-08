@@ -132,6 +132,10 @@ config TRACE
   bool "Enable tracer"
   default y
 
+config DTRACE
+  bool "Enable dtrace"
+  default y
+
 config MTRACE
 	bool "Enable mtrace"
 	default y

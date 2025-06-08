@@ -84,7 +84,7 @@ finish:
   *shift = __shift;
 }
 
-
+// mask-> key的掩码 shift-> opcode距离的最低位的比特数   
 // --- pattern matching wrappers for decode ---
 #define INSTPAT(pattern, ...) do { \
   uint64_t key, mask, shift; \

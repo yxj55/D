@@ -31,9 +31,9 @@ static bool g_print_step = false;
 
 void device_update();
 int update_watchpoint();
-void iringbuf_printf();
+//void iringbuf_printf();
 void ftrace_printf();
-void iringbuf_push(vaddr_t pc,uint32_t inst);
+//void iringbuf_push(vaddr_t pc,uint32_t inst);
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
   if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
@@ -136,7 +136,7 @@ void cpu_exec(uint64_t n) {
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
           if((nemu_state.state==NEMU_ABORT)){
-            iringbuf_printf();
+           // iringbuf_printf();
           }
       // fall through
     case NEMU_QUIT: statistic();

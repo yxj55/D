@@ -1,7 +1,7 @@
 #include <common.h>
 #include <utils.h>
-
-
+#ifdef COBFIG_TRACE
+void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 typedef struct iringbuf
 {
     vaddr_t pc[32];//pc
@@ -38,7 +38,6 @@ void iringbuf_printf(){
         }
         memset(p,' ',4);
         p+=4;
-        void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
     disassemble(p, logbuf + sizeof(logbuf) - p,rb.pc[rb.head],(uint8_t *)&rb.inst[rb.head],4);
     printf("%s\n",logbuf);
     rb.head=(rb.head+1)%32;
@@ -46,3 +45,4 @@ void iringbuf_printf(){
 
 
 }
+#endif
