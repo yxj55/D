@@ -58,7 +58,7 @@ static void trace_and_difftest() {
 
 static void exec_once(){
   
-  top->inst = inst_fetch(&top->pc,4);//取指令
+  //top->inst = inst_fetch(&top->pc,4);//取指令
   //iringbuf_push(top->pc,top->inst);//写入iringbuf
 
 

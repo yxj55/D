@@ -3,6 +3,7 @@ module ysyx_25030093_Register #(ADDR_WIDTH = 5, DATA_WIDTH = 32) (
   input [DATA_WIDTH-1:0] wdata,
   input [ADDR_WIDTH-1:0] waddr,
   input wen,
+  input [5:0] alu_single,
   input wen_read,
  output [DATA_WIDTH-1:0] rs1_data,
  input [ADDR_WIDTH-1:0] rs1_addr,

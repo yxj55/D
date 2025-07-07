@@ -17,7 +17,7 @@ $(info INCFLAGS have : $(INCFLAGS))
 # Verilator 编译选项
 VERILATOR_FLAGS += --cc --exe --build
 VERILATOR_FLAGS += -CFLAGS "$(INCFLAGS)"
-VERILATOR_FLAGS += -LDFLAGS "-lreadline -lhistory"
+VERILATOR_FLAGS += -LDFLAGS "-lreadline -lhistory -lrt"
 VERILATOR_FLAGS += -Wno-lint -Wno-style --x-assign unique
 VERILATOR_FLAGS += --Mdir $(BUILD_DIR) \
                    --build \
@@ -53,7 +53,7 @@ $(info IMGELF =$(IMGELF))
 #ARGS += $(IMGELF) //ftrace
 ARGS += -d $(DIFF_REF_SO)
 
-#ARGS += -b
+ARGS += -b
 ARGS += $(IMG)
 $(info ARGS = $(ARGS))
 

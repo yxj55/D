@@ -27,10 +27,49 @@ enum {
   nr_reg
 };
 
+static uint32_t sbuf_pos = 0;
+
 static uint8_t *sbuf = NULL;
 static uint32_t *audio_base = NULL;
 
+void SDL_audio_play(void *userdata, uint8_t *stream, int len){
+  SDL_memset(stream,0,len);
+  uint32_t count = audio_base[reg_count];
+  if(count < len) len = count;
+  uint32_t sbuf_size = audio_base[reg_sbuf_size];
+  //跨越缓冲区末尾
+  if((sbuf_pos + len) > sbuf_size){
+    SDL_MixAudio(stream,sbuf + sbuf_pos,sbuf_size - sbuf_pos,SDL_MIX_MAXVOLUME);//从当前位置到末尾
+    SDL_MixAudio(stream + (sbuf_size - sbuf_pos),sbuf ,len - (sbuf_size - sbuf_pos),SDL_MIX_MAXVOLUME);//从头到目标位置
+  }
+  else {
+    SDL_MixAudio(stream,sbuf + sbuf_pos,len,SDL_MIX_MAXVOLUME);//正常写入
+  }
+  sbuf_pos = (sbuf_pos + len) % sbuf_size;//环形缓冲区计算位置
+  audio_base[reg_count] -=len;
+}
+
+
+void init_sound(){
+  SDL_AudioSpec s = {};
+  s.freq = audio_base[reg_freq];
+  s.format = AUDIO_S16SYS;
+  s.channels = audio_base[reg_channels];
+  s.samples = audio_base[reg_samples];
+  s.callback = SDL_audio_play;
+  s.userdata = NULL;
+
+    SDL_Init(SDL_INIT_AUDIO);
+    SDL_OpenAudio(&s, NULL);
+    SDL_PauseAudio(0);
+  
+}
+
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
+  if(audio_base[reg_init] == 1){
+    init_sound();
+    audio_base[reg_init]=0;
+  }
 }
 
 void init_audio() {
@@ -41,7 +80,7 @@ void init_audio() {
 #else
   add_mmio_map("audio", CONFIG_AUDIO_CTL_MMIO, audio_base, space_size, audio_io_handler);
 #endif
-
+  audio_base[reg_sbuf_size] = CONFIG_SB_SIZE;    
   sbuf = (uint8_t *)new_space(CONFIG_SB_SIZE);
   add_mmio_map("audio-sbuf", CONFIG_SB_ADDR, sbuf, CONFIG_SB_SIZE, NULL);
 }

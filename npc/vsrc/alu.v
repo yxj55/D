@@ -38,12 +38,15 @@ always@(*)begin
         paddr_write(rs1_data + imm_data,4,rs2_data);//sw
     end
     6'd6:begin
+        
         //lw 在下面为sw指令时会使rs1_data的数据为sw指令的，但是alu_single仍然为lw，我设置了跳过暂时规避该问题，以后再来解决
+       /*
        $display("lw rs1_data =%h imm_data =%h pc=%h",rs1_data,imm_data,pc);
        if(((imm_data +rs1_data)>32'h87ffffff)|((imm_data +rs1_data)<32'h80000000))begin
             
        end
        else 
+       */
         rd_data = paddr_read(imm_data + rs1_data,4);//lw
     end
     6'd7:begin
@@ -104,10 +107,13 @@ always@(*)begin
         rd_data = rs1_data | imm_data;//ori
     end
     6'd26:begin
+        /*
         if(((imm_data +rs1_data)>32'h87ffffff)|((imm_data +rs1_data)<32'h80000000))begin
             
         end
-       else rd_data = paddr_read(rs1_data + imm_data,1);//lbu
+       else
+       */ 
+       rd_data = paddr_read(rs1_data + imm_data,1);//lbu
     end
     6'd27:begin
         rd_data = $signed(rs1_data) >>> imm_data[4:0];//srai

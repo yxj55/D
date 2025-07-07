@@ -85,6 +85,7 @@ finish:
 }
 
 // mask-> key的掩码 shift-> opcode距离的最低位的比特数   
+//##__VA_ARGS__中##是为了防止__VA_ARGS__为空导致多出一个逗号使编译错误，##可以在其为空时"吃掉"那个逗号
 // --- pattern matching wrappers for decode ---
 #define INSTPAT(pattern, ...) do { \
   uint64_t key, mask, shift; \

@@ -55,7 +55,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
     default: panic("unsupported type = %d", type);
   }
 }
-
+//预处理器的可变参数宏__VA_ARGS__展开为最后的指令操作
 static int decode_exec(Decode *s) {
   s->dnpc = s->snpc;
 

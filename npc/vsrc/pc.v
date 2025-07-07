@@ -12,6 +12,9 @@ module ysyx_25030093_pc(
 import "DPI-C" function void call_ftrace_printf(input int pc,input int dnpc);
 import "DPI-C" function void ret_ftrace_printf(input int pc);
 
+initial begin
+    pc = 32'h80000000;
+end
 
 
 reg [31:0] pc_current;

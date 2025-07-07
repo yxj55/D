@@ -38,6 +38,7 @@ static word_t pmem_read(paddr_t addr, int len) {
 }
 
 static void pmem_write(paddr_t addr, int len, word_t data) {
+  printf("addr=0x%08x\n",addr);
   host_write(guest_to_host(addr), len, data);
 }
 
@@ -75,6 +76,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
       printf("now write addr =0x%08x ,len = %d\n",addr,len);
     #endif
     pmem_write(addr, len, data); return; }
+    printf("other addr=0x%08x\n",addr);
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);
 }

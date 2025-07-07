@@ -38,7 +38,7 @@ extern "C" void npc_ebreak(){
   printf("NOW NPC_state %d\n",npc_state.state);
  // isa_reg_display();
  
- single_clk();
+// single_clk();
  sim_exit();
  free(top);
 }

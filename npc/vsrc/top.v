@@ -1,11 +1,12 @@
 module ysyx_25030093_top(
     input clk,
     output reg [31:0] pc,
-    input wire [31:0] inst, 
+    output reg [31:0] inst, 
     input wire rst
 );
-  
-
+import "DPI-C" function int paddr_read(input int raddr,input int len);
+assign inst = paddr_read(pc,4);
+wire [31:0] inst_wire = inst;
 wire [1:0] pc_single; //控制pc +4 信号
 wire [4:0] rd,rs1,rs2;
 wire wen;//控制写入
@@ -23,7 +24,7 @@ u_ysyx_25030093_IDU(
     .pc_single (pc_single),
     .wen        (wen),
     .wen_read   (wen_read),
-    .inst       (inst),
+    .inst       (inst_wire),
     .imm_data 	(imm_data  ),
     .rd         (rd),
     .rs1        (rs1),
