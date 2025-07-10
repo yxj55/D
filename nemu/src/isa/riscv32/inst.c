@@ -18,9 +18,14 @@
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
 
+
 void call_ftrace_printf(vaddr_t pc,vaddr_t dnpc);
 void ret_ftrace_printf(vaddr_t pc);
+word_t isa_raise_intr(word_t NO, vaddr_t epc);
+void etrace_printf(Decode *_this);
 
+
+#define S(i) sr(i)
 #define R(i) gpr(i)
 #define Mr vaddr_read
 #define Mw vaddr_write
@@ -44,6 +49,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
   int rs1 = BITS(i, 19, 15);
   int rs2 = BITS(i, 24, 20);
   *rd     = BITS(i, 11, 7);
+
   switch (type) {
     case TYPE_I: src1R();          immI(); break;
     case TYPE_U:                   immU(); break;
@@ -137,8 +143,16 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, R(rd) = src1 % src2);
   INSTPAT("??????? ????? ????? 111 ????? 01100 11", and    , R, R(rd) = src1 & src2); 
  
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, uint32_t t = S(imm); S(imm) = src1;R(rd) = t);
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, uint32_t t = S(imm);S(imm) = (t | src1);R(rd) = t);
 
-
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = S(mepc);IFDEF(CONFIG_ETRACE,{etrace_printf(s);}));
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, S(mcause) = 11; S(mepc) = s->pc;s->dnpc = isa_raise_intr(S(mcause),S(mtvec));
+  IFDEF(CONFIG_FTRACE,{
+    printf("ecall right\n");
+      call_ftrace_printf(s->pc,s->dnpc);
+  });IFDEF(CONFIG_ETRACE,{etrace_printf(s);})
+);//nemu中默认最高特权级M
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
   INSTPAT_END();

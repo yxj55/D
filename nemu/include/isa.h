@@ -29,6 +29,7 @@ extern unsigned char isa_logo[];
 void init_isa();
 
 // reg
+enum {mtvec=0x305,mepc=0x341, mcause=0x342, mstatus=0x300};//csr寄存器
 extern CPU_state cpu;
 void isa_reg_display();
 word_t isa_reg_str2val(const char *name, bool *success);

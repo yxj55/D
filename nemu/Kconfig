@@ -131,7 +131,10 @@ config WATCHPOINT
 config TRACE
   bool "Enable tracer"
   default y
-
+config ETRACE
+  bool "Enable etrace"
+  default y
+  
 config DTRACE
   bool "Enable dtrace"
   default y

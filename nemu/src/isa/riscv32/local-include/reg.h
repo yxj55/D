@@ -22,12 +22,25 @@ static inline int check_reg_idx(int idx) {
   IFDEF(CONFIG_RT_CHECK, assert(idx >= 0 && idx < MUXDEF(CONFIG_RVE, 16, 32)));
   return idx;
 }
+static inline int csr_name(int i){
+  int csr_addr[]={0x305,0x341,0x342,0x300};
+  for(int p=0;p<4;p++){
+    if(csr_addr[p]==i) {return p;}
+  }
+  assert(0 && "Not Found csr");
+  return -1;
+}
+
+#define sr(i) (cpu.sr[csr_name(i)])
+
 
 #define gpr(idx) (cpu.gpr[check_reg_idx(idx)])
+
 
 static inline const char* reg_name(int idx) {
   extern const char* regs[];
   return regs[check_reg_idx(idx)];
 }
+
 
 #endif

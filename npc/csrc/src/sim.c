@@ -35,7 +35,7 @@ void sim_exit(){
 }
 extern "C" void npc_ebreak(){
   NPCTRAP(top->pc,gpr(10));
-  printf("NOW NPC_state %d\n",npc_state.state);
+  //printf("NOW NPC_state %d\n",npc_state.state);
  // isa_reg_display();
  
 // single_clk();

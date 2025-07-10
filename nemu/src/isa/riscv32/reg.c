@@ -24,7 +24,9 @@ const char *regs[] = {
   "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
-
+const char *csr[] = {
+	"mtvec" ,"mepc" ,"mcause" ,"mstatus"
+};
 void isa_reg_display() {
 	bool success=false;
 	for(int i=0;i<32;i++){
@@ -32,6 +34,10 @@ void isa_reg_display() {
 		printf("%s \t%x \t%d\n",regs[i],val,val);
 	}
 	printf("pc: \t0x%x \t%d\n",cpu.pc,cpu.pc);
+	for(int j=0;j<4;j++){
+		word_t sr=isa_reg_str2val(csr[j],&success);
+		printf("%s\t%x\t%d\n",csr[j],sr,sr);
+	}
 
 }
 
@@ -44,6 +50,12 @@ word_t isa_reg_str2val(const char *s, bool *success) {
 		if(strcmp(s,regs[i])==0){
 			*success=true;
 			return cpu.gpr[i];
+		}
+	}
+	for(int j=0;j<4;j++){
+		if(strcmp(s,csr[j])==0){
+			*success=true;
+			return cpu.sr[j];
 		}
 	}
 	*success=false;

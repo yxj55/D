@@ -147,15 +147,18 @@ void call_ftrace_printf(vaddr_t pc,vaddr_t dnpc)
     ++depth;
    
     
-    for(int i=0;i<sizeof(symbol_data);i++){
-       // printf("symbol_data[i] addr :0x%08x\n",symbol_data[i].addr);
+    for(int i=0;i<symbol_count;i++){
+        printf("symbol_data[i] addr :0x%08x name :%s  dnpc=0x%08x  vlau + size = 0x%08x\n",symbol_data[i].addr,symbol_data[i].name,dnpc,symbol_data[i].addr + symbol_data[i].size);
         if((dnpc>= symbol_data[i].addr)&&(dnpc <( symbol_data[i].addr + symbol_data[i].size))){
+            
             printf(FMT_PADDR ": %*scall [%s@"FMT_PADDR"]\n",pc,(depth-1)*2,"",symbol_data[i].name,dnpc);
             return;
         }
         
     }
+    
     printf(FMT_PADDR ": %*scall [%s@"FMT_PADDR"]\n",pc,(depth-1)*2,"","???",dnpc);
+   
     return;
     
 }
