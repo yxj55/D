@@ -18,11 +18,11 @@ always@(*)begin
  case(alu_single)
     6'd0:begin 
         rd_data = rs1_data + imm_data;//addi
-       // $display("addi rd_data %h rs1_data %h imm_data %h",rd_data,rs1_data,imm_data);
+      // $display("addi rd_data %h rs1_data %h imm_data %h",rd_data,rs1_data,imm_data);
     end
     6'd1:begin 
         rd_data = pc + imm_data;//auipc
-       // $display("auipc rd_data %h pc %h imm_data %h",rd_data,pc,imm_data);
+        //$display("auipc rd_data %h pc %h imm_data %h",rd_data,pc,imm_data);
     end
     6'd2:begin 
         rd_data = imm_data; //lui
