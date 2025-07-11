@@ -2,7 +2,7 @@
 #include <utils.h>
 #include <isa.h>
 #include </home/yuanxiao/ysyx-workbench/nemu/include/cpu/decode.h>
-
+#ifdef CONFIG_ETRACE
 void etrace_printf( Decode *s){
 
     char *p = s->logbuf;
@@ -27,3 +27,4 @@ void etrace_printf( Decode *s){
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen);
 printf("%s  now pc :0x%08x  dnpc :0x%08x\n",s->logbuf,s->pc,s->dnpc);
 }
+#endif
