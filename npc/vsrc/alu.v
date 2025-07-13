@@ -5,13 +5,16 @@ module ysyx_25030093_alu(
     input wire [31:0] rs1_data,
     input wire [31:0] rs2_data,
     output reg [31:0] rd_data,
-    output reg B_single
+    output reg B_single,
+    input wire [31:0] csr_data,
+    output reg [31:0] csr_wdata
     );
    import "DPI-C" function int paddr_read(input int raddr,input int len);
    import "DPI-C" function void paddr_write(
   input int waddr, input int len,input int wdata);
 reg [7:0] lb_temp; 
 reg [15:0] lh_temp;
+reg [31:0] t;
 
 always@(*)begin
     
@@ -143,6 +146,17 @@ always@(*)begin
     end
     6'd35:begin
         rd_data = paddr_read(rs1_data + imm_data,2);//lhu
+    end
+    6'd36:begin
+        t = csr_data;
+        rd_data = t;
+        csr_wdata = rs1_data;
+    end
+    6'd37:begin
+       // $display("csr_data = %h",csr_data);
+        t = csr_data;
+        rd_data = t; 
+        csr_wdata = rs1_data | t;
     end
     default rd_data = 32'b0;
  endcase

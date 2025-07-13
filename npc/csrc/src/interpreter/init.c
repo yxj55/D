@@ -33,7 +33,7 @@ static const uint32_t img [] = {
 VerilatedContext* contextp = NULL;  
 VerilatedVcdC* tfp = NULL;         
 Vysyx_25030093_top *top = NULL;    
-
+; 
 void sim_init() {
   contextp = new VerilatedContext;
   tfp = new VerilatedVcdC;

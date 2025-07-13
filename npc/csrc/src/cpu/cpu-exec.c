@@ -14,7 +14,7 @@
 ***************************************************************************************/
 
 #include <cpu.h>
-#include <isa.h>
+#include </home/yuanxiao/ysyx-workbench/npc/csrc/include/reg.h>
 #include <locale.h>
 #include <ifetch.h>
 #include <common.h>
@@ -26,7 +26,7 @@
  * You can modify this value as you want.
  */
 #define MAX_INST_TO_PRINT 10
-void npc_reg();
+
 IFDEF(CONFIG_ITRACE, char logbuf[128]);
 CPU_state cpu ={};
 uint64_t g_nr_guest_inst = 0;

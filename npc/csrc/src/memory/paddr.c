@@ -19,7 +19,7 @@
 //#include <device/mmio.h>
 #include <isa.h>
 #include<sim.h>
-
+#include <utils.h>
 
 
 #if   defined(CONFIG_PMEM_MALLOC)
@@ -68,21 +68,25 @@ extern "C" int paddr_read(paddr_t addr,int len) {
     #endif
     */
     return  pmem_read(addr,len);}
-    if(addr == (0xa0000048)|(0xa000004c) ){
+   // printf("read now addr =0x%08x\n",addr);
+    if (addr == 0xa0000048 || addr == 0xa000004c) {
       uint64_t us = get_time();
-      if(addr == 0xa0000048){
-        uint32_t low = (uint32_t)us;
-        return low;
+      if (addr == 0xa0000048) {
+          return (uint32_t)(us & 0xFFFFFFFF);  // 返回低 32 位
+      } else {
+          return (uint32_t)(us >> 32);         // 返回高 32 位
       }
-      else {
-        uint32_t high = us << 32;
-        return high;
-      }
-    }
+  }
+
+  // 处理串口输出 (UART)
+  if (addr == 0xa00003F8) {
+      return 0;  // 串口读取可能不需要返回值
+  }
+
 //  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
 //printf(ANSI_BG_RED "addr read\n" ANSI_NONE);
-printf("read\n");
-out_of_bound(addr);
+//printf("read\n\n");
+//out_of_bound(addr);
   return 0;
 }
 
@@ -94,15 +98,19 @@ extern "C" void paddr_write(paddr_t addr, int len, word_t data) {
     #endif
     */
     pmem_write(addr, len, data); return; }
-    if(addr == 0xa00003F8){
-      putchar(data);
-      return ;
-    }
-    if(addr == (0xa0000048)|(0xa000004c)){
-     
-      return ;
-    }
+    // 处理串口输出
+   // printf("now addr =0x%08x\n",addr);
+    if (addr == 0xa00003f8) {
+      putchar((char)data);  // 输出字符
+      return;
+  }
+  // 处理计时器
+  if (addr == 0xa0000048 || addr == 0xa000004c) {
+      return;  
+  }
+   // printf("write\n\n");
  // IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
  //printf(ANSI_BG_RED "addr write\n" ANSI_NONE);
-  out_of_bound(addr);
+//out_of_bound(addr);
+  return;
 }

@@ -1,13 +1,15 @@
 module ysyx_25030093_IDU(
     output  [5:0] alu_single,
-    output [1:0] pc_single,
+    output [2:0] pc_single,
     output  wen,
     output wen_read,
     input [31:0] inst,
     output [31:0] imm_data,
     output [4:0] rd,
     output [4:0] rs1,
-    output [4:0] rs2
+    output [4:0] rs2,
+    output ecall_single,
+    output wen_csr
 );
 import "DPI-C" function void npc_ebreak();
 wire [2:0] imm_type;
@@ -52,6 +54,11 @@ wire RISCV_ORI_OP                               = (inst[6:0] == 7'b0010011);
 wire RISCV_ANDI_OP                              = (inst[6:0] == 7'b0010011);
 wire RISCV_SRLI_OP                              = (inst[6:0] == 7'b0010011);
 wire RISCV_SRAI_OP                              = (inst[6:0] == 7'b0010011);
+
+wire RISCV_ECALL_OP                             = (inst[6:0] == 7'b1110011);
+wire RISCV_MRET_OP                              = (inst[6:0] == 7'b1110011);
+wire RISCV_CSRRW_OP                             = (inst[6:0] == 7'b1110011);
+wire RISCV_CSRRS_OP                             = (inst[6:0] == 7'b1110011);
 //J-type opcode
 wire RISCV_JAL_OP                               = (inst[6:0] == 7'b1101111);
 
@@ -95,6 +102,11 @@ wire RISCV_ORI_FUNT3                            = (inst[14:12] == 3'b110);
 wire RISCV_ANDI_FUNT3                           = (inst[14:12] == 3'b111);
 wire RISCV_SRLI_FUNT3                           = (inst[14:12] == 3'b101);
 wire RISCV_SRAI_FUNT3                           = (inst[14:12] == 3'b101);
+
+wire RISCV_ECALL_FUNT3                          = (inst[14:12] == 3'b000);
+wire RISCV_MRET_FUNT3                           = (inst[14:12] == 3'b000);
+wire RISCV_CSRRW_FUNT3                          = (inst[14:12] == 3'b001);
+wire RISCV_CSRRS_FUNT3                          = (inst[14:12] == 3'b010);
 //S-type funt3
 wire RISCV_SW_FUNT3                             = (inst[14:12] == 3'b010);
 wire RISCV_SB_FUNT3                             = (inst[14:12] == 3'b000);
@@ -121,7 +133,10 @@ wire RISCV_SLTU_FUNT7                           = (inst[31:25] == 7'b0000000);
 //I-type funt7
 wire RISCV_SLLI_FUNT7                           = (inst[31:25] == 7'b0000000);
 wire RISCV_SRLI_FUNT7                           = (inst[31:25] == 7'b0000000);
-wire RISCV_SRAI_FUNT7                           = (inst[31:25] == 7'b0100000);     
+wire RISCV_SRAI_FUNT7                           = (inst[31:25] == 7'b0100000);
+
+wire RISCV_ECALL_FUNT7                          = (inst[31:25] == 7'b0000000);
+wire RISCV_MRET_FUNT7                           = (inst[31:25] == 7'b0011000);
 //------------------------------------------//
 //R-type
 wire add                                        =(RISCV_ADD_OP & RISCV_ADD_FUNT3 & RISCV_ADD_FUNT7);
@@ -155,6 +170,11 @@ wire ori                                        =(RISCV_ORI_OP & RISCV_ORI_FUNT3
 wire andi                                       =(RISCV_ANDI_OP & RISCV_ANDI_FUNT3);
 wire srli                                       =(RISCV_SRLI_OP & RISCV_SRLI_FUNT3 & RISCV_SRLI_FUNT7);
 wire srai                                       =(RISCV_SRAI_OP & RISCV_SRAI_FUNT3 & RISCV_SRAI_FUNT7);
+wire csrrw                                      =(RISCV_CSRRW_OP & RISCV_CSRRW_FUNT3);
+wire csrrs                                      =(RISCV_CSRRS_OP & RISCV_CSRRS_FUNT3);
+//N-type
+wire ecall                                      =(RISCV_ECALL_OP & RISCV_ECALL_FUNT3 & RISCV_ECALL_FUNT7);
+wire mret                                       =(RISCV_MRET_OP & RISCV_MRET_FUNT3 & RISCV_MRET_FUNT7);
 //J-type
 wire jal                                        = RISCV_JAL_OP;
 
@@ -206,22 +226,26 @@ assign alu_single                               = (auipc)       ? 6'd1 :
                                                   (srl)         ? 6'd33:
                                                   (sra)         ? 6'd34:
                                                   (lhu)         ? 6'd35:
+                                                  (csrrw)       ? 6'd36:
+                                                  (csrrs)       ? 6'd37:
                         6'd0;
 
 
-assign wen = addi | auipc | lui |jalr |jal|lb|lh|lw|sltiu|add|sub|OR|XOR|srl|sra|sltu|slli|andi|srli|slti|sll|slt|xori|ori|lbu|lhu|srai|AND;
-assign wen_read = addi | beq | lb|lh|lw | sw | sltiu | add | sub | OR |XOR|srl|sra|sltu|slli|andi|srli|slti|blt|bltu|bgeu|sll|slt|xori|ori|lbu|lhu|srai|sb|sh|AND;
+assign wen = addi | auipc|csrrw |csrrs| lui |jalr |jal|lb|lh|lw|sltiu|add|sub|OR|XOR|srl|sra|sltu|slli|andi|srli|slti|sll|slt|xori|ori|lbu|lhu|srai|AND;
+assign wen_read = addi | beq | lb|lh|lw |csrrw|csrrs| sw | sltiu | add | sub | OR |XOR|srl|sra|sltu|slli|andi|srli|slti|blt|bltu|bgeu|sll|slt|xori|ori|lbu|lhu|srai|sb|sh|AND;
+assign wen_csr  = (csrrw | csrrs);
 assign imm_type                                 =(lui | auipc) ? 3'b001 :   //U-type imm
                                                  (jal)         ? 3'b010 :           //J-type imm
                                                  (sw|sh|sb)          ? 3'b011 :           //S-type imm
-                                                 (beq | bne |bge |blt |bltu|bgeu)   ? 3'b100 :           //B-type imm
+                                                 (beq | bne |bge |blt |bltu|bgeu)   ? 3'b100 : //B-type imm
+                                                 (ecall | mret)                     ? 3'b101 :
                                                                 3'b000;     //默认I-type
 
-assign pc_single                                = jalr          ? 2'b01 :   // jalr
-                                                  jal           ? 2'b10 :   // jal
-                                                  (beq | bne |bge |blt |bltu|bgeu)  ? 2'b11 :   // B-type
-
-                                                                2'b00;   // 默认
+assign pc_single                                = jalr          ? 3'b001 :   // jalr
+                                                  jal           ? 3'b010 :   // jal
+                                                  (beq | bne |bge |blt |bltu|bgeu)  ? 3'b100 :   // B-type
+                                                  (ecall | mret)         ? 3'b101 :
+                                                                3'b000;   // 默认
 
 
 
@@ -231,7 +255,7 @@ ysyx_25030093_imm u_ysyx_25030093_imm(
     .imm_ex   	(imm_data    )
 );
 
-
+assign ecall_single = ecall;
 
 //imm_type 3'd1:U  3'd2:I
 /*

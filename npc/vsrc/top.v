@@ -7,15 +7,20 @@ module ysyx_25030093_top(
 import "DPI-C" function int paddr_read(input int raddr,input int len);
 assign inst = paddr_read(pc,4);
 wire [31:0] inst_wire = inst;
-wire [1:0] pc_single; //控制pc +4 信号
+wire [2:0] pc_single; //控制pc +4 信号
 wire [4:0] rd,rs1,rs2;
+
 wire wen;//控制写入
 wire wen_read;//控制读
 wire [31:0] imm_data;
 
+wire wen_csr;
+wire [31:0] csr_data;
+wire [31:0] csr_data_pc;
+wire [31:0] csr_wdata;
 
+wire ecall_single;
 wire [5:0] alu_single;//alu 控制信号
-wire [1:0] pc_single;
 //输出控制信号
 ysyx_25030093_IDU 
 
@@ -28,7 +33,9 @@ u_ysyx_25030093_IDU(
     .imm_data 	(imm_data  ),
     .rd         (rd),
     .rs1        (rs1),
-    .rs2        (rs2)
+    .rs2        (rs2),
+    .ecall_single      (ecall_single),
+    .wen_csr (wen_csr)
 );
 
 
@@ -46,7 +53,10 @@ ysyx_25030093_alu u_ysyx_25030093_alu(
     .rs1_data            (rs1_data),
     .rs2_data       (rs2_data),
     .rd_data      	(rd_data       ),
-    .B_single        (B_single)
+    
+    .B_single        (B_single),
+     .csr_data   (csr_data),
+    .csr_wdata  (csr_wdata)
 );
 
 
@@ -62,6 +72,19 @@ ysyx_25030093_Register u_ysyx_25030093_Register(
     .rs2_data   (rs2_data),
     .rs2_addr   (rs2)
 );
+// output declaration of module ysyx_25030093_CSR_REG
+
+ysyx_25030093_CSR_REG u_ysyx_25030093_CSR_REG(
+    .clk          	(clk           ),
+    .rst          	(rst           ),
+    .csr_data     	(csr_data      ),
+    .csr_data_pc  	(csr_data_pc   ),
+    .imm_csr      	(imm_data      ),
+    .ecall_single 	(ecall_single  ),
+    .ecall_now_pc 	(pc  ),
+    .csr_wdata    	(csr_wdata     ),
+    .wen_csr        (wen_csr)
+);
 
 
 
@@ -72,7 +95,8 @@ ysyx_25030093_pc u_ysyx_25030093_pc(
     .clk        (clk),
     .pc       	(pc      ),
     .rst        (rst),
-    .B_single    (B_single)
+    .B_single    (B_single),
+    .csr_data_pc (csr_data_pc)
 );
 
 

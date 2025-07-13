@@ -1,11 +1,12 @@
 module ysyx_25030093_pc(
-    input [1:0] pc_single,
+    input [2:0] pc_single,
     input [31:0] rs1_data,
     input [31:0] imm_data,
     input rst,
     input clk,
     output reg [31:0] pc,
-    input B_single
+    input B_single,
+    input [31:0] csr_data_pc
 );
 
 
@@ -24,7 +25,7 @@ always@(posedge clk)begin
     end
     else begin
         case(pc_single)
-       2'b01:begin
+       3'b001:begin
        /*
         if(inst == 32'h00008067)begin
             ret_ftrace_printf(pc_current);
@@ -35,15 +36,18 @@ always@(posedge clk)begin
        */
             pc_current <= (rs1_data + imm_data)& (~32'h1);//jalr
        end
-       2'b10:begin 
+       3'b010:begin 
         /*
          call_ftrace_printf(pc_current, pc_current + imm_data);
        */
          pc_current <= pc_current + imm_data;//jal
         
        end
-       2'b11:begin
+       3'b100:begin
          pc_current <= (B_single) ? pc_current + imm_data  : pc_current + 32'd4;
+       end
+       3'b101:begin
+         pc_current <= csr_data_pc;
        end
         default:pc_current <= pc_current + 32'd4;
         endcase
