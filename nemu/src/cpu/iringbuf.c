@@ -1,6 +1,6 @@
 #include <common.h>
 #include <utils.h>
-#ifdef COBFIG_TRACE
+#ifdef CONFIG_IRINGTRACE
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 typedef struct iringbuf
 {

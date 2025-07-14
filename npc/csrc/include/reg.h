@@ -30,14 +30,20 @@ static inline int csr_name(int i){
   assert(0 && "Not Found csr");
   return -1;
 }
-
+*/
 static inline int check_reg_idx(int idx) {
-
+  const char *regs[] = {
+    "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
+    "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
+    "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
+    "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
+  };
    assert(idx >= 0 && idx < 32);
-  return rootp->ysyx_25030093_top__DOT__u_ysyx_25030093_Register__DOT__rf[idx];
+  bool success=true;
+  return isa_reg_str2val(regs[idx],&success);
 }
 
-#define sr(i) (cpu.sr[csr_name(i)])
+//#define sr(i) (cpu.sr[csr_name(i)])
 
 #define gpr(idx) (check_reg_idx(idx))
 
@@ -45,5 +51,5 @@ static inline const char* reg_name(int idx) {
   extern const char* regs[];
   return regs[check_reg_idx(idx)];
 }
-*/
+
 #endif

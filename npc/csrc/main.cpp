@@ -39,11 +39,11 @@ int main(int argc, char *argv[]) {
  init_monitor(argc,argv);
 
 // uint32_t *memory = init_mem(4);
- printf("right\n");
+ //printf("right\n");
   reset(5);
 
  sdb_mainloop();
  
- 
+// printf("here\n");
   sim_exit();
 }

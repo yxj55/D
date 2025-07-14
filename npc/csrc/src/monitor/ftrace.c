@@ -149,7 +149,7 @@ extern "C" void call_ftrace_printf(uint32_t pc,uint32_t dnpc)
     ++depth;
    
     
-    for(int i=0;i<sizeof(symbol_data);i++){
+    for(int i=0;i<symbol_count;i++){
        // printf("symbol_data[i] addr :0x%08x\n",symbol_data[i].addr);
         if((dnpc>= symbol_data[i].addr)&&(dnpc <( symbol_data[i].addr + symbol_data[i].size))){
             printf(FMT_PADDR ": %*scall [%s@" FMT_PADDR "]\n",pc,(depth-1)*2,"",symbol_data[i].name,dnpc);

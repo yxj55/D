@@ -131,6 +131,9 @@ config WATCHPOINT
 config TRACE
   bool "Enable tracer"
   default y
+config IRINGTRACE
+  bool "Enable iringbuf trace"
+  default y
 config ETRACE
   bool "Enable etrace"
   default y

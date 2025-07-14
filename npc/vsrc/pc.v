@@ -6,7 +6,8 @@ module ysyx_25030093_pc(
     input clk,
     output reg [31:0] pc,
     input B_single,
-    input [31:0] csr_data_pc
+    input [31:0] csr_data_pc,
+    input [31:0] inst
 );
 
 
@@ -37,9 +38,9 @@ always@(posedge clk)begin
             pc_current <= (rs1_data + imm_data)& (~32'h1);//jalr
        end
        3'b010:begin 
-        /*
-         call_ftrace_printf(pc_current, pc_current + imm_data);
-       */
+        
+        // call_ftrace_printf(pc_current, pc_current + imm_data);
+       
          pc_current <= pc_current + imm_data;//jal
         
        end

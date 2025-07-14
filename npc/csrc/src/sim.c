@@ -34,10 +34,12 @@ void sim_exit(){
   tfp->close();
 }
 extern "C" void npc_ebreak(){
-  NPCTRAP(top->pc,rootp->ysyx_25030093_top__DOT__u_ysyx_25030093_Register__DOT__rf[10]);
+
+ // printf("ebreak here\n");
+  NPCTRAP(top->pc,cpu.gpr[10]);
   //printf("NOW NPC_state %d\n",npc_state.state);
  // isa_reg_display();
- 
+ //printf("here error\n");
 // single_clk();
  sim_exit();
  free(top);

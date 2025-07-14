@@ -62,11 +62,10 @@ extern "C" int paddr_read(paddr_t addr,int len) {
   //printf("npc here\n");
   //检查内存是否溢出
   if (likely(in_pmem(addr))) {
-    /*
+    
     #ifdef CONFIG_MTRACE
         printf("now addr : 0x%08x , len = %d\n",addr,len);
     #endif
-    */
     return  pmem_read(addr,len);}
    // printf("read now addr =0x%08x\n",addr);
     if (addr == 0xa0000048 || addr == 0xa000004c) {
@@ -80,13 +79,13 @@ extern "C" int paddr_read(paddr_t addr,int len) {
 
   // 处理串口输出 (UART)
   if (addr == 0xa00003F8) {
-      return 0;  // 串口读取可能不需要返回值
+      return 0;  // 串口读取
   }
 
 //  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
 //printf(ANSI_BG_RED "addr read\n" ANSI_NONE);
 //printf("read\n\n");
-//out_of_bound(addr);
+out_of_bound(addr);
   return 0;
 }
 
@@ -111,6 +110,6 @@ extern "C" void paddr_write(paddr_t addr, int len, word_t data) {
    // printf("write\n\n");
  // IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
  //printf(ANSI_BG_RED "addr write\n" ANSI_NONE);
-//out_of_bound(addr);
+out_of_bound(addr);
   return;
 }

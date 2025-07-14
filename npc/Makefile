@@ -49,8 +49,8 @@ $(info IMG =$(IMG))
 
 IMGELF = -f $(addsuffix .elf, $(basename $(IMG)))
 $(info IMGELF =$(IMGELF))
-
-#ARGS += $(IMGELF) //ftrace
+#ftrace
+#ARGS += $(IMGELF) 
 ARGS += -d $(DIFF_REF_SO)
 
 ARGS += -b

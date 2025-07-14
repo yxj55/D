@@ -13,6 +13,8 @@ int __am_in_userspace(void *addr);
 void __am_pmem_protect();
 void __am_pmem_unprotect();
 
+
+
 void __am_panic_on_return() { panic("should not reach here\n"); }
 
 static void irq_handle(Context *c) {
@@ -27,7 +29,7 @@ static void irq_handle(Context *c) {
   c = user_handler(thiscpu->ev, c);
   assert(c != NULL);
 
-  __am_switch(c);
+  __am_switch(c); 
 
   // magic call to restore context
   void (*p)(Context *c) = (void *)(uintptr_t)0x100008;

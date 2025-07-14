@@ -96,7 +96,8 @@ ysyx_25030093_pc u_ysyx_25030093_pc(
     .pc       	(pc      ),
     .rst        (rst),
     .B_single    (B_single),
-    .csr_data_pc (csr_data_pc)
+    .csr_data_pc (csr_data_pc),
+    .inst         (inst_wire)
 );
 
 
