@@ -1,4 +1,6 @@
 module ysyx_25030093_IDU(
+    output ready,
+    input valid,
     output  [5:0] alu_single,
     output [2:0] pc_single,
     output  wen,
@@ -13,7 +15,7 @@ module ysyx_25030093_IDU(
 );
 import "DPI-C" function void npc_ebreak();
 wire [2:0] imm_type;
-
+assign ready =1'b1;
 
 assign rd  = inst[11:7];
 assign rs1 = inst[19:15];
@@ -245,7 +247,7 @@ assign pc_single                                = jalr          ? 3'b001 :   // 
                                                   jal           ? 3'b010 :   // jal
                                                   (beq | bne |bge |blt |bltu|bgeu)  ? 3'b100 :   // B-type
                                                   (ecall | mret)         ? 3'b101 :
-                                                                3'b000;   // 默认
+                                                                3'b110;   // 默认
 
 
 

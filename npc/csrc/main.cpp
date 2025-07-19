@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 
 // uint32_t *memory = init_mem(4);
  //printf("right\n");
-  reset(5);
+  reset(2);
 
  sdb_mainloop();
  

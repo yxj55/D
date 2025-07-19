@@ -4,8 +4,26 @@ module ysyx_25030093_top(
     output reg [31:0] inst, 
     input wire rst
 );
-import "DPI-C" function int paddr_read(input int raddr,input int len);
-assign inst = paddr_read(pc,4);
+// import "DPI-C" function int paddr_read(input int raddr,input int len);
+// assign inst = paddr_read(pc,4);
+
+
+// output declaration of module ysyx_25030093_IFU
+wire valid;
+
+ysyx_25030093_IFU u_ysyx_25030093_IFU(
+    .clk   	(clk    ),
+    .rst   	(rst    ),
+    .valid 	(valid  ),
+    .ready 	(ready  ),
+    .inst  	(inst   ),
+    .pc    	(pc     )
+);
+
+
+
+
+
 wire [31:0] inst_wire = inst;
 wire [2:0] pc_single; //控制pc +4 信号
 wire [4:0] rd,rs1,rs2;
@@ -25,6 +43,8 @@ wire [5:0] alu_single;//alu 控制信号
 ysyx_25030093_IDU 
 
 u_ysyx_25030093_IDU(
+    .ready      (ready),
+    .valid      (valid),
     .alu_single (alu_single),
     .pc_single (pc_single),
     .wen        (wen),
