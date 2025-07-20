@@ -25,6 +25,10 @@ always@(posedge clk)begin
         pc_current <=32'h80000000;
     end
     else begin
+       // if(valid ==1'b0)
+       // pc_current <= pc_current;
+       // else begin
+            
         case(pc_single)
        3'b001:begin
        /*
@@ -50,13 +54,10 @@ always@(posedge clk)begin
        3'b101:begin
          pc_current <= csr_data_pc;
        end
-       3'b110:begin
-         pc_current <= pc_current +32'd4;
-       end
-        default:pc_current <= pc_current;
+        default:pc_current <= pc_current +32'd4;
         endcase
-   
+        end
     end
-end
+//end
 assign pc = pc_current;
 endmodule

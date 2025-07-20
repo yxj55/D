@@ -1,13 +1,12 @@
 module ysyx_25030093_alu(
-    input [5:0] alu_single,
-    input wire [31:0] imm_data,
-    input wire [31:0] pc,
-    input wire [31:0] rs1_data,
+    input [4:0] alu_single,
     input wire [31:0] rs2_data,
     output reg [31:0] rd_data,
     output reg B_single,
     input wire [31:0] csr_data,
-    output reg [31:0] csr_wdata
+    output reg [31:0] csr_wdata,
+    input [31:0] alu_data2,
+    input [31:0] alu_data1
     );
    import "DPI-C" function int paddr_read(input int raddr,input int len);
    import "DPI-C" function void paddr_write(
@@ -16,6 +15,59 @@ reg [7:0] lb_temp;
 reg [15:0] lh_temp;
 reg [31:0] t;
 
+always@(*)begin
+    //$display("now alu_data1 = %h alu_data2 = %h",alu_data1,alu_data2);
+    case(alu_single)
+    5'd0: rd_data = alu_data1 + alu_data2;
+    5'd1: B_single= (alu_data1 == alu_data2);
+    5'd2: rd_data = alu_data1 < alu_data2 ? 32'd1 : 32'd0;
+    5'd3: B_single= (alu_data1 != alu_data2);
+    5'd4: rd_data = alu_data1 - alu_data2;
+    5'd5: rd_data = alu_data1 | alu_data2;
+    5'd6: rd_data = alu_data1 ^ alu_data2;
+    5'd7: B_single = ($signed(alu_data1)  >= $signed(alu_data2)) ;
+    5'd8: rd_data = alu_data1 << alu_data2[4:0];
+    5'd9: rd_data = alu_data1 & alu_data2;
+    5'd10: rd_data = alu_data1 >> alu_data2[4:0];
+    5'd11: rd_data = ($signed(alu_data1) < $signed(alu_data2)) ? 32'd1 : 32'd0;
+    5'd12: B_single= ($signed(alu_data1) < $signed(alu_data2));
+    5'd13: B_single= (alu_data1 < alu_data2);
+    5'd14: B_single= (alu_data1 >= alu_data2);
+    5'd15: rd_data = alu_data1 << alu_data2;
+    5'd16: rd_data = $signed(alu_data1) >>> alu_data2[4:0];
+    5'd17: paddr_write(alu_data1 + alu_data2,4,rs2_data);//sw
+    5'd18: rd_data = paddr_read(alu_data1 + alu_data2,4); 
+    5'd19: rd_data = $signed(alu_data1) >>> alu_data2;
+    5'd20: rd_data = alu_data1 >> alu_data2;
+    5'd21: rd_data = paddr_read(alu_data1 + alu_data2,1);//lbu
+    5'd22: paddr_write(alu_data1 + alu_data2,2,rs2_data);//sh
+    5'd23: paddr_write(alu_data1 + alu_data2,1,rs2_data);//sb
+    5'd24: rd_data = paddr_read(alu_data1 + alu_data2,2);//lhu
+    5'd25: begin
+        lb_temp = paddr_read(alu_data1 + alu_data2 ,1);//lb
+         rd_data = {{24{lb_temp[7]}},lb_temp};
+    end
+    5'd26: begin
+        lh_temp = paddr_read(alu_data1 + alu_data2 ,2);//lh
+         rd_data = {{16{lh_temp[15]}},lh_temp};
+    end
+    5'd27: begin
+        t = csr_data;
+        rd_data = t;
+        csr_wdata = alu_data1;
+    end
+    5'd28: begin
+        t = csr_data;
+        rd_data = t; 
+        csr_wdata = alu_data1 | t;
+    end
+    default: rd_data = 32'd0;
+    endcase
+end
+
+
+
+/*
 always@(*)begin
     
  case(alu_single)
@@ -148,4 +200,5 @@ always@(*)begin
  endcase
  //$display("end rd_data %h alu_single %h",rd_data,alu_single);
 end
+*/
 endmodule

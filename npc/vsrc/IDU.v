@@ -1,7 +1,7 @@
 module ysyx_25030093_IDU(
     output ready,
     input valid,
-    output  [5:0] alu_single,
+    output  [4:0] alu_single,
     output [2:0] pc_single,
     output  wen,
     output wen_read,
@@ -11,7 +11,9 @@ module ysyx_25030093_IDU(
     output [4:0] rs1,
     output [4:0] rs2,
     output ecall_single,
-    output wen_csr
+    output wen_csr,
+    output [1:0] imm_or_rs2_other,
+    output [1:0] rs1_pc_other
 );
 import "DPI-C" function void npc_ebreak();
 wire [2:0] imm_type;
@@ -193,44 +195,56 @@ wire bltu                                       =(RISCV_BLTU_OP & RISCV_BLTU_FUN
 wire bgeu                                       =(RISCV_BGEU_OP & RISCV_BGEU_FUNT3);
 //------------------------------------------//
 
-assign alu_single                               = (auipc)       ? 6'd1 :
-                                                  (lui)         ? 6'd2 :
-                                                  (jal | jalr)  ? 6'd3 :
-                                                  (beq)         ? 6'd4 :
-                                                  (sw)          ? 6'd5 :
-                                                  (lw)          ? 6'd6 :
-                                                  (sltiu)       ? 6'd7 :
-                                                  (bne)         ? 6'd8 :
-                                                  (add)         ? 6'd9 :
-                                                  (sub)         ? 6'd10:
-                                                  (OR)          ? 6'd11:
-                                                  (XOR)         ? 6'd12:
-                                                  (sltu)        ? 6'd13:
-                                                  (bge)         ? 6'd14:
-                                                  (slli)        ? 6'd15:
-                                                  (andi)        ? 6'd16:
-                                                  (srli)        ? 6'd17:
-                                                  (slti)        ? 6'd18:
-                                                  (blt)         ? 6'd19:
-                                                  (bltu)        ? 6'd20:
-                                                  (bgeu)        ? 6'd21:
-                                                  (sll)         ? 6'd22:
-                                                  (slt)         ? 6'd23:
-                                                  (xori)        ? 6'd24:
-                                                  (ori)         ? 6'd25:
-                                                  (lbu)         ? 6'd26:
-                                                  (srai)        ? 6'd27:
-                                                  (sb)          ? 6'd28:
-                                                  (sh)          ? 6'd29:
-                                                  (AND)         ? 6'd30:
-                                                  (lb)          ? 6'd31:
-                                                  (lh)          ? 6'd32:
-                                                  (srl)         ? 6'd33:
-                                                  (sra)         ? 6'd34:
-                                                  (lhu)         ? 6'd35:
-                                                  (csrrw)       ? 6'd36:
-                                                  (csrrs)       ? 6'd37:
-                        6'd0;
+//00 -> imm  01 -> rs2  10 -> 4
+assign imm_or_rs2_other = (addi | auipc | lui | sltiu | andi | slli | srli | slti | xori | ori | srai | lw | sw | lbu | lb | lh | sb | sh | lhu) ? 2'b00 : //imm
+                          (beq | bne | add | sub | OR | XOR | sltu | bge | blt | bltu | bgeu | sll | slt | AND | srl | sra) ? 2'b01: //rs2
+                                (jal | jalr) ? 2'b10: //4
+                                        2'b11;
+
+assign rs1_pc_other     = (beq | bne | blt | bge | bltu | bgeu |
+                                  lb | lh | lbu | lhu | lw | sb | sh | sw 
+                                     |addi | slti | sltiu | xori | ori | andi |
+                            slli | srli | srai | add | sub | sll| slt | sltu | XOR | srl | sra | OR | AND | csrrw) ? 2'b00 : //rs1
+                            (auipc | jal | jalr) ? 2'b01 : //pc
+                             (lui ) ? 2'b11 : 2'b11; //0
+
+//------------------------------------------//
+
+
+
+assign alu_single       =(addi | auipc | lui | jal | jalr | add )   ? 5'd0 : 
+                          (beq)                                               ? 5'd1 :
+                          (sltiu| sltu )                                      ? 5'd2 :
+                          (bne)                                               ? 5'd3 :
+                          (sub)                                               ? 5'd4 :
+                          (OR   | ori)                                        ? 5'd5 :
+                          (XOR  | xori )                                      ? 5'd6 :
+                          (bge)                                               ? 5'd7 :
+                          (slli )                                             ? 5'd8 :
+                          (andi | AND)                                        ? 5'd9 :
+                          (srli)                                              ? 5'd10:
+                          (slti | slt)                                        ? 5'd11:
+                          (blt )                                              ? 5'd12:
+                          (bltu)                                              ? 5'd13:
+                          (bgeu)                                              ? 5'd14:
+                          (sll)                                               ? 5'd15:
+                          (srai )                                             ? 5'd16:
+                          (sw )                                               ? 5'd17:
+                          (lw )                                               ? 5'd18:
+                          (sra)                                               ? 5'd19:
+                          (srl )                                              ? 5'd20: 
+                          (lbu)                                               ? 5'd21: 
+                          (sh )                                               ? 5'd22:
+                          (sb )                                               ? 5'd23:
+                          (lhu )                                              ? 5'd24: 
+                          (lb )                                               ? 5'd25:
+                          (lh)                                                ? 5'd26: 
+                          (csrrw)                                             ? 5'd27:
+                          (csrrs)                                             ? 5'd28: 
+                          5'd31;      
+
+
+
 
 
 assign wen = addi | auipc|csrrw |csrrs| lui |jalr |jal|lb|lh|lw|sltiu|add|sub|OR|XOR|srl|sra|sltu|slli|andi|srli|slti|sll|slt|xori|ori|lbu|lhu|srai|AND;
@@ -247,7 +261,7 @@ assign pc_single                                = jalr          ? 3'b001 :   // 
                                                   jal           ? 3'b010 :   // jal
                                                   (beq | bne |bge |blt |bltu|bgeu)  ? 3'b100 :   // B-type
                                                   (ecall | mret)         ? 3'b101 :
-                                                                3'b110;   // 默认
+                                                                3'b000;   // 默认
 
 
 
