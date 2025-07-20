@@ -3,7 +3,7 @@ module ysyx_25030093_IFU(
     input rst,
     output valid,
     input ready,
-    output [31:0] inst,
+    output [31:0] inst_wire,
     input [31:0] pc
 );
 
@@ -19,7 +19,7 @@ ysyx_25030093_IFU_SRAM u_ysyx_25030093_IFU_SRAM(
     .clk       	(clk        ),
     .rst       	(rst        ),
     .pc        	(pc         ),
-    .inst_wire 	(inst  )
+    .inst_wire 	(inst_wire  )
 );
 
 

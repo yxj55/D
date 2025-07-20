@@ -53,7 +53,7 @@ $(info IMGELF =$(IMGELF))
 #ARGS += $(IMGELF) 
 ARGS += -d $(DIFF_REF_SO)
 
-ARGS += -b
+#ARGS += -b
 ARGS += $(IMG)
 $(info ARGS = $(ARGS))
 

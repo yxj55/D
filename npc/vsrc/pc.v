@@ -54,7 +54,10 @@ always@(posedge clk)begin
        3'b101:begin
          pc_current <= csr_data_pc;
        end
-        default:pc_current <= pc_current +32'd4;
+       3'b110:begin
+         pc_current <= pc_current + 32'd4;
+       end
+        default:pc_current <= pc_current ;
         endcase
         end
     end

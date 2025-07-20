@@ -4,27 +4,26 @@ module ysyx_25030093_top(
     output reg [31:0] inst, 
     input wire rst
 );
-import "DPI-C" function int paddr_read(input int raddr,input int len);
- assign inst = paddr_read(pc,4);
+// import "DPI-C" function int paddr_read(input int raddr,input int len);
+//  assign inst = paddr_read(pc,4);
 
 
 // // output declaration of module ysyx_25030093_IFU
-// wire valid;
-
-// ysyx_25030093_IFU u_ysyx_25030093_IFU(
-//     .clk   	(clk    ),
-//     .rst   	(rst    ),
-//     .valid 	(valid  ),
-//     .ready 	(ready  ),
-//     .inst  	(inst   ),
-//     .pc    	(pc     )
-// );
-
+ wire valid;
+ ysyx_25030093_IFU u_ysyx_25030093_IFU(
+     .clk   	(clk    ),
+     .rst   	(rst    ),
+     .valid 	(valid  ),
+     .ready 	(ready  ),
+     .inst_wire  	(inst_wire   ),
+     .pc    	(pc     )
+ );
 
 
+wire [31:0] inst_wire;
 
 
-wire [31:0] inst_wire = inst;
+assign inst = inst_wire;
 wire [2:0] pc_single; //控制pc +4 信号
 wire [4:0] rd,rs1,rs2;
 
@@ -51,13 +50,15 @@ u_ysyx_25030093_IDU(
     .pc_single (pc_single),
     .wen        (wen),
     .wen_read   (wen_read),
-    .inst       (inst_wire),
+    .inst_wire       (inst_wire),
     .imm_data 	(imm_data  ),
     .rd         (rd),
     .rs1        (rs1),
     .rs2        (rs2),
     .ecall_single      (ecall_single),
-    .wen_csr (wen_csr)
+    .wen_csr (wen_csr),
+    .clk    (clk),
+    .rst    (rst)
 );
 
 

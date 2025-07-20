@@ -1,11 +1,11 @@
 module ysyx_25030093_IDU(
-    output ready,
-    input valid,
+    output reg ready_a,
+    input valid_a,
     output  [4:0] alu_single,
     output [2:0] pc_single,
     output  wen,
     output wen_read,
-    input [31:0] inst,
+    input [31:0] inst_wire,
     output [31:0] imm_data,
     output [4:0] rd,
     output [4:0] rs1,
@@ -13,11 +13,32 @@ module ysyx_25030093_IDU(
     output ecall_single,
     output wen_csr,
     output [1:0] imm_or_rs2_other,
-    output [1:0] rs1_pc_other
+    output [1:0] rs1_pc_other,
+    input clk,
+    input rst
 );
 import "DPI-C" function void npc_ebreak();
+
+parameter IDLE =1'b0,WAIT_READY = 1'b1;
+
+reg current_state;
+reg next_state;
+
+initial begin
+    current_state = IDLE;
+    next_state = IDLE;
+end
+always@(posedge clk)begin
+    if(rst)begin
+        
+    end
+end
+
+
+
+
 wire [2:0] imm_type;
-assign ready =1'b1;
+
 
 assign rd  = inst[11:7];
 assign rs1 = inst[19:15];

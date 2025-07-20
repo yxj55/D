@@ -8,7 +8,7 @@ module ysyx_25030093_IFU_SRAM(
 );
 import "DPI-C" function int paddr_read(input int raddr,input int len);
      reg [31:0] inst;
-     reg [31:0] inst_delay;
+    // reg [31:0] inst_delay;
 
      always@(posedge clk)begin
         if(rst)begin
@@ -18,16 +18,17 @@ import "DPI-C" function int paddr_read(input int raddr,input int len);
         else begin
             if(ready) begin
                 inst <= paddr_read(pc,4);
-                valid <= 1'b1;
+                valid <= !valid;
             end 
         end
-        if(valid && ready) valid <=1'b0;
+        
      end
+     /*
    always @(posedge clk) begin
     if (valid) begin
         inst_delay <= inst; // 记录当前的inst到延迟寄存器
     end
 end
-
-assign inst_wire = inst_delay;
+*/
+assign inst_wire = inst;
 endmodule
