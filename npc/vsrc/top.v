@@ -8,13 +8,17 @@ module ysyx_25030093_top(
 //  assign inst = paddr_read(pc,4);
 
 
+wire out_valid_IFU;
+wire out_valid_IDU;
+wire out_ready_IDU;
+
 // // output declaration of module ysyx_25030093_IFU
  wire valid;
  ysyx_25030093_IFU u_ysyx_25030093_IFU(
      .clk   	(clk    ),
      .rst   	(rst    ),
-     .valid 	(valid  ),
-     .ready 	(ready  ),
+     .valid 	(out_valid_IFU  ),
+     .ready 	(out_ready_IDU  ),
      .inst_wire  	(inst_wire   ),
      .pc    	(pc     )
  );
@@ -36,21 +40,27 @@ wire [31:0] csr_data;
 wire [31:0] csr_data_pc;
 wire [31:0] csr_wdata;
 
+
 wire ecall_single;
 wire [4:0] alu_single;//alu 控制信号
+
+
+
+
 //输出控制信号
 ysyx_25030093_IDU 
 
 u_ysyx_25030093_IDU(
     .imm_or_rs2_other (imm_or_rs2_other),
     .rs1_pc_other (rs1_pc_other),
-    .ready      (ready),
-    .valid      (valid),
+    .out_valid      (out_valid_IDU),
+    .out_ready      (out_ready_IDU),
+    .in_valid      (out_valid_IFU),
     .alu_single (alu_single),
     .pc_single (pc_single),
     .wen        (wen),
     .wen_read   (wen_read),
-    .inst_wire       (inst_wire),
+    .inst       (inst_wire),
     .imm_data 	(imm_data  ),
     .rd         (rd),
     .rs1        (rs1),
@@ -72,7 +82,10 @@ wire [31:0] alu_data2;
 wire [31:0] alu_data1;
 
 
-ysyx_25030093_alu u_ysyx_25030093_alu(
+ysyx_25030093_EXU u_ysyx_25030093_EXU(
+    .in_valid       (out_valid_IDU),
+    .clk           (clk),
+    .rst            (rst),
     .alu_single  (alu_single),
     .rs2_data       (rs2_data),
     .rd_data      	(rd_data       ),
@@ -105,33 +118,28 @@ ysyx_25030093_mux41 u_ysyx_25030093_mux41(
 );
 
 
+// output declaration of module ysyx_25030093_WBU;
 
-
-//寄存器写入和读取模块
-ysyx_25030093_Register u_ysyx_25030093_Register(
-    .clk      	(clk       ),
-    .wdata    	(rd_data     ),
-    .waddr    	(rd     ),
-    .wen      	(wen       ),
-    .wen_read   (wen_read),
-    .rs1_data 	(rs1_data  ),
-    .rs1_addr 	(rs1  ),
-    .rs2_data   (rs2_data),
-    .rs2_addr   (rs2)
-);
-// output declaration of module ysyx_25030093_CSR_REG
-
-ysyx_25030093_CSR_REG u_ysyx_25030093_CSR_REG(
+ysyx_25030093_WBU u_ysyx_25030093_WBU(
     .clk          	(clk           ),
-    .rst          	(rst           ),
+    .wdata        	(wdata         ),
+    .waddr        	(waddr         ),
+    .wen          	(wen           ),
+    .alu_single   	(alu_single    ),
+    .wen_read     	(wen_read      ),
+    .rs1_data     	(rs1_data      ),
+    .rs1_addr     	(rs1_addr      ),
+    .rs2_data     	(rs2_data      ),
+    .rs2_addr     	(rs2_addr      ),
     .csr_data     	(csr_data      ),
     .csr_data_pc  	(csr_data_pc   ),
-    .imm_csr      	(imm_data      ),
+    .imm_csr      	(imm_csr       ),
     .ecall_single 	(ecall_single  ),
-    .ecall_now_pc 	(pc  ),
+    .ecall_now_pc 	(ecall_now_pc  ),
     .csr_wdata    	(csr_wdata     ),
-    .wen_csr        (wen_csr)
+    .wen_csr      	(wen_csr       )
 );
+
 
 
 

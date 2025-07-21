@@ -1,11 +1,12 @@
 module ysyx_25030093_IDU(
-    output reg ready_a,
-    input valid_a,
+    output reg out_valid,
+    output reg out_ready,
+    input in_valid,
     output  [4:0] alu_single,
     output [2:0] pc_single,
     output  wen,
     output wen_read,
-    input [31:0] inst_wire,
+    input [31:0] inst,
     output [31:0] imm_data,
     output [4:0] rd,
     output [4:0] rs1,
@@ -15,22 +16,50 @@ module ysyx_25030093_IDU(
     output [1:0] imm_or_rs2_other,
     output [1:0] rs1_pc_other,
     input clk,
-    input rst
+    input rst,
+    input w_single
 );
 import "DPI-C" function void npc_ebreak();
 
-parameter IDLE =1'b0,WAIT_READY = 1'b1;
+parameter IDLE =1'b0,WAIT_VALID = 1'b1;
 
-reg current_state;
-reg next_state;
+reg state;
 
-initial begin
-    current_state = IDLE;
-    next_state = IDLE;
-end
+
 always@(posedge clk)begin
     if(rst)begin
-        
+        state <= IDLE;
+        out_ready <=1'b0;
+        out_valid <= 1'b0;
+    end
+    else begin
+        case(state)
+        IDLE:begin
+            if(1)begin
+                state <= WAIT_VALID;
+                out_ready <= 1'b1;
+                out_valid <= 1'b0;
+            end
+            else begin
+                state <= IDLE;
+                out_ready <=1'b0;
+                out_valid <= 1'b0;
+            end
+        end
+        WAIT_VALID:begin
+            if(in_valid)begin
+                $display("here\n and now inst_wire = %h",inst);
+                state <= IDLE;
+                out_ready <= 1'b0;
+                out_valid <= 1'b1;
+            end
+            else begin
+                state <= WAIT_VALID;
+                out_ready <= out_ready;
+                out_valid <= 1'b0;
+            end
+        end
+        endcase
     end
 end
 
@@ -281,8 +310,8 @@ assign imm_type                                 =(lui | auipc) ? 3'b001 :   //U-
 assign pc_single                                = jalr          ? 3'b001 :   // jalr
                                                   jal           ? 3'b010 :   // jal
                                                   (beq | bne |bge |blt |bltu|bgeu)  ? 3'b100 :   // B-type
-                                                  (ecall | mret)         ? 3'b101 :
-                                                                3'b000;   // 默认
+                                                  (ecall | mret)         ? 3'b101 : out_valid ?
+                                                                3'b110 : 3'b000;   // 默认
 
 
 
