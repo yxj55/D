@@ -16,7 +16,7 @@ module ysyx_25030093_Register #(ADDR_WIDTH = 5, DATA_WIDTH = 32) (
   always @(posedge clk) begin
 
      if (wen & waddr != 0) begin
-   // $display("Write: addr=%d, wdata=%h, stored=%h wen=%d", waddr, wdata, rf[waddr],wen);
+    $display("Write: addr=%d, wdata=%h, stored=%h wen=%d", waddr, wdata, rf[waddr],wen);
     rf[waddr] <= wdata;
   
     end

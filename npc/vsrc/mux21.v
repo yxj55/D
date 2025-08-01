@@ -1,21 +1,15 @@
-module ysyx_25030093_mux41(
+module ysyx_25030093_mux21(
     input [31:0] a,
     input [31:0] b,
-    output reg [31:0] y,
-    input [1:0] s
+    input s,
+    output  reg [31:0] o
 );
 
 always @(*) begin
-   
     case(s)
-    2'b00: y = a;
-    2'b01: y = b;
-    2'b10: y = 32'd4;
-    2'b11: y = 32'd0;
-
+    1'b1: o = a;
+    1'b0: o = b;
     endcase
 end
-
-
 
 endmodule

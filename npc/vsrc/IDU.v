@@ -1,7 +1,7 @@
 module ysyx_25030093_IDU(
-    output reg out_valid,
-    output reg out_ready,
-    input in_valid,
+    //output reg out_valid,
+   // output reg out_ready,
+    //input in_valid,
     output  [4:0] alu_single,
     output [2:0] pc_single,
     output  wen,
@@ -17,10 +17,12 @@ module ysyx_25030093_IDU(
     output [1:0] rs1_pc_other,
     input clk,
     input rst,
-    input w_single
+    input w_single,
+    output [3:0] LSU_single,
+    output rd_or_LSU_single
 );
 import "DPI-C" function void npc_ebreak();
-
+/*
 parameter IDLE =1'b0,WAIT_VALID = 1'b1;
 
 reg state;
@@ -62,7 +64,7 @@ always@(posedge clk)begin
         endcase
     end
 end
-
+*/
 
 
 
@@ -262,39 +264,57 @@ assign rs1_pc_other     = (beq | bne | blt | bge | bltu | bgeu |
 
 
 
-assign alu_single       =(addi | auipc | lui | jal | jalr | add )   ? 5'd0 : 
-                          (beq)                                               ? 5'd1 :
-                          (sltiu| sltu )                                      ? 5'd2 :
-                          (bne)                                               ? 5'd3 :
-                          (sub)                                               ? 5'd4 :
-                          (OR   | ori)                                        ? 5'd5 :
-                          (XOR  | xori )                                      ? 5'd6 :
-                          (bge)                                               ? 5'd7 :
-                          (slli )                                             ? 5'd8 :
-                          (andi | AND)                                        ? 5'd9 :
-                          (srli)                                              ? 5'd10:
-                          (slti | slt)                                        ? 5'd11:
-                          (blt )                                              ? 5'd12:
-                          (bltu)                                              ? 5'd13:
-                          (bgeu)                                              ? 5'd14:
-                          (sll)                                               ? 5'd15:
-                          (srai )                                             ? 5'd16:
-                          (sw )                                               ? 5'd17:
-                          (lw )                                               ? 5'd18:
-                          (sra)                                               ? 5'd19:
-                          (srl )                                              ? 5'd20: 
-                          (lbu)                                               ? 5'd21: 
-                          (sh )                                               ? 5'd22:
-                          (sb )                                               ? 5'd23:
-                          (lhu )                                              ? 5'd24: 
-                          (lb )                                               ? 5'd25:
-                          (lh)                                                ? 5'd26: 
-                          (csrrw)                                             ? 5'd27:
-                          (csrrs)                                             ? 5'd28: 
+assign alu_single       =(addi | auipc | lui | jal | jalr | add | lb | lh | lw | lbu | lhu | sb | sh | sw)   ? 5'd0 : 
+                          (beq)                                                                              ? 5'd1 :
+                          (sltiu| sltu )                                                                     ? 5'd2 :
+                          (bne)                                                                              ? 5'd3 :
+                          (sub)                                                                              ? 5'd4 :
+                          (OR   | ori)                                                                       ? 5'd5 :
+                          (XOR  | xori )                                                                     ? 5'd6 :
+                          (bge)                                                                              ? 5'd7 :
+                          (slli )                                                                            ? 5'd8 :
+                          (andi | AND)                                                                       ? 5'd9 :
+                          (srli)                                                                             ? 5'd10:
+                          (slti | slt)                                                                       ? 5'd11:
+                          (blt )                                                                             ? 5'd12:
+                          (bltu)                                                                             ? 5'd13:
+                          (bgeu)                                                                             ? 5'd14:
+                          (sll)                                                                              ? 5'd15:
+                          (srai )                                                                            ? 5'd16:
+                          (sra)                                                                              ? 5'd17:
+                          (srl )                                                                             ? 5'd18: 
+                          (csrrw)                                                                            ? 5'd19:
+                          (csrrs)                                                                            ? 5'd20: 
                           5'd31;      
 
 
+//------------------------------------------//
 
+
+assign LSU_single = (lb)        ? 4'd0:
+                    (lh)        ? 4'd1:
+                    (lw)        ? 4'd2:
+                    (lbu)       ? 4'd3:
+                    (lhu)       ? 4'd4:
+                    (sb)        ? 4'd5:
+                    (sh)        ? 4'd6:
+                    (sw)        ? 4'd7:
+                    4'd8; 
+
+always @(*) begin
+  if (lw) begin
+    $display("lw is 1, inst = %h", inst);
+  end
+end
+
+
+//------------------------------------------//
+
+assign rd_or_LSU_single = lb | lh | lw | lbu | lhu;
+
+
+
+//------------------------------------------//
 
 
 assign wen = addi | auipc|csrrw |csrrs| lui |jalr |jal|lb|lh|lw|sltiu|add|sub|OR|XOR|srl|sra|sltu|slli|andi|srli|slti|sll|slt|xori|ori|lbu|lhu|srai|AND;
@@ -310,8 +330,8 @@ assign imm_type                                 =(lui | auipc) ? 3'b001 :   //U-
 assign pc_single                                = jalr          ? 3'b001 :   // jalr
                                                   jal           ? 3'b010 :   // jal
                                                   (beq | bne |bge |blt |bltu|bgeu)  ? 3'b100 :   // B-type
-                                                  (ecall | mret)         ? 3'b101 : out_valid ?
-                                                                3'b110 : 3'b000;   // 默认
+                                                  (ecall | mret)         ? 3'b101 : 
+                                                                3'b110 ;  // 默认
 
 
 

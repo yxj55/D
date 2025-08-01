@@ -4,10 +4,10 @@ module ysyx_25030093_top(
     output reg [31:0] inst, 
     input wire rst
 );
-// import "DPI-C" function int paddr_read(input int raddr,input int len);
-//  assign inst = paddr_read(pc,4);
+ import "DPI-C" function int paddr_read(input int raddr,input int len);
+  assign inst = paddr_read(pc,4);
 
-
+/*
 wire out_valid_IFU;
 wire out_valid_IDU;
 wire out_ready_IDU;
@@ -22,14 +22,18 @@ wire out_ready_IDU;
      .inst_wire  	(inst_wire   ),
      .pc    	(pc     )
  );
-
+*/
 
 wire [31:0] inst_wire;
 
 
-assign inst = inst_wire;
+assign inst_wire = inst;
 wire [2:0] pc_single; //控制pc +4 信号
 wire [4:0] rd,rs1,rs2;
+
+wire rd_or_LSU_single;
+wire [2:0] LSU_single;
+
 
 wire wen;//控制写入
 wire wen_read;//控制读
@@ -53,9 +57,9 @@ ysyx_25030093_IDU
 u_ysyx_25030093_IDU(
     .imm_or_rs2_other (imm_or_rs2_other),
     .rs1_pc_other (rs1_pc_other),
-    .out_valid      (out_valid_IDU),
-    .out_ready      (out_ready_IDU),
-    .in_valid      (out_valid_IFU),
+   // .out_valid      (out_valid_IDU),
+    //.out_ready      (out_ready_IDU),
+    //.in_valid      (out_valid_IFU),
     .alu_single (alu_single),
     .pc_single (pc_single),
     .wen        (wen),
@@ -68,7 +72,9 @@ u_ysyx_25030093_IDU(
     .ecall_single      (ecall_single),
     .wen_csr (wen_csr),
     .clk    (clk),
-    .rst    (rst)
+    .rst    (rst),
+    .LSU_single (LSU_single),
+    .rd_or_LSU_single (rd_or_LSU_single)
 );
 
 
@@ -83,11 +89,10 @@ wire [31:0] alu_data1;
 
 
 ysyx_25030093_EXU u_ysyx_25030093_EXU(
-    .in_valid       (out_valid_IDU),
+   // .in_valid       (out_valid_IDU),
     .clk           (clk),
     .rst            (rst),
     .alu_single  (alu_single),
-    .rs2_data       (rs2_data),
     .rd_data      	(rd_data       ),
     
     .B_single        (B_single),
@@ -95,6 +100,32 @@ ysyx_25030093_EXU u_ysyx_25030093_EXU(
     .csr_wdata  (csr_wdata),
     .alu_data2  (alu_data2),
     .alu_data1  ( alu_data1)
+);
+
+// output declaration of module ysyx_25030093_LSU
+wire [31:0] LSU_data;
+
+ysyx_25030093_LSU u_ysyx_25030093_LSU(
+    .clk        	(clk         ),
+    .rd_data    	(rd_data     ),
+    .rs2_data   	(rs2_data    ),
+    .LSU_data   	(LSU_data    ),
+    .LSU_single 	(LSU_single  ),
+    .rd_or_LSU_single (rd_or_LSU_single)
+);
+
+
+
+
+
+// output declaration of module ysyx_25030093_mux21
+wire [31:0] rd_LSU_data;
+
+ysyx_25030093_mux21 u_ysyx_25030093_mux21(
+    .a 	(LSU_data  ),
+    .b 	(rd_data  ),
+    .s 	(rd_or_LSU_single  ),
+    .o 	(rd_LSU_data  )
 );
 
 
@@ -122,15 +153,15 @@ ysyx_25030093_mux41 u_ysyx_25030093_mux41(
 
 ysyx_25030093_WBU u_ysyx_25030093_WBU(
     .clk          	(clk           ),
-    .wdata        	(wdata         ),
-    .waddr        	(waddr         ),
+    .wdata        	(rd_LSU_data         ),
+    .waddr        	(rd        ),
     .wen          	(wen           ),
     .alu_single   	(alu_single    ),
     .wen_read     	(wen_read      ),
     .rs1_data     	(rs1_data      ),
-    .rs1_addr     	(rs1_addr      ),
+    .rs1     	(rs1     ),
     .rs2_data     	(rs2_data      ),
-    .rs2_addr     	(rs2_addr      ),
+    .rs2     	(rs2      ),
     .csr_data     	(csr_data      ),
     .csr_data_pc  	(csr_data_pc   ),
     .imm_csr      	(imm_csr       ),
@@ -152,7 +183,7 @@ ysyx_25030093_pc u_ysyx_25030093_pc(
     .rst        (rst),
     .B_single    (B_single),
     .csr_data_pc (csr_data_pc),
-    .inst         (inst_wire)
+    .inst         (inst)
 );
 
 

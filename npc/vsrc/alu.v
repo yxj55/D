@@ -1,6 +1,5 @@
 module ysyx_25030093_alu(
     input [4:0] alu_single,
-    input wire [31:0] rs2_data,
     output reg [31:0] rd_data,
     output reg B_single,
     input wire [31:0] csr_data,
@@ -8,11 +7,6 @@ module ysyx_25030093_alu(
     input [31:0] alu_data2,
     input [31:0] alu_data1
     );
-   import "DPI-C" function int paddr_read(input int raddr,input int len);
-   import "DPI-C" function void paddr_write(
-  input int waddr, input int len,input int wdata);
-reg [7:0] lb_temp; 
-reg [15:0] lh_temp;
 reg [31:0] t;
 
 always@(*)begin
@@ -35,28 +29,14 @@ always@(*)begin
     5'd14: B_single= (alu_data1 >= alu_data2);
     5'd15: rd_data = alu_data1 << alu_data2;
     5'd16: rd_data = $signed(alu_data1) >>> alu_data2[4:0];
-    5'd17: paddr_write(alu_data1 + alu_data2,4,rs2_data);//sw
-    5'd18: rd_data = paddr_read(alu_data1 + alu_data2,4); 
-    5'd19: rd_data = $signed(alu_data1) >>> alu_data2;
-    5'd20: rd_data = alu_data1 >> alu_data2;
-    5'd21: rd_data = paddr_read(alu_data1 + alu_data2,1);//lbu
-    5'd22: paddr_write(alu_data1 + alu_data2,2,rs2_data);//sh
-    5'd23: paddr_write(alu_data1 + alu_data2,1,rs2_data);//sb
-    5'd24: rd_data = paddr_read(alu_data1 + alu_data2,2);//lhu
-    5'd25: begin
-        lb_temp = paddr_read(alu_data1 + alu_data2 ,1);//lb
-         rd_data = {{24{lb_temp[7]}},lb_temp};
-    end
-    5'd26: begin
-        lh_temp = paddr_read(alu_data1 + alu_data2 ,2);//lh
-         rd_data = {{16{lh_temp[15]}},lh_temp};
-    end
-    5'd27: begin
+    5'd17: rd_data = $signed(alu_data1) >>> alu_data2;
+    5'd18: rd_data = alu_data1 >> alu_data2;
+    5'd19: begin
         t = csr_data;
         rd_data = t;
         csr_wdata = alu_data1;
     end
-    5'd28: begin
+    5'd20: begin
         t = csr_data;
         rd_data = t; 
         csr_wdata = alu_data1 | t;

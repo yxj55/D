@@ -6,9 +6,9 @@ module ysyx_25030093_WBU #(ADDR_WIDTH = 5, DATA_WIDTH = 32)(
   input [5:0] alu_single,
   input wen_read,
  output [DATA_WIDTH-1:0] rs1_data,
- input [ADDR_WIDTH-1:0] rs1_addr,
+ input [ADDR_WIDTH-1:0] rs1,
  output [DATA_WIDTH-1:0] rs2_data,
- input [ADDR_WIDTH-1:0] rs2_addr,
+ input [ADDR_WIDTH-1:0] rs2,
  output wire [31:0] csr_data,
   output wire [31:0] csr_data_pc,
   input [31:0] imm_csr,
@@ -22,8 +22,8 @@ module ysyx_25030093_WBU #(ADDR_WIDTH = 5, DATA_WIDTH = 32)(
 //寄存器写入和读取模块
 ysyx_25030093_Register u_ysyx_25030093_Register(
     .clk      	(clk       ),
-    .wdata    	(rd_data     ),
-    .waddr    	(rd     ),
+    .wdata    	(wdata     ),
+    .waddr    	(waddr     ),
     .wen      	(wen       ),
     .wen_read   (wen_read),
     .rs1_data 	(rs1_data  ),
