@@ -2,7 +2,8 @@ module ysyx_25030093_top(
     input clk,
     output reg [31:0] pc,
     output reg [31:0] inst, 
-    input wire rst
+    input wire rst,
+    output inst_done
 );
 //  import "DPI-C" function int paddr_read(input int raddr,input int len);
 //   assign inst = paddr_read(pc,4);
@@ -16,10 +17,12 @@ wire out_valid_EXU_WBU;
 wire out_ready_WBU_EXU;
 wire out_valid_WBU;
 
+assign inst_done = out_valid_WBU;
+
 // // output declaration of module ysyx_25030093_IFU
 
  ysyx_25030093_IFU u_ysyx_25030093_IFU(
-    .valid_WBU  (out_valid_WBU),
+    .in_valid  (out_valid_WBU),
      .clk   	(clk    ),
      .rst   	(rst    ),
      .valid 	(out_valid_IFU  ),
@@ -170,7 +173,8 @@ ysyx_25030093_CSR_REG u_ysyx_25030093_CSR_REG(
     .ecall_single 	(ecall_single  ),
     .ecall_now_pc 	(pc  ),
     .csr_wdata    	(csr_wdata     ),
-    .wen_csr        (wen_csr)
+    .wen_csr        (wen_csr),
+    .in_valid       (out_valid_WBU)
 );
 
 // output declaration of module ysyx_25030093_WBU;
@@ -182,7 +186,6 @@ ysyx_25030093_WBU u_ysyx_25030093_WBU(
     .rs2_data   	(rs2_data    ),
     .LSU_data   	(LSU_data    ),
     .LSU_single 	(LSU_single  ),
-    .rd_or_LSU_single (rd_or_LSU_single),
     .in_valid           (out_valid_EXU_WBU),
     .out_ready      (out_ready_WBU_EXU),
     .out_valid          (out_valid_WBU)
@@ -192,7 +195,7 @@ ysyx_25030093_WBU u_ysyx_25030093_WBU(
 
 
 ysyx_25030093_pc u_ysyx_25030093_pc(
-    .in_valid   (out_valid_WBU),
+    .in_valid_WBU   (out_valid_WBU),
     .pc_single(pc_single),
     .imm_data (imm_data),
     .rs1_data (rs1_data),

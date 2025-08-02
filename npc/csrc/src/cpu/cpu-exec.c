@@ -47,7 +47,10 @@ static void trace_and_difftest() {
 */
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(logbuf)); }
 #ifdef CONFIG_DIFFTEST
-  difftest_step(top->pc, top->pc);
+if(top->inst_done){
+  single_clk();
+  difftest_step(top->pc, top->pc );
+}
 #endif
 #ifdef CONFIG_WATCHPOINT
   if(update_watchpoint()==1){

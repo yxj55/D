@@ -1,10 +1,10 @@
 module ysyx_25030093_LSU(
+    input LSU_run,
     input clk,
     input [31:0] rd_data,
     input [31:0] rs2_data,
     output reg [31:0] LSU_data,
-    input [3:0] LSU_single,
-    input rd_or_LSU_single
+    input [3:0] LSU_single
 );
 import "DPI-C" function int paddr_read(input int raddr,input int len);
    import "DPI-C" function void paddr_write(
@@ -15,7 +15,7 @@ reg [7:0] lb_temp;
 reg [15:0] lh_temp;
 
 always @(*) begin
-  
+  if(LSU_run) begin
     case(LSU_single)
     4'd0:begin
          lb_temp = paddr_read(rd_data ,1);//lb
@@ -35,7 +35,7 @@ always @(*) begin
         
     end
     endcase
-  
+  end
 end
 
 

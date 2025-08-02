@@ -1,5 +1,5 @@
 module ysyx_25030093_IFU_SRAM(
-    input valid_WBU,
+    input in_valid,
     output  wire valid,
     input ready,
     input clk,
@@ -21,7 +21,7 @@ always@(posedge clk)begin
     else begin
         case(state)
         IDLE:begin
-           if(ready & valid_WBU) begin
+           if(ready & in_valid) begin
                 state <= Prepare_data;
            end
            else state <= IDLE;

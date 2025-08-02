@@ -295,11 +295,6 @@ assign LSU_single = (lb)        ? 4'd0:
                     (sw)        ? 4'd7:
                     4'd8; 
 
-always @(*) begin
-  if (lw) begin
-    $display("lw is 1, inst = %h", inst);
-  end
-end
 
 
 //------------------------------------------//

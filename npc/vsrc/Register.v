@@ -10,7 +10,6 @@ module ysyx_25030093_Register #(ADDR_WIDTH = 5, DATA_WIDTH = 32) (
  output [DATA_WIDTH-1:0] rs2_data,
  input [ADDR_WIDTH-1:0] rs2_addr,
  input in_valid
-
 );
 
   reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
@@ -18,8 +17,7 @@ module ysyx_25030093_Register #(ADDR_WIDTH = 5, DATA_WIDTH = 32) (
 
      if ((wen & waddr != 0) & in_valid) begin
   //  $display("Write: addr=%d, wdata=%h, stored=%h wen=%d", waddr, wdata, rf[waddr],wen);
-    rf[waddr] <= wdata;
-  
+       rf[waddr] <= wdata;
     end
   end
 
@@ -39,7 +37,8 @@ module ysyx_25030093_CSR_REG(
   input ecall_single,
   input [31:0] ecall_now_pc,
   input [31:0] csr_wdata,
-  output wen_csr
+  input wen_csr,
+  input in_valid 
 
 );
   reg [31:0] csr[4];
@@ -59,7 +58,7 @@ initial begin
   csr[3] = 32'h1800;
 end
 always@(posedge clk)begin
-  if(wen_csr) begin
+  if(wen_csr & in_valid) begin
     csr[position] <= csr_wdata;
   end
   

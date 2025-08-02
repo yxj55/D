@@ -8,7 +8,7 @@ module ysyx_25030093_pc(
     input B_single,
     input [31:0] csr_data_pc,
     input [31:0] inst,
-    input in_valid
+    input in_valid_WBU
 );
 
 
@@ -26,7 +26,7 @@ always@(posedge clk)begin
         pc_current <=32'h80000000;
     end
     else begin
-      
+      if(in_valid_WBU) begin
         case(pc_single)
        3'b001:begin
        /*
@@ -42,9 +42,9 @@ always@(posedge clk)begin
        3'b010:begin 
         
         // call_ftrace_printf(pc_current, pc_current + imm_data);
-       if(in_valid)begin
+      
          pc_current <= pc_current + imm_data;//jal
-       end
+     
        end
        3'b100:begin
          pc_current <= (B_single) ? pc_current + imm_data  : pc_current + 32'd4;
@@ -53,14 +53,13 @@ always@(posedge clk)begin
          pc_current <= csr_data_pc;
        end
        3'b110:begin
-        if(in_valid)begin
+      
            pc_current <= pc_current + 32'd4;
-        end
-        
        end
         default:pc_current <= pc_current ;
         endcase
         end
+    end
     end
 
 assign pc = pc_current;
