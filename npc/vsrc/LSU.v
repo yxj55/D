@@ -15,7 +15,7 @@ reg [7:0] lb_temp;
 reg [15:0] lh_temp;
 
 always @(*) begin
-    if(rd_or_LSU_single) begin
+  
     case(LSU_single)
     4'd0:begin
          lb_temp = paddr_read(rd_data ,1);//lb
@@ -25,17 +25,17 @@ always @(*) begin
         lh_temp = paddr_read(rd_data ,2);//lh
          LSU_data = {{16{lh_temp[15]}},lh_temp};
     end
-    4'd2:begin $display("rd_data = %h",rd_data); LSU_data = paddr_read(rd_data,4); $display("LSD_data = %h",LSU_data);end//lw
+     4'd2:LSU_data = paddr_read(rd_data,4); //lw
     4'd3:LSU_data = paddr_read(rd_data,1);//lbu
     4'd4:LSU_data = paddr_read(rd_data,2);//lhu
     4'd5:paddr_write(rd_data,1,rs2_data);//sb
     4'd6:paddr_write(rd_data,2,rs2_data);//sh
-    4'd7:paddr_write(rd_data,4,rs2_data);//sw
+    4'd7: paddr_write(rd_data,4,rs2_data);//sw
     default:begin
         
     end
     endcase
-    end
+  
 end
 
 

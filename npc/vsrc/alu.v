@@ -1,4 +1,5 @@
 module ysyx_25030093_alu(
+   input  alu_run,
     input [4:0] alu_single,
     output reg [31:0] rd_data,
     output reg B_single,
@@ -10,6 +11,7 @@ module ysyx_25030093_alu(
 reg [31:0] t;
 
 always@(*)begin
+    if(alu_run) begin
     //$display("now alu_data1 = %h alu_data2 = %h",alu_data1,alu_data2);
     case(alu_single)
     5'd0: rd_data = alu_data1 + alu_data2;
@@ -43,6 +45,7 @@ always@(*)begin
     end
     default: rd_data = 32'd0;
     endcase
+    end
 end
 
 

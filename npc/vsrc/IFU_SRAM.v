@@ -1,5 +1,6 @@
 module ysyx_25030093_IFU_SRAM(
-    output  reg valid,
+    input valid_WBU,
+    output  wire valid,
     input ready,
     input clk,
     input rst,
@@ -8,44 +9,35 @@ module ysyx_25030093_IFU_SRAM(
 );
 import "DPI-C" function int paddr_read(input int raddr,input int len);
 
-parameter IDLE =1'b0,WAIT_READY = 1'b1;
+parameter IDLE =2'b00,Prepare_data = 2'b01,Occurrence_data = 2'b10;
 
-reg state;
-     reg [31:0] inst;
-    // reg [31:0] inst_delay;
+reg [1:0] state;
 
-     always@(posedge clk)begin
-        if(rst)begin
-            inst_wire  <=  32'd0;  
-            valid <= 1'b0;
-        end
-        else begin
-           case(state)
-           IDLE:begin
-            if(1)begin
-                state <= WAIT_READY;
-                valid <= 1'b1;
-            end
-            else begin
-                state <=IDLE;
-                valid <= 1'b0;
-            end
+
+always@(posedge clk)begin
+    if(rst)begin
+        state <= Prepare_data;
+    end
+    else begin
+        case(state)
+        IDLE:begin
+           if(ready & valid_WBU) begin
+                state <= Prepare_data;
            end
-           WAIT_READY:begin
-            if(ready)begin
-                inst_wire <= paddr_read(pc,4);
-                state <= IDLE;
-                valid <=1'b0;
-            end
-            else begin
-                state <= WAIT_READY;
-                valid <= valid;
-            end
-           end
-           endcase
+           else state <= IDLE;
         end
-        
-     end
+        Prepare_data:begin
+            inst_wire <= paddr_read(pc,4);
+            state <= Occurrence_data;
+        end
+        Occurrence_data:begin
+            state <= IDLE;
+        end
+        endcase
+    end
+end
+
+     assign valid = (state == Occurrence_data);
      /*
    always @(posedge clk) begin
     if (valid) begin

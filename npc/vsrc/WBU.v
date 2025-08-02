@@ -1,50 +1,58 @@
-module ysyx_25030093_WBU #(ADDR_WIDTH = 5, DATA_WIDTH = 32)(
-  input clk,
-  input [DATA_WIDTH-1:0] wdata,
-  input [ADDR_WIDTH-1:0] waddr,
-  input wen,
-  input [5:0] alu_single,
-  input wen_read,
- output [DATA_WIDTH-1:0] rs1_data,
- input [ADDR_WIDTH-1:0] rs1,
- output [DATA_WIDTH-1:0] rs2_data,
- input [ADDR_WIDTH-1:0] rs2,
- output wire [31:0] csr_data,
-  output wire [31:0] csr_data_pc,
-  input [31:0] imm_csr,
-  input ecall_single,
-  input [31:0] ecall_now_pc,
-  input [31:0] csr_wdata,
-  output wen_csr
+module ysyx_25030093_WBU(
+   input in_valid,
+   output out_valid,
+   output out_ready,
+   input rst,
+   input clk,
+   input [31:0] rd_data,
+   input [31:0] rs2_data,
+   output  [31:0] LSU_data,
+   input [3:0] LSU_single,
+   input rd_or_LSU_single
 );
 
+parameter IDLE =2'b00,Prepare_data = 2'b01,Occurrence_data = 2'b10;
 
-//寄存器写入和读取模块
-ysyx_25030093_Register u_ysyx_25030093_Register(
-    .clk      	(clk       ),
-    .wdata    	(wdata     ),
-    .waddr    	(waddr     ),
-    .wen      	(wen       ),
-    .wen_read   (wen_read),
-    .rs1_data 	(rs1_data  ),
-    .rs1_addr 	(rs1  ),
-    .rs2_data   (rs2_data),
-    .rs2_addr   (rs2)
+reg [1:0] state;
 
+
+
+always@(posedge clk)begin
+    if(rst)begin
+        state <= IDLE;
+    end
+    else begin
+        case(state)
+        IDLE:begin
+           if(in_valid) begin
+                state <= Prepare_data;
+           end
+           else state <= IDLE;
+        end
+        Prepare_data:begin
+            state <= Occurrence_data;
+        end
+        Occurrence_data:begin
+            state <= IDLE;
+        end
+        endcase
+    end
+end
+
+
+assign out_ready = (state == IDLE);
+assign out_valid = (state == Occurrence_data);
+
+
+ysyx_25030093_LSU u_ysyx_25030093_LSU(
+    .clk        	(clk         ),
+    .rd_data    	(rd_data     ),
+    .rs2_data   	(rs2_data    ),
+    .LSU_data   	(LSU_data    ),
+    .LSU_single 	(LSU_single  ),
+    .rd_or_LSU_single (rd_or_LSU_single)
 );
-// output declaration of module ysyx_25030093_CSR_REG
 
-ysyx_25030093_CSR_REG u_ysyx_25030093_CSR_REG(
-    .clk          	(clk           ),
-    .rst          	(rst           ),
-    .csr_data     	(csr_data      ),
-    .csr_data_pc  	(csr_data_pc   ),
-    .imm_csr      	(imm_data      ),
-    .ecall_single 	(ecall_single  ),
-    .ecall_now_pc 	(pc  ),
-    .csr_wdata    	(csr_wdata     ),
-    .wen_csr        (wen_csr)
-);
 
 
 

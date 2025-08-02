@@ -1,12 +1,13 @@
 module ysyx_25030093_IDU(
-    //output reg out_valid,
-   // output reg out_ready,
-    //input in_valid,
+    output wire out_valid,
+    output wire out_ready,
+    input in_valid,
+    input in_ready,
     output  [4:0] alu_single,
     output [2:0] pc_single,
     output  wen,
     output wen_read,
-    input [31:0] inst,
+    input [31:0] inst_wire,
     output [31:0] imm_data,
     output [4:0] rd,
     output [4:0] rs1,
@@ -22,50 +23,43 @@ module ysyx_25030093_IDU(
     output rd_or_LSU_single
 );
 import "DPI-C" function void npc_ebreak();
-/*
-parameter IDLE =1'b0,WAIT_VALID = 1'b1;
 
-reg state;
+
+reg [31:0] inst;
+
+parameter IDLE =2'b00,Prepare_data = 2'b01,Occurrence_data = 2'b10;
+
+reg [1:0] state;
+
 
 
 always@(posedge clk)begin
     if(rst)begin
         state <= IDLE;
-        out_ready <=1'b0;
-        out_valid <= 1'b0;
     end
     else begin
         case(state)
         IDLE:begin
-            if(1)begin
-                state <= WAIT_VALID;
-                out_ready <= 1'b1;
-                out_valid <= 1'b0;
-            end
-            else begin
-                state <= IDLE;
-                out_ready <=1'b0;
-                out_valid <= 1'b0;
-            end
+           if(in_ready & in_valid) begin
+                state <= Prepare_data;
+           end
+           else state <= IDLE;
         end
-        WAIT_VALID:begin
-            if(in_valid)begin
-                $display("here\n and now inst_wire = %h",inst);
-                state <= IDLE;
-                out_ready <= 1'b0;
-                out_valid <= 1'b1;
-            end
-            else begin
-                state <= WAIT_VALID;
-                out_ready <= out_ready;
-                out_valid <= 1'b0;
-            end
+        Prepare_data:begin
+            inst <= inst_wire;
+            state <= Occurrence_data;
+        end
+        Occurrence_data:begin
+            state <= IDLE;
         end
         endcase
     end
 end
-*/
 
+
+
+assign out_ready = (state == IDLE);
+assign out_valid = (state == Occurrence_data);
 
 
 wire [2:0] imm_type;
@@ -310,7 +304,7 @@ end
 
 //------------------------------------------//
 
-assign rd_or_LSU_single = lb | lh | lw | lbu | lhu;
+assign rd_or_LSU_single = lb | lh | lw | lbu | lhu ;
 
 
 

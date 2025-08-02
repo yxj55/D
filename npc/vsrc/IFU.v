@@ -1,4 +1,5 @@
 module ysyx_25030093_IFU(
+    input valid_WBU,
     input clk,
     input rst,
     output valid,
@@ -14,6 +15,7 @@ module ysyx_25030093_IFU(
 
 
 ysyx_25030093_IFU_SRAM u_ysyx_25030093_IFU_SRAM(
+    .valid_WBU  (valid_WBU),
     .valid      (valid),
     .ready      (ready),
     .clk       	(clk        ),

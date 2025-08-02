@@ -33,9 +33,9 @@ paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 static int pmem_read(paddr_t addr,int len) {
   if(addr ==0){return 0;}
-  printf("now addr = 0x%08x\n",addr);
+ // printf("now addr = 0x%08x\n",addr);
   word_t ret = host_read(guest_to_host(addr) ,len);
-  printf("now ret = 0x%08x\n",ret);
+ // printf("now ret = 0x%08x\n",ret);
   return ret;
 }
 

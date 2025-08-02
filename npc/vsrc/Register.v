@@ -8,15 +8,16 @@ module ysyx_25030093_Register #(ADDR_WIDTH = 5, DATA_WIDTH = 32) (
  output [DATA_WIDTH-1:0] rs1_data,
  input [ADDR_WIDTH-1:0] rs1_addr,
  output [DATA_WIDTH-1:0] rs2_data,
- input [ADDR_WIDTH-1:0] rs2_addr
+ input [ADDR_WIDTH-1:0] rs2_addr,
+ input in_valid
 
 );
 
   reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
   always @(posedge clk) begin
 
-     if (wen & waddr != 0) begin
-    $display("Write: addr=%d, wdata=%h, stored=%h wen=%d", waddr, wdata, rf[waddr],wen);
+     if ((wen & waddr != 0) & in_valid) begin
+  //  $display("Write: addr=%d, wdata=%h, stored=%h wen=%d", waddr, wdata, rf[waddr],wen);
     rf[waddr] <= wdata;
   
     end

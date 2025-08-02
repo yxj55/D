@@ -52,13 +52,13 @@ word_t isa_reg_str2val(const char *s, bool *success) {
 		}
 		if(strcmp(s,regs[i])==0){
 			*success=true;
-			return rootp->ysyx_25030093_top__DOT__u_ysyx_25030093_WBU__DOT__u_ysyx_25030093_Register__DOT__rf[i];
+			return rootp->ysyx_25030093_top__DOT__u_ysyx_25030093_Register__DOT__rf[i];
 		}
 	}
 	for(int j=0;j<4;j++){
 		if(strcmp(s,csr[j])==0){
 			*success=true;
-			return rootp->ysyx_25030093_top__DOT__u_ysyx_25030093_WBU__DOT__u_ysyx_25030093_CSR_REG__DOT__csr[j];
+			return rootp->ysyx_25030093_top__DOT__u_ysyx_25030093_CSR_REG__DOT__csr[j];
 		}
 	}
 	*success=false;

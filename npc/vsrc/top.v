@@ -4,25 +4,30 @@ module ysyx_25030093_top(
     output reg [31:0] inst, 
     input wire rst
 );
- import "DPI-C" function int paddr_read(input int raddr,input int len);
-  assign inst = paddr_read(pc,4);
+//  import "DPI-C" function int paddr_read(input int raddr,input int len);
+//   assign inst = paddr_read(pc,4);
 
-/*
+
 wire out_valid_IFU;
-wire out_valid_IDU;
-wire out_ready_IDU;
+wire out_valid_IDU_EXU;
+wire out_ready_IDU_IFU;
+wire out_ready_EXU_IDU;
+wire out_valid_EXU_WBU;
+wire out_ready_WBU_EXU;
+wire out_valid_WBU;
 
 // // output declaration of module ysyx_25030093_IFU
- wire valid;
+
  ysyx_25030093_IFU u_ysyx_25030093_IFU(
+    .valid_WBU  (out_valid_WBU),
      .clk   	(clk    ),
      .rst   	(rst    ),
      .valid 	(out_valid_IFU  ),
-     .ready 	(out_ready_IDU  ),
-     .inst_wire  	(inst_wire   ),
+     .ready 	(out_ready_IDU_IFU  ),
+     .inst_wire  	(inst   ),
      .pc    	(pc     )
  );
-*/
+
 
 wire [31:0] inst_wire;
 
@@ -32,7 +37,7 @@ wire [2:0] pc_single; //控制pc +4 信号
 wire [4:0] rd,rs1,rs2;
 
 wire rd_or_LSU_single;
-wire [2:0] LSU_single;
+wire [3:0] LSU_single;
 
 
 wire wen;//控制写入
@@ -57,14 +62,15 @@ ysyx_25030093_IDU
 u_ysyx_25030093_IDU(
     .imm_or_rs2_other (imm_or_rs2_other),
     .rs1_pc_other (rs1_pc_other),
-   // .out_valid      (out_valid_IDU),
-    //.out_ready      (out_ready_IDU),
-    //.in_valid      (out_valid_IFU),
+    .out_valid      (out_valid_IDU_EXU),
+    .out_ready      (out_ready_IDU_IFU),
+    .in_valid      (out_valid_IFU),
+    .in_ready       (out_ready_EXU_IDU),
     .alu_single (alu_single),
     .pc_single (pc_single),
     .wen        (wen),
     .wen_read   (wen_read),
-    .inst       (inst_wire),
+    .inst_wire       (inst_wire),
     .imm_data 	(imm_data  ),
     .rd         (rd),
     .rs1        (rs1),
@@ -89,7 +95,10 @@ wire [31:0] alu_data1;
 
 
 ysyx_25030093_EXU u_ysyx_25030093_EXU(
-   // .in_valid       (out_valid_IDU),
+    .in_valid       (out_valid_IDU_EXU),
+    .in_ready       (out_ready_WBU_EXU),
+    .out_ready      (out_ready_EXU_IDU),
+    .out_valid      (out_valid_EXU_WBU),
     .clk           (clk),
     .rst            (rst),
     .alu_single  (alu_single),
@@ -102,21 +111,8 @@ ysyx_25030093_EXU u_ysyx_25030093_EXU(
     .alu_data1  ( alu_data1)
 );
 
-// output declaration of module ysyx_25030093_LSU
+
 wire [31:0] LSU_data;
-
-ysyx_25030093_LSU u_ysyx_25030093_LSU(
-    .clk        	(clk         ),
-    .rd_data    	(rd_data     ),
-    .rs2_data   	(rs2_data    ),
-    .LSU_data   	(LSU_data    ),
-    .LSU_single 	(LSU_single  ),
-    .rd_or_LSU_single (rd_or_LSU_single)
-);
-
-
-
-
 
 // output declaration of module ysyx_25030093_mux21
 wire [31:0] rd_LSU_data;
@@ -149,32 +145,54 @@ ysyx_25030093_mux41 u_ysyx_25030093_mux41(
 );
 
 
+//寄存器写入和读取模块
+ysyx_25030093_Register u_ysyx_25030093_Register(
+    .in_valid   (out_valid_WBU),
+    .clk      	(clk       ),
+    .wdata    	(rd_LSU_data     ),
+    .waddr    	(rd     ),
+    .wen      	(wen       ),
+    .wen_read   (wen_read),
+    .rs1_data 	(rs1_data  ),
+    .rs1_addr 	(rs1  ),
+    .rs2_data   (rs2_data),
+    .rs2_addr   (rs2)
+
+);
+// output declaration of module ysyx_25030093_CSR_REG
+
+ysyx_25030093_CSR_REG u_ysyx_25030093_CSR_REG(
+    .clk          	(clk           ),
+    .rst          	(rst           ),
+    .csr_data     	(csr_data      ),
+    .csr_data_pc  	(csr_data_pc   ),
+    .imm_csr      	(imm_data      ),
+    .ecall_single 	(ecall_single  ),
+    .ecall_now_pc 	(pc  ),
+    .csr_wdata    	(csr_wdata     ),
+    .wen_csr        (wen_csr)
+);
+
 // output declaration of module ysyx_25030093_WBU;
 
 ysyx_25030093_WBU u_ysyx_25030093_WBU(
+    .rst            (rst),
     .clk          	(clk           ),
-    .wdata        	(rd_LSU_data         ),
-    .waddr        	(rd        ),
-    .wen          	(wen           ),
-    .alu_single   	(alu_single    ),
-    .wen_read     	(wen_read      ),
-    .rs1_data     	(rs1_data      ),
-    .rs1     	(rs1     ),
-    .rs2_data     	(rs2_data      ),
-    .rs2     	(rs2      ),
-    .csr_data     	(csr_data      ),
-    .csr_data_pc  	(csr_data_pc   ),
-    .imm_csr      	(imm_csr       ),
-    .ecall_single 	(ecall_single  ),
-    .ecall_now_pc 	(ecall_now_pc  ),
-    .csr_wdata    	(csr_wdata     ),
-    .wen_csr      	(wen_csr       )
+    .rd_data    	(rd_data     ),
+    .rs2_data   	(rs2_data    ),
+    .LSU_data   	(LSU_data    ),
+    .LSU_single 	(LSU_single  ),
+    .rd_or_LSU_single (rd_or_LSU_single),
+    .in_valid           (out_valid_EXU_WBU),
+    .out_ready      (out_ready_WBU_EXU),
+    .out_valid          (out_valid_WBU)
 );
 
 
 
 
 ysyx_25030093_pc u_ysyx_25030093_pc(
+    .in_valid   (out_valid_WBU),
     .pc_single(pc_single),
     .imm_data (imm_data),
     .rs1_data (rs1_data),
