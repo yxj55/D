@@ -1,12 +1,13 @@
+
 module ysyx_25030093_alu(
-   input  alu_run,
-    input [4:0] alu_single,
-    output reg [31:0] rd_data,
-    output reg B_single,
-    input wire [31:0] csr_data,
-    output reg [31:0] csr_wdata,
-    input [31:0] alu_data2,
-    input [31:0] alu_data1
+    input                   alu_run,
+    input      [4:0]        alu_single,
+    output reg [31:0]       rd_data,
+    output reg              B_single,
+    input wire [31:0]       csr_data,
+    output reg [31:0]       csr_wdata,
+    input      [31:0]       alu_data2,
+    input      [31:0]       alu_data1
     );
 reg [31:0] t;
 

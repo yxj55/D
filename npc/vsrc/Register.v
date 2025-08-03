@@ -1,15 +1,14 @@
 module ysyx_25030093_Register #(ADDR_WIDTH = 5, DATA_WIDTH = 32) (
-  input clk,
-  input [DATA_WIDTH-1:0] wdata,
-  input [ADDR_WIDTH-1:0] waddr,
-  input wen,
-  input [5:0] alu_single,
-  input wen_read,
- output [DATA_WIDTH-1:0] rs1_data,
- input [ADDR_WIDTH-1:0] rs1_addr,
- output [DATA_WIDTH-1:0] rs2_data,
- input [ADDR_WIDTH-1:0] rs2_addr,
- input in_valid
+  input                   clk,
+  input [DATA_WIDTH-1:0]  wdata,
+  input [ADDR_WIDTH-1:0]  waddr,
+  input                   wen,
+  input                   wen_read,
+ output [DATA_WIDTH-1:0]  rs1_data,
+ input [ADDR_WIDTH-1:0]   rs1_addr,
+ output [DATA_WIDTH-1:0]  rs2_data,
+ input [ADDR_WIDTH-1:0]   rs2_addr,
+ input                    in_valid
 );
 
   reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
@@ -29,16 +28,15 @@ module ysyx_25030093_Register #(ADDR_WIDTH = 5, DATA_WIDTH = 32) (
 endmodule
 
 module ysyx_25030093_CSR_REG(
-  input clk,
-  input rst,
-  output wire [31:0] csr_data,
-  output wire [31:0] csr_data_pc,
-  input [31:0] imm_csr,
-  input ecall_single,
-  input [31:0] ecall_now_pc,
-  input [31:0] csr_wdata,
-  input wen_csr,
-  input in_valid 
+  input                  clk,
+  output wire [31:0]     csr_data,
+  output wire [31:0]     csr_data_pc,
+  input       [31:0]     imm_csr,
+  input                  ecall_single,
+  input       [31:0]     ecall_now_pc,
+  input       [31:0]     csr_wdata,
+  input                  wen_csr,
+  input                  in_valid 
 
 );
   reg [31:0] csr[4];

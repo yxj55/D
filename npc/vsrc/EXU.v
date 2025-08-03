@@ -1,18 +1,19 @@
+
 module ysyx_25030093_EXU(
-    output wire out_valid,
-    output wire out_ready,
-    input in_valid,
-    input in_ready,
-    input clk,
-    input rst,
-    input [4:0] alu_single,
-    input wire [31:0] rs2_data,
-    output reg [31:0] rd_data,
-    output reg B_single,
-    input wire [31:0] csr_data,
-    output reg [31:0] csr_wdata,
-    input [31:0] alu_data2,
-    input [31:0] alu_data1
+    output wire                 out_valid,
+    output wire                 out_ready,
+    input                       in_valid,
+    input                       in_ready,
+    input                       clk,
+    input                       rst,
+    input      [4:0]            alu_single,
+    input wire [31:0]           rs2_data,
+    output reg [31:0]           rd_data,
+    output reg                  B_single,
+    input wire [31:0]           csr_data,
+    output reg [31:0]           csr_wdata,
+    input      [31:0]           alu_data2,
+    input      [31:0]           alu_data1
 );
 
 parameter IDLE =2'b00,Prepare_data = 2'b01,Occurrence_data = 2'b10;

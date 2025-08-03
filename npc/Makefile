@@ -22,8 +22,10 @@ VERILATOR_FLAGS += -Wno-lint -Wno-style --x-assign unique
 VERILATOR_FLAGS += --Mdir $(BUILD_DIR) \
                    --build \
                    -CFLAGS "$(INCFLAGS)"
-VERILATOR_FLAGS += -O3 --x-assign fast --x-initial fast --noassert
-VERILATOR_FLAGS += --trace  # 可选：生成波形支持
+VERILATOR_FLAGS += -O3 --x-assign fast --x-initial fast --noassert 
+VERILATOR_FLAGS += --trace   # 可选：生成波形支持
+#VERILATOR_FLAGS += --timescale-override "1ps/1ps" --timing
+
 
 # 源文件设置
 VSRC_DIR = vsrc
@@ -78,6 +80,7 @@ run:verilator
 	./build/Vysyx_25030093_top $(ARGS)
 
 gtkwave:
+	sed -i 's/\$timescale 1s/\$timescale 1ps/' dump.vcd
 	gtkwave dump.vcd
 # 清理生成文件
 clean:

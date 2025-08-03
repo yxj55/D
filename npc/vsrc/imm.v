@@ -1,7 +1,8 @@
+
 module ysyx_25030093_imm(
-    input [31:0] inst,
-    input [2:0] imm_type,
-    output reg [31:0] imm_ex
+    input       [31:0]        inst,
+    input       [2:0]         imm_type,
+    output reg  [31:0]        imm_ex
 );
    
    always@(*)begin

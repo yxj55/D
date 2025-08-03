@@ -1,14 +1,14 @@
 module ysyx_25030093_pc(
-    input [2:0] pc_single,
-    input [31:0] rs1_data,
-    input [31:0] imm_data,
-    input rst,
-    input clk,
-    output reg [31:0] pc,
-    input B_single,
-    input [31:0] csr_data_pc,
-    input [31:0] inst,
-    input in_valid_WBU
+    input       [2:0]             pc_single,
+    input       [31:0]            rs1_data,
+    input       [31:0]            imm_data,
+    input                         rst,
+    input                         clk,
+    output reg  [31:0]            pc,
+    input                         B_single,
+    input       [31:0]            csr_data_pc,
+    input       [31:0]            inst,
+    input                         in_valid_WBU
 );
 
 
