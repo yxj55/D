@@ -60,7 +60,7 @@ printf("inin_mem right\n");
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
-extern "C" int paddr_read(paddr_t addr,int len) {
+extern "C" int paddr_read(paddr_t addr) {
   //printf("npc here\n");
   //检查内存是否溢出
   if (likely(in_pmem(addr))) {
@@ -68,7 +68,7 @@ extern "C" int paddr_read(paddr_t addr,int len) {
     #ifdef CONFIG_MTRACE
         printf("now addr : 0x%08x , len = %d\n",addr,len);
     #endif
-    return  pmem_read(addr,len);}
+    return  pmem_read(addr,4);}
    // printf("read now addr =0x%08x\n",addr);
     if (addr == 0xa0000048 || addr == 0xa000004c) {
       uint64_t us = get_time();
@@ -91,14 +91,14 @@ out_of_bound(addr);
   return 0;
 }
 
-extern "C" void paddr_write(paddr_t addr, int len, word_t data) {
+extern "C" void paddr_write(paddr_t addr, char wstrb, word_t data) {
   if (likely(in_pmem(addr))) { 
     /*
     #ifdef CONFIG_MTRACE
       printf("now write addr =0x%08x ,len = %d\n",addr,len);
     #endif
     */
-    pmem_write(addr, len, data); return; }
+    pmem_write(addr, wstrb, data); return; }
     // 处理串口输出
    // printf("now addr =0x%08x\n",addr);
     if (addr == 0xa00003f8) {

@@ -3,6 +3,9 @@ module ysyx_25030093_SRAM(
     input                SRAM_arvalid,
     input       [31:0]   SRAM_araddr,
     input                SRAM_rready,
+    output reg  [31:0]   SRAM_rdata,
+    output reg           SRAM_rvalid,
+    output reg           SRAM_arready,
 
     input       [31:0]   SRAM_awaddr,
     input       [31:0]   SRAM_wdata,
@@ -11,36 +14,32 @@ module ysyx_25030093_SRAM(
     input       [3:0]    LSU_single,
     input                clk
 );
-import "DPI-C" function int paddr_read(input int raddr,input int len);
+import "DPI-C" function int paddr_read(input int raddr);
    import "DPI-C" function void paddr_write(
-  input int waddr, input int len,input int wdata);
+  input int waddr, input byte wstrb,input int wdata);
 
 
 
-
+// 读操作
 always @(posedge clk) begin
-  if(LSU_run) begin
-    case(LSU_single)
-    4'd0:begin
-         lb_temp = paddr_read(rd_data ,1);//lb
-         LSU_data = {{24{lb_temp[7]}},lb_temp};
-    end
-    4'd1:begin
-        lh_temp = paddr_read(rd_data ,2);//lh
-         LSU_data = {{16{lh_temp[15]}},lh_temp};
-    end
-     4'd2:LSU_data = paddr_read(rd_data,4); //lw
-    4'd3:LSU_data = paddr_read(rd_data,1);//lbu
-    4'd4:LSU_data = paddr_read(rd_data,2);//lhu
-    4'd5:paddr_write(rd_data,1,rs2_data);//sb
-    4'd6:paddr_write(rd_data,2,rs2_data);//sh
-    4'd7: paddr_write(rd_data,4,rs2_data);//sw
-    default:begin
-        
-    end
-    endcase
+  if(SRAM_arvalid & SRAM_rready)begin
+    SRAM_rdata <= paddr_read(SRAM_araddr);
+    SRAM_rvalid <= 1'b1;
+    SRAM_arready <= 1'b0;
+  end
+  else begin
+    SRAM_rvalid <= 1'b0;
+    SRAM_arready <= 1'b1;
   end
 end
+
+//写操作
+always @(posedge clk) begin
+  
+end
+
+
+
 
 
 

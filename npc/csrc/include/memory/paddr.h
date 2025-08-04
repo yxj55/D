@@ -32,7 +32,7 @@ static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
 }
 
-extern "C" int paddr_read(paddr_t addr,int len);
-extern "C" void paddr_write(paddr_t addr, int len, word_t data);
+extern "C" int paddr_read(paddr_t addr);
+extern "C" void paddr_write(paddr_t addr, char wstrb, word_t data);
 
 #endif

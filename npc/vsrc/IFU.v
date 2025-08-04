@@ -13,7 +13,7 @@ module ysyx_25030093_IFU(
     output  reg          IFU_SRAM_rready,
     input                SRAM_IFU_arready,
     input                SRAM_IFU_rvalid,
-    input        [31:0]  SRAM_IFU_rdata
+    input        [31:0]  SRAM_IFU_rdata,
     
 
 
@@ -57,17 +57,17 @@ end
 always@(posedge clk)begin
     if(rst)begin
         IFU_SRAM_arvalid <= 1'b0;
+        IFU_SRAM_rready  <= 1'b0;
     end
-    else if(SRAM_IFU_arready)begin
+    else if(SRAM_IFU_arready)begin//就绪 主 ready valid 置高 地址赋值
         IFU_SRAM_arvalid <= 1'b1;
+        IFU_SRAM_rready  <= 1'b1;
         IFU_SRAM_araddr  <= pc;
     end
     else begin
-        IFU_SRAM_arvalid <= 1'b1;
+        IFU_SRAM_arvalid <= 1'b0;
+        IFU_SRAM_rready  <= 1'b0;
     end
-
-
-
 end
 
 
