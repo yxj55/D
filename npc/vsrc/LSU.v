@@ -11,6 +11,7 @@ module ysyx_25030093_LSU(
     output reg  [31:0]   LSU_data,
     input       [3:0]    LSU_single,
     input                clk,
+    input                rst,
     input       [7:0]    wstrb,
  //------------------------------------------//
     input       [31:0]   SRAM_LSU_rdata,  // SRAM 读数据
@@ -32,7 +33,7 @@ module ysyx_25030093_LSU(
 );
 
 
-reg [7:0] count_r , count_waddr , count_wdata;
+
 
 parameter IDLE =2'b00,Prepare_data = 2'b01,Occurrence_data = 2'b10;
 
@@ -49,7 +50,7 @@ IDLE:begin
   end
 end
 Prepare_data:begin
-if(SRAM_LSU_rvalid) begin
+if(SRAM_LSU_rvalid & LSU_SRAM_rready) begin
   case(LSU_single)
     4'd0:begin//lb
       LSU_data <= {{24{SRAM_LSU_rdata[7]}},SRAM_LSU_rdata[7:0]};
@@ -76,7 +77,7 @@ if(SRAM_LSU_rvalid) begin
     end
    endcase
 end
-else if( SRAM_LSU_bvalid) begin
+else if( SRAM_LSU_bvalid & LSU_SRAM_bready) begin
   state <= Occurrence_data;
 end
 else if(LSU_single == 4'd8) begin
@@ -96,26 +97,55 @@ assign out_ready = (state == IDLE);
 assign out_valid = (state == Occurrence_data);
 
 
-reg r_state;
+reg ar_state;
 
 //读操作
+
+// output declaration of module random_delay_generator
+wire ar_ready;
+random_delay_generator ar_random_delay_generator(
+  .clk     	(clk      ),
+  .reset   	(rst    ),
+  .request 	( LOAD_single & in_ready & in_valid ),
+  .ready   	(ar_ready    )
+);
+
+
+
+
+//读地址
 always@(posedge clk)begin
   if(LOAD_single & in_ready & in_valid)begin
-    r_state <= 1'b1; 
+    ar_state <= 1'b1; 
   end
-  else if(r_state & (count_r == 8'd2))begin
+  else if(ar_state & ar_ready)begin
     LSU_SRAM_araddr <= rd_data;
     LSU_SRAM_arvalid <= 1'b1;
-    r_state <= 1'b0;
+    ar_state <= 1'b0;
   end
-  else if(SRAM_LSU_arready) begin
+  else if(SRAM_LSU_arready) begin //检查 arready 下周期拉低 arvalid
     LSU_SRAM_arvalid <=1'b0;
   end
-  else count_r <= count_r + 8'd1;
+
 end
 
+
+// output declaration of module random_delay_generator
+wire r_ready;
+
+random_delay_generator r_random_delay_generator(
+  .clk     	(clk      ),
+  .reset   	(rst    ),
+  .request 	(SRAM_LSU_rvalid  ),
+  .ready   	(r_ready    )
+);
+
+
+
+
+//读数据
 always@(posedge clk)begin
-    if(SRAM_LSU_rvalid)begin
+    if(SRAM_LSU_rvalid & r_ready)begin
         LSU_SRAM_rready <=1'b1;
     end
     else  begin
@@ -127,13 +157,25 @@ end
 //写操作
 //写地址
 
+// output declaration of module random_delay_generator
+wire aw_ready;
+
+random_delay_generator aw_random_delay_generator(
+  .clk     	(clk      ),
+  .reset   	(rst    ),
+  .request 	(in_ready & in_valid & STORE_single  ),
+  .ready   	(aw_ready    )
+);
+
+
+
 reg awaddr_state;
 
 always@(posedge clk)begin
-  if(in_ready & in_valid & STORE_single)begin
-    awaddr_state <= 1'b1;
-  end
-  else if(awaddr_state & count_waddr == 8'd1)begin
+   if(in_ready & in_valid & STORE_single)begin
+     awaddr_state <= 1'b1;
+   end
+   else if(awaddr_state & aw_ready)begin
     LSU_SRAM_awaddr <= rd_data;
     LSU_SRAM_awvalid <=1'b1;
     awaddr_state <= 1'b0;
@@ -141,16 +183,27 @@ always@(posedge clk)begin
   else if(SRAM_LSU_awready) begin
     LSU_SRAM_awvalid <= 1'b0;
   end 
-  else count_waddr <= count_waddr + 8'd1;
+ 
 end
 
+
+//写数据随机延迟
+wire w_ready;
+random_delay_generator w_random_delay_generator(
+  .clk     	(clk      ),
+  .reset   	(rst    ),
+  .request 	(in_ready & in_valid & STORE_single  ),
+  .ready   	(w_ready    )
+);
+
+//写数据操作
 reg wdata_state;
 
 always@(posedge clk)begin
-  if(in_ready & in_valid & STORE_single)begin
-    wdata_state <= 1'b1;
-  end
-  else if(wdata_state & count_wdata == 8'd5)begin
+   if(in_ready & in_valid & STORE_single)begin
+     wdata_state <= 1'b1;
+   end
+   if(wdata_state & w_ready )begin
     LSU_SRAM_wdata <= rs2_data;
     LSU_SRAM_wvalid <= 1'b1; 
     LSU_SRAM_wstrb <= wstrb;
@@ -159,11 +212,23 @@ always@(posedge clk)begin
   else if(SRAM_LSU_wready)begin
     LSU_SRAM_wvalid <= 1'b0;
   end
-  else count_wdata <= count_wdata + 8'd1;
+
 end
 
+// output declaration of module random_delay_generator
+wire b_ready;
+
+random_delay_generator u_random_delay_generator(
+  .clk     	(clk      ),
+  .reset   	(rst    ),
+  .request 	(SRAM_LSU_bvalid  ),
+  .ready   	(b_ready    )
+);
+
+
+//写回复
 always @(posedge clk) begin
-  if(SRAM_LSU_bvalid)begin
+  if(SRAM_LSU_bvalid & b_ready )begin
     LSU_SRAM_bready <= 1'b1;
   end
   else LSU_SRAM_bready <= 1'b0;

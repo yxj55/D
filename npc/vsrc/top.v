@@ -211,6 +211,7 @@ ysyx_25030093_LSU u_ysyx_25030093_LSU(
     .LSU_data   	(LSU_data    ),
     .LSU_single 	(LSU_single  ),
     .clk        	(clk         ),
+    .rst            (rst),
     .wstrb          (wstrb),
     .LOAD_single    (LOAD_single),
     .STORE_single   (STORE_single),

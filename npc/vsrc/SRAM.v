@@ -78,11 +78,9 @@ end
 always@(posedge clk)begin
   if(SRAM_awvalid)begin
    SRAM_awready <= 1'b1;
-
   end
   else begin 
     SRAM_awready <= 1'b0;
-
 end
 end
 
