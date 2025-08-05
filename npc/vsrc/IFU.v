@@ -13,12 +13,9 @@ module ysyx_25030093_IFU(
     output  reg          IFU_SRAM_rready,
     input                SRAM_IFU_arready,
     input                SRAM_IFU_rvalid,
-    input        [31:0]  SRAM_IFU_rdata,
+    input        [31:0]  SRAM_IFU_rdata
     
 
-
-
-   
 );
 
 
@@ -35,14 +32,17 @@ always@(posedge clk)begin
     else begin
         case(state)
         IDLE:begin
-           if(ready & in_valid & SRAM_IFU_rvalid) begin
+           if(ready & in_valid ) begin
                 state <= Prepare_data;
            end
            else state <= IDLE;
         end
         Prepare_data:begin
-            inst_wire <= SRAM_IFU_rdata;
-            state <= Occurrence_data;
+            if(SRAM_IFU_rvalid) begin
+                 inst_wire <= SRAM_IFU_rdata;
+                 state <= Occurrence_data;
+            end
+            else state <= Prepare_data;
         end
         Occurrence_data:begin
             state <= IDLE;
@@ -55,21 +55,21 @@ end
 //------------------------------------------//
 
 always@(posedge clk)begin
-    if(rst)begin
-        IFU_SRAM_arvalid <= 1'b0;
-        IFU_SRAM_rready  <= 1'b0;
-    end
-    else if(SRAM_IFU_arready)begin//就绪 主 ready valid 置高 地址赋值
-        IFU_SRAM_arvalid <= 1'b1;
-        IFU_SRAM_rready  <= 1'b1;
-        IFU_SRAM_araddr  <= pc;
+    if(SRAM_IFU_rvalid)begin
+        IFU_SRAM_rready <= 1'b1;
     end
     else begin
-        IFU_SRAM_arvalid <= 1'b0;
-        IFU_SRAM_rready  <= 1'b0;
+        IFU_SRAM_rready <=1'b0;
     end
 end
 
+always@(posedge clk)begin
+    if(state == Prepare_data)begin
+        IFU_SRAM_araddr <= pc;
+        IFU_SRAM_arvalid <= 1'b1;
+    end
+    else  if(SRAM_IFU_arready) IFU_SRAM_arvalid <= 1'b0;
+end
 
 
 

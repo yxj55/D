@@ -35,13 +35,55 @@ assign inst_done = out_valid_WBU;
      .valid 	(out_valid_IFU  ),
      .ready 	(out_ready_IDU_IFU  ),
      .inst_wire  	(inst   ),
-     .pc    	(pc     )
+     .pc    	(pc     ),
+     .IFU_SRAM_araddr (IFU_SRAM_araddr),
+     .IFU_SRAM_arvalid (IFU_SRAM_arvalid),
+     .IFU_SRAM_rready  (IFU_SRAM_rready),
+     .SRAM_IFU_arready (SRAM_IFU_arready),
+     .SRAM_IFU_rdata   (SRAM_IFU_rdata),
+     .SRAM_IFU_rvalid  (SRAM_IFU_rvalid)
  );
 
 //------------------------------------------//
+//IFU_SRAM
+wire SRAM_IFU_arready;
+wire SRAM_IFU_rvalid;
+wire [31:0] SRAM_IFU_rdata;
+wire [31:0] IFU_SRAM_araddr;
+wire IFU_SRAM_arvalid;
+wire IFU_SRAM_rready;
+
+
+wire SRAM_IFU_awready;
+wire SRAM_IFU_wready;
+wire SRAM_IFU_bvalid;
+
+ysyx_25030093_SRAM IFU_ysyx_25030093_SRAM(
+    .SRAM_arvalid 	(IFU_SRAM_arvalid  ),
+    .SRAM_araddr  	(IFU_SRAM_araddr   ),
+    .SRAM_rready  	(IFU_SRAM_rready   ),
+    .SRAM_rdata   	(SRAM_IFU_rdata    ),
+    .SRAM_rvalid  	(SRAM_IFU_rvalid   ),
+    .SRAM_arready 	(SRAM_IFU_arready  ),
+    .SRAM_awaddr  	(32'd0   ),
+    .SRAM_wdata   	(32'd0    ),
+    .SRAM_wstrb   	(8'd0   ),
+    .SRAM_awvalid 	(1'b0 ),
+    .SRAM_wvalid  	( 1'b0 ),
+    .SRAM_bready  	(1'b0 ),
+    .SRAM_awready 	( SRAM_IFU_awready),
+    .SRAM_wready  	(SRAM_IFU_wready ),
+    .SRAM_bvalid  	( SRAM_IFU_bvalid ),
+    .clk          	(clk           )
+);
 
 
 
+
+
+
+
+//------------------------------------------//
 wire [31:0] inst_wire;
 assign inst_wire = inst;
 
@@ -93,7 +135,10 @@ u_ysyx_25030093_IDU(
     .clk    (clk),
     .rst    (rst),
     .LSU_single (LSU_single),
-    .rd_or_LSU_single (rd_or_LSU_single)
+    .rd_or_LSU_single (rd_or_LSU_single),
+    .wstrb      (wstrb),
+    .LOAD_single    (LOAD_single),
+    .STORE_single   (STORE_single)
 );
 
 //------------------------------------------//
@@ -151,6 +196,10 @@ ysyx_25030093_mux41 u_ysyx_25030093_mux41(
 );
 //------------------------------------------//
 
+wire [7:0] wstrb;
+wire LOAD_single;
+wire STORE_single;
+
 //LSU
 ysyx_25030093_LSU u_ysyx_25030093_LSU(
     .in_valid    	(out_valid_EXU_LSU     ),
@@ -161,22 +210,69 @@ ysyx_25030093_LSU u_ysyx_25030093_LSU(
     .rs2_data   	(rs2_data    ),
     .LSU_data   	(LSU_data    ),
     .LSU_single 	(LSU_single  ),
-    .clk        	(clk         )
+    .clk        	(clk         ),
+    .wstrb          (wstrb),
+    .LOAD_single    (LOAD_single),
+    .STORE_single   (STORE_single),
+    .LSU_SRAM_araddr(LSU_SRAM_araddr),
+    .LSU_SRAM_arvalid(LSU_SRAM_arvalid),
+    .LSU_SRAM_rready (LSU_SRAM_rready),
+    .SRAM_LSU_rdata     (SRAM_LSU_rdata),
+    .SRAM_LSU_arready  (SRAM_LSU_arready),
+    .SRAM_LSU_rvalid    (SRAM_LSU_rvalid),
+    .LSU_SRAM_awaddr (LSU_SRAM_awaddr),
+    .LSU_SRAM_awvalid (LSU_SRAM_awvalid),
+    .LSU_SRAM_wstrb (LSU_SRAM_wstrb),
+    .LSU_SRAM_wvalid (LSU_SRAM_wvalid),
+    .LSU_SRAM_bready (LSU_SRAM_bready),
+    .LSU_SRAM_wdata (LSU_SRAM_wdata),
+    .SRAM_LSU_awready (SRAM_LSU_awready),
+    .SRAM_LSU_wready (SRAM_LSU_wready),
+    .SRAM_LSU_bvalid (SRAM_LSU_bvalid)
 );
 
 //------------------------------------------//
 
-// output declaration of module ysyx_25030093_SRAM
+//LSU_SRAM
+wire [31:0] SRAM_LSU_rdata;
+wire [31:0] LSU_SRAM_araddr;
+wire LSU_SRAM_arvalid;
+wire LSU_SRAM_rready;
+wire SRAM_LSU_arready;
+wire SRAM_LSU_rvalid;
+
+wire LSU_SRAM_bready;
+wire LSU_SRAM_wvalid;
+wire LSU_SRAM_awvalid;
+wire [31:0] LSU_SRAM_awaddr;
+wire [31:0] LSU_SRAM_wdata;
+wire [7:0]  LSU_SRAM_wstrb;
+wire SRAM_LSU_awready;
+wire SRAM_LSU_wready;
+wire SRAM_LSU_bvalid;
 
 
-ysyx_25030093_SRAM u_ysyx_25030093_SRAM(
-    .LSU_run    	(LSU_run     ),
-    .rd_data    	(rd_data     ),
-    .rs2_data   	(rs2_data    ),
-    .LSU_data   	(LSU_data    ),
-    .LSU_single 	(LSU_single  ),
-    .clk        	(clk         )
+ysyx_25030093_SRAM LSU_ysyx_25030093_SRAM(
+    .SRAM_arvalid 	(LSU_SRAM_arvalid  ),
+    .SRAM_araddr  	(LSU_SRAM_araddr   ),
+    .SRAM_rready  	(LSU_SRAM_rready   ),
+    .SRAM_rdata   	(SRAM_LSU_rdata    ),
+    .SRAM_rvalid  	(SRAM_LSU_rvalid   ),
+    .SRAM_arready 	(SRAM_LSU_arready  ),
+    .SRAM_awaddr  	(LSU_SRAM_awaddr   ),
+    .SRAM_wdata   	(LSU_SRAM_wdata    ),
+    .SRAM_wstrb   	(LSU_SRAM_wstrb    ),
+    .SRAM_awvalid 	(LSU_SRAM_awvalid  ),
+    .SRAM_wvalid  	(LSU_SRAM_wvalid   ),
+    .SRAM_bready  	(LSU_SRAM_bready   ),
+    .SRAM_awready 	(SRAM_LSU_awready  ),
+    .SRAM_wready  	(SRAM_LSU_wready   ),
+    .SRAM_bvalid  	(SRAM_LSU_bvalid   ),
+    .clk          	(clk           )
 );
+
+
+
 
 
 

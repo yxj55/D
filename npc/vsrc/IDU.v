@@ -21,7 +21,10 @@ module ysyx_25030093_IDU(
     input                   rst,
     input                   w_single,
     output      [3:0]       LSU_single,
-    output                  rd_or_LSU_single
+    output                  rd_or_LSU_single,
+    output      [7:0]       wstrb,
+    output                  LOAD_single,
+    output                  STORE_single
 );
 import "DPI-C" function void npc_ebreak();
 
@@ -302,7 +305,12 @@ assign LSU_single = (lb)        ? 4'd0:
 
 assign rd_or_LSU_single = lb | lh | lw | lbu | lhu ;
 
+assign wstrb = sw ? 8'd4 :
+               sh ? 8'd2 :
+               8'd1;
 
+assign LOAD_single = lb | lh | lw | lbu | lhu;
+assign STORE_single = sb | sh | sw;
 
 //------------------------------------------//
 

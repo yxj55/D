@@ -9,7 +9,7 @@ module ysyx_25030093_SRAM(
  //------------------------------------------//
     input       [31:0]   SRAM_awaddr,
     input       [31:0]   SRAM_wdata,
-    input       [2:0]    SRAM_wstrb,
+    input       [7:0]    SRAM_wstrb,
     input                SRAM_awvalid,
     input                SRAM_wvalid,
     input                SRAM_bready,
@@ -25,35 +25,75 @@ import "DPI-C" function int paddr_read(input int raddr);
 
 
 
+reg waddr_state,wdata_state;
+
+
 // 读操作
 always @(posedge clk) begin
-  if(SRAM_arvalid & SRAM_rready)begin
-    SRAM_rdata <= paddr_read(SRAM_araddr);
-    SRAM_rvalid <= 1'b1;
-    SRAM_arready <= 1'b0;
-  end
-  else begin
-    SRAM_rvalid <= 1'b0;
-    SRAM_arready <= 1'b1;
+     if(SRAM_arvalid & SRAM_arready )begin
+       SRAM_rdata <= paddr_read(SRAM_araddr);
+        SRAM_rvalid <= 1'b1;
+      end
+     else if(SRAM_rready & SRAM_rvalid) begin
+       SRAM_rvalid <= 1'b0;
   end
 end
+
+always @(posedge clk) begin
+  if(SRAM_arvalid)begin
+    SRAM_arready <= 1'b1;
+  end
+  else begin
+    SRAM_arready <= 1'b0;
+  end
+end
+
 
 //写操作
 always @(posedge clk) begin
-  if(SRAM_awvalid & SRAM_wvalid & SRAM_bready)begin
-    paddr_write(SRAM_awaddr,SRAM_wstrb,SRAM_wdata);
-    SRAM_awready <= 1'b0;
-    SRAM_wready <= 1'b0;
-    SRAM_bvalid <= 1'b1;
+  if((SRAM_awvalid & SRAM_awready))begin
+    waddr_state <= 1'b1;
   end
-  else begin
-    SRAM_awready <= 1'b1;
-    SRAM_wready  <= 1'b1;
-    SRAM_bvalid  <= 1'b0;
+end
+
+always @(posedge clk) begin
+  if(SRAM_wvalid & SRAM_wready)begin
+    wdata_state <= 1'b1;
   end
 end
 
 
+always @(posedge clk) begin
+  if(wdata_state & waddr_state)begin
+  //  $display("here\n");
+  //$display("SRAM_awaddr = %h SRAM_wstrb = %h SRAM_wdata =%h",SRAM_awaddr,SRAM_wstrb,SRAM_wdata);
+    paddr_write(SRAM_awaddr,SRAM_wstrb,SRAM_wdata);
+    SRAM_bvalid <= 1'b1;
+    waddr_state <= 1'b0;
+    wdata_state <= 1'b0;
+  end
+  else if(SRAM_bready) SRAM_bvalid <= 1'b0;
+end
+
+always@(posedge clk)begin
+  if(SRAM_awvalid)begin
+   SRAM_awready <= 1'b1;
+
+  end
+  else begin 
+    SRAM_awready <= 1'b0;
+
+end
+end
+
+always @(posedge clk) begin
+  if(SRAM_wvalid)begin
+    SRAM_wready <= 1'b1;
+  end
+  else begin
+     SRAM_wready <= 1'b0;
+  end
+end
 
 
 
