@@ -36,54 +36,16 @@ assign inst_done = out_valid_WBU;
      .ready 	(out_ready_IDU_IFU  ),
      .inst_wire  	(inst   ),
      .pc    	(pc     ),
-     .IFU_SRAM_araddr (IFU_SRAM_araddr),
-     .IFU_SRAM_arvalid (IFU_SRAM_arvalid),
-     .IFU_SRAM_rready  (IFU_SRAM_rready),
-     .SRAM_IFU_arready (SRAM_IFU_arready),
-     .SRAM_IFU_rdata   (SRAM_IFU_rdata),
-     .SRAM_IFU_rvalid  (SRAM_IFU_rvalid)
+     .IFU_SRAM_araddr (IFU_araddr),
+     .IFU_SRAM_arvalid (IFU_arvalid),
+     .IFU_SRAM_rready  (IFU_rready),
+     .SRAM_IFU_arready (IFU_arready),
+     .SRAM_IFU_rdata   (IFU_rdata),
+     .SRAM_IFU_rvalid  (IFU_rvalid)
  );
 
 //------------------------------------------//
-//IFU_SRAM
-wire SRAM_IFU_arready;
-wire SRAM_IFU_rvalid;
-wire [31:0] SRAM_IFU_rdata;
-wire [31:0] IFU_SRAM_araddr;
-wire IFU_SRAM_arvalid;
-wire IFU_SRAM_rready;
 
-
-wire SRAM_IFU_awready;
-wire SRAM_IFU_wready;
-wire SRAM_IFU_bvalid;
-
-ysyx_25030093_SRAM IFU_ysyx_25030093_SRAM(
-    .SRAM_arvalid 	(IFU_SRAM_arvalid  ),
-    .SRAM_araddr  	(IFU_SRAM_araddr   ),
-    .SRAM_rready  	(IFU_SRAM_rready   ),
-    .SRAM_rdata   	(SRAM_IFU_rdata    ),
-    .SRAM_rvalid  	(SRAM_IFU_rvalid   ),
-    .SRAM_arready 	(SRAM_IFU_arready  ),
-    .SRAM_awaddr  	(32'd0   ),
-    .SRAM_wdata   	(32'd0    ),
-    .SRAM_wstrb   	(8'd0   ),
-    .SRAM_awvalid 	(1'b0 ),
-    .SRAM_wvalid  	( 1'b0 ),
-    .SRAM_bready  	(1'b0 ),
-    .SRAM_awready 	( SRAM_IFU_awready),
-    .SRAM_wready  	(SRAM_IFU_wready ),
-    .SRAM_bvalid  	( SRAM_IFU_bvalid ),
-    .clk          	(clk           )
-);
-
-
-
-
-
-
-
-//------------------------------------------//
 wire [31:0] inst_wire;
 assign inst_wire = inst;
 
@@ -116,29 +78,29 @@ ysyx_25030093_IDU
 
 u_ysyx_25030093_IDU(
     .imm_or_rs2_other (imm_or_rs2_other),
-    .rs1_pc_other (rs1_pc_other),
-    .out_valid      (out_valid_IDU_EXU),
-    .out_ready      (out_ready_IDU_IFU),
-    .in_valid      (out_valid_IFU),
-    .in_ready       (out_ready_EXU_IDU),
-    .alu_single (alu_single),
-    .pc_single (pc_single),
-    .wen        (wen),
-    .wen_read   (wen_read),
-    .inst_wire       (inst_wire),
-    .imm_data 	(imm_data  ),
-    .rd         (rd),
-    .rs1        (rs1),
-    .rs2        (rs2),
-    .ecall_single      (ecall_single),
-    .wen_csr (wen_csr),
-    .clk    (clk),
-    .rst    (rst),
-    .LSU_single (LSU_single),
+    .rs1_pc_other     (rs1_pc_other),
+    .out_valid        (out_valid_IDU_EXU),
+    .out_ready        (out_ready_IDU_IFU),
+    .in_valid         (out_valid_IFU),
+    .in_ready         (out_ready_EXU_IDU),
+    .alu_single       (alu_single),
+    .pc_single        (pc_single),
+    .wen              (wen),
+    .wen_read         (wen_read),
+    .inst_wire        (inst_wire),
+    .imm_data 	      (imm_data  ),
+    .rd               (rd),
+    .rs1              (rs1),
+    .rs2              (rs2),
+    .ecall_single     (ecall_single),
+    .wen_csr          (wen_csr),
+    .clk              (clk),
+    .rst              (rst),
+    .LSU_single       (LSU_single),
     .rd_or_LSU_single (rd_or_LSU_single),
-    .wstrb      (wstrb),
-    .LOAD_single    (LOAD_single),
-    .STORE_single   (STORE_single)
+    .wstrb            (wstrb),
+    .LOAD_single      (LOAD_single),
+    .STORE_single     (STORE_single)
 );
 
 //------------------------------------------//
@@ -196,85 +158,288 @@ ysyx_25030093_mux41 u_ysyx_25030093_mux41(
 );
 //------------------------------------------//
 
-wire [7:0] wstrb;
+// output declaration of module ysyx_25030093_AXI_Arbiter
+wire [31:0] IFU_araddr;
+wire        IFU_arready;
+wire        IFU_arvalid;
+
+wire [31:0] IFU_rdata;
+wire        IFU_rready;
+wire        IFU_rvalid;
+
+wire        IFU_awready;
+wire        IFU_awvalid;
+wire [31:0] IFU_awaddr;
+
+wire [31:0] IFU_wdata;
+wire        IFU_wvalid;
+wire        IFU_wready;
+
+wire        IFU_bready;
+wire        IFU_bvalid;
+
+wire [31:0] LSU_araddr;
+wire        LSU_arvalid;
+wire        LSU_arready;
+
+wire [31:0] LSU_rdata;
+wire        LSU_rvalid;
+wire        LSU_rready;
+
+wire [31:0] LSU_awaddr;
+wire        LSU_awready;
+wire        LSU_awvalid;
+
+wire [31:0] LSU_wdata;
+wire        LSU_wvalid;
+wire [7:0]  LSU_wstrb;
+wire        LSU_wready;
+
+wire        LSU_bready;
+wire        LSU_bvalid;
+
+wire [31:0] A_SRAM_araddr;
+wire        A_SRAM_arready;
+wire        A_SRAM_arvalid;
+
+wire [31:0] A_SRAM_rdata;
+wire        A_SRAM_rvalid;
+wire        A_SRAM_rready;
+
+wire [31:0] A_SRAM_awaddr;
+wire        A_SRAM_awready;
+wire        A_SRAM_awvalid;
+
+wire [31:0] A_SRAM_wdata;
+wire        A_SRAM_wready;
+wire        A_SRAM_wvalid;
+wire [7:0]  A_SRAM_wstrb;
+
+wire        A_SRAM_bvalid;
+wire        A_SRAM_bready;
+
+ysyx_25030093_AXI_Arbiter 
+
+u_ysyx_25030093_AXI_Arbiter(
+    .clk            	(clk             ),
+    .rst            	(rst             ),
+    .IFU_araddr     	(IFU_araddr      ),
+    .IFU_arvalid    	(IFU_arvalid     ),
+    .IFU_arready    	(IFU_arready     ),
+    .IFU_rdata      	(IFU_rdata       ),
+    .IFU_rvalid     	(IFU_rvalid      ),
+    .IFU_rready     	(IFU_rready      ),
+    .IFU_awaddr     	(IFU_awaddr      ),
+    .IFU_awvalid    	(IFU_awvalid     ),
+    .IFU_awready    	(IFU_awready     ),
+    .IFU_wdata      	(IFU_wdata       ),
+    .IFU_wstrb      	(IFU_wstrb       ),
+    .IFU_wvalid     	(IFU_wvalid      ),
+    .IFU_wready     	(IFU_wready      ),
+    .IFU_bvalid     	(IFU_bvalid      ),
+    .IFU_bready     	(IFU_bready      ),
+    .LSU_araddr     	(LSU_araddr      ),
+    .LSU_arvalid    	(LSU_arvalid     ),
+    .LSU_arready    	(LSU_arready     ),
+    .LSU_rdata      	(LSU_rdata       ),
+    .LSU_rvalid     	(LSU_rvalid      ),
+    .LSU_rready     	(LSU_rready      ),
+    .LSU_awaddr     	(LSU_awaddr      ),
+    .LSU_awvalid    	(LSU_awvalid     ),
+    .LSU_awready    	(LSU_awready     ),
+    .LSU_wdata      	(LSU_wdata       ),
+    .LSU_wstrb      	(LSU_wstrb       ),
+    .LSU_wvalid     	(LSU_wvalid      ),
+    .LSU_wready     	(LSU_wready      ),
+    .LSU_bvalid     	(LSU_bvalid      ),
+    .LSU_bready     	(LSU_bready      ),
+    .A_SRAM_araddr  	(A_SRAM_araddr   ),
+    .A_SRAM_arvalid 	(A_SRAM_arvalid  ),
+    .A_SRAM_arready 	(A_SRAM_arready  ),
+    .A_SRAM_rvalid  	(A_SRAM_rvalid   ),
+    .A_SRAM_rdata   	(A_SRAM_rdata    ),
+    .A_SRAM_rready  	(A_SRAM_rready   ),
+    .A_SRAM_awaddr  	(A_SRAM_awaddr   ),
+    .A_SRAM_awvalid 	(A_SRAM_awvalid  ),
+    .A_SRAM_awready 	(A_SRAM_awready  ),
+    .A_SRAM_wdata   	(A_SRAM_wdata    ),
+    .A_SRAM_wvalid  	(A_SRAM_wvalid   ),
+    .A_SRAM_wstrb   	(A_SRAM_wstrb    ),
+    .A_SRAM_wready  	(A_SRAM_wready   ),
+    .A_SRAM_bready  	(A_SRAM_bready   ),
+    .A_SRAM_bvalid  	(A_SRAM_bvalid   ),
+    .A_UART_araddr      (UART_araddr),
+    .A_UART_arready     (UART_arready),
+    .A_UART_arvalid     (UART_arvalid),
+    .A_UART_rvalid      (UART_rvalid),
+    .A_UART_rready      (UART_rready),
+    .A_UART_rdata       (UART_rdata),
+    .A_UART_awaddr      (UART_awaddr),
+    .A_UART_awvalid     (UART_awvalid),
+    .A_UART_awready     (UART_awready),
+    .A_UART_wdata       (UART_wdata),
+    .A_UART_wstrb       (UART_wstrb),
+    .A_UART_wvalid      (UART_wvalid),
+    .A_UART_wready      (UART_wready),
+    .A_UART_bready      (UART_bready),
+    .A_UART_bvalid      (UART_bvalid),
+    .A_CLINT_araddr     (CLINT_araddr),
+    .A_CLINT_arvalid    (CLINT_arvalid),
+    .A_CLINT_arready    (CLINT_arready),
+    .A_CLINT_rdata      (CLINT_rdata),
+    .A_CLINT_rready     (CLINT_rready),
+    .A_CLINT_rvalid     (CLINT_rvalid),
+    .A_CLINT_awvalid    (CLINT_awvalid),
+    .A_CLINT_awaddr     (CLINT_awaddr),
+    .A_CLINT_awready    (CLINT_awready),
+    .A_CLINT_wvalid     (CLINT_wvalid),
+    .A_CLINT_wready     (CLINT_wready),
+    .A_CLINT_wdata      (CLINT_wdata),
+    .A_CLINT_wstrb      (CLINT_wstrb),
+    .A_CLINT_bready     (CLINT_bready),
+    .A_CLINT_bvalid     (CLINT_bvalid)
+);
+
+
+
+//------------------------------------------//
+
 wire LOAD_single;
 wire STORE_single;
-
+wire [7:0] wstrb;
 //LSU
 ysyx_25030093_LSU u_ysyx_25030093_LSU(
-    .in_valid    	(out_valid_EXU_LSU     ),
-    .in_ready       (out_ready_WBU_LSU),
-    .out_ready      (out_ready_LSU_EXU),
-    .out_valid      (out_valid_LSU_WBU),
-    .rd_data    	(rd_data     ),
-    .rs2_data   	(rs2_data    ),
-    .LSU_data   	(LSU_data    ),
-    .LSU_single 	(LSU_single  ),
-    .clk        	(clk         ),
-    .rst            (rst),
-    .wstrb          (wstrb),
-    .LOAD_single    (LOAD_single),
-    .STORE_single   (STORE_single),
-    .LSU_SRAM_araddr(LSU_SRAM_araddr),
-    .LSU_SRAM_arvalid(LSU_SRAM_arvalid),
-    .LSU_SRAM_rready (LSU_SRAM_rready),
-    .SRAM_LSU_rdata     (SRAM_LSU_rdata),
-    .SRAM_LSU_arready  (SRAM_LSU_arready),
-    .SRAM_LSU_rvalid    (SRAM_LSU_rvalid),
-    .LSU_SRAM_awaddr (LSU_SRAM_awaddr),
-    .LSU_SRAM_awvalid (LSU_SRAM_awvalid),
-    .LSU_SRAM_wstrb (LSU_SRAM_wstrb),
-    .LSU_SRAM_wvalid (LSU_SRAM_wvalid),
-    .LSU_SRAM_bready (LSU_SRAM_bready),
-    .LSU_SRAM_wdata (LSU_SRAM_wdata),
-    .SRAM_LSU_awready (SRAM_LSU_awready),
-    .SRAM_LSU_wready (SRAM_LSU_wready),
-    .SRAM_LSU_bvalid (SRAM_LSU_bvalid)
+    .in_valid    	  (out_valid_EXU_LSU     ),
+    .in_ready         (out_ready_WBU_LSU),
+    .out_ready        (out_ready_LSU_EXU),
+    .out_valid        (out_valid_LSU_WBU),
+    .rd_data    	  (rd_data     ),
+    .rs2_data   	  (rs2_data    ),
+    .LSU_data   	  (LSU_data    ),
+    .LSU_single 	  (LSU_single  ),
+    .clk        	  (clk         ),
+    .rst              (rst),
+    .wstrb            (wstrb),
+    .LOAD_single      (LOAD_single),
+    .STORE_single     (STORE_single),
+    .LSU_SRAM_araddr  (LSU_araddr),
+    .LSU_SRAM_arvalid (LSU_arvalid),
+    .LSU_SRAM_rready  (LSU_rready),
+    .SRAM_LSU_rdata   (LSU_rdata),
+    .SRAM_LSU_arready (LSU_arready),
+    .SRAM_LSU_rvalid  (LSU_rvalid),
+    .LSU_SRAM_awaddr  (LSU_awaddr),
+    .LSU_SRAM_awvalid (LSU_awvalid),
+    .LSU_SRAM_wstrb   (LSU_wstrb),
+    .LSU_SRAM_wvalid  (LSU_wvalid),
+    .LSU_SRAM_bready  (LSU_bready),
+    .LSU_SRAM_wdata   (LSU_wdata),
+    .SRAM_LSU_awready (LSU_awready),
+    .SRAM_LSU_wready  (LSU_wready),
+    .SRAM_LSU_bvalid  (LSU_bvalid)
 );
 
 //------------------------------------------//
 
-//LSU_SRAM
-wire [31:0] SRAM_LSU_rdata;
-wire [31:0] LSU_SRAM_araddr;
-wire LSU_SRAM_arvalid;
-wire LSU_SRAM_rready;
-wire SRAM_LSU_arready;
-wire SRAM_LSU_rvalid;
-
-wire LSU_SRAM_bready;
-wire LSU_SRAM_wvalid;
-wire LSU_SRAM_awvalid;
-wire [31:0] LSU_SRAM_awaddr;
-wire [31:0] LSU_SRAM_wdata;
-wire [7:0]  LSU_SRAM_wstrb;
-wire SRAM_LSU_awready;
-wire SRAM_LSU_wready;
-wire SRAM_LSU_bvalid;
 
 
 ysyx_25030093_SRAM LSU_ysyx_25030093_SRAM(
-    .SRAM_arvalid 	(LSU_SRAM_arvalid  ),
-    .SRAM_araddr  	(LSU_SRAM_araddr   ),
-    .SRAM_rready  	(LSU_SRAM_rready   ),
-    .SRAM_rdata   	(SRAM_LSU_rdata    ),
-    .SRAM_rvalid  	(SRAM_LSU_rvalid   ),
-    .SRAM_arready 	(SRAM_LSU_arready  ),
-    .SRAM_awaddr  	(LSU_SRAM_awaddr   ),
-    .SRAM_wdata   	(LSU_SRAM_wdata    ),
-    .SRAM_wstrb   	(LSU_SRAM_wstrb    ),
-    .SRAM_awvalid 	(LSU_SRAM_awvalid  ),
-    .SRAM_wvalid  	(LSU_SRAM_wvalid   ),
-    .SRAM_bready  	(LSU_SRAM_bready   ),
-    .SRAM_awready 	(SRAM_LSU_awready  ),
-    .SRAM_wready  	(SRAM_LSU_wready   ),
-    .SRAM_bvalid  	(SRAM_LSU_bvalid   ),
+    .SRAM_arvalid 	(A_SRAM_arvalid  ),
+    .SRAM_araddr  	(A_SRAM_araddr   ),
+    .SRAM_rready  	(A_SRAM_rready   ),
+    .SRAM_rdata   	(A_SRAM_rdata    ),
+    .SRAM_rvalid  	(A_SRAM_rvalid   ),
+    .SRAM_arready 	(A_SRAM_arready  ),
+    .SRAM_awaddr  	(A_SRAM_awaddr   ),
+    .SRAM_wdata   	(A_SRAM_wdata    ),
+    .SRAM_wstrb   	(A_SRAM_wstrb    ),
+    .SRAM_awvalid 	(A_SRAM_awvalid  ),
+    .SRAM_wvalid  	(A_SRAM_wvalid   ),
+    .SRAM_bready  	(A_SRAM_bready   ),
+    .SRAM_awready 	(A_SRAM_awready  ),
+    .SRAM_wready  	(A_SRAM_wready   ),
+    .SRAM_bvalid  	(A_SRAM_bvalid   ),
     .clk          	(clk           )
 );
 
+//------------------------------------------//
 
+// output declaration of module ysyx_25030093_UART
+wire [31:0] UART_araddr;
+wire        UART_arvalid;
+wire        UART_arready;
+wire        UART_rready;
+wire        UART_rvalid;
+wire [31:0] UART_rdata;
+wire [31:0] UART_awaddr;
+wire        UART_awvalid;
+wire        UART_awready;
+wire [31:0] UART_wdata;
+wire        UART_wvalid;
+wire        UART_wready;
+wire [7:0]  UART_wstrb;
+wire        UART_bready;
+wire        UART_bvalid;
 
+ysyx_25030093_UART u_ysyx_25030093_UART(
+    .clk          	(clk           ),
+    .UART_araddr  	(UART_araddr   ),
+    .UART_arvalid 	(UART_arvalid  ),
+    .UART_arready 	(UART_arready  ),
+    .UART_rvalid  	(UART_rvalid   ),
+    .UART_rdata   	(UART_rdata    ),
+    .UART_rready  	(UART_rready   ),
+    .UART_awaddr  	(UART_awaddr   ),
+    .UART_awvalid 	(UART_awvalid  ),
+    .UART_awready 	(UART_awready  ),
+    .UART_wdata   	(UART_wdata    ),
+    .UART_wvalid  	(UART_wvalid   ),
+    .UART_wstrb   	(UART_wstrb    ),
+    .UART_wready  	(UART_wready   ),
+    .UART_bready  	(UART_bready   ),
+    .UART_bvalid  	(UART_bvalid   )
+);
+//------------------------------------------//
 
+// output declaration of module ysyx_25030093_CLINT
+wire        CLINT_arready;
+wire [31:0] CLINT_rdata;
+wire        CLINT_rvalid;
+wire        CLINT_rready;
+wire [31:0] CLINT_araddr;
+wire        CLINT_arvalid;
+
+wire [31:0] CLINT_awaddr;
+wire        CLINT_awvalid;
+wire        CLINT_awready;
+
+wire [31:0] CLINT_wdata;
+wire        CLINT_wvalid;
+wire [7:0]  CLINT_wstrb;
+wire        CLINT_wready;
+
+wire        CLINT_bready;
+wire        CLINT_bvalid;
+
+ysyx_25030093_CLINT u_ysyx_25030093_CLINT(
+    .clk           	(clk            ),
+    .CLINT_araddr  	(CLINT_araddr   ),
+    .CLINT_arvalid 	(CLINT_arvalid  ),
+    .CLINT_arready 	(CLINT_arready  ),
+    .CLINT_rready  	(CLINT_rready   ),
+    .CLINT_rdata   	(CLINT_rdata    ),
+    .CLINT_rvalid  	(CLINT_rvalid   ),
+    .CLINT_awaddr   (CLINT_awaddr),
+    .CLINT_awready  (CLINT_awready),
+    .CLINT_awvalid  (CLINT_awvalid),
+    .CLINT_wdata    (CLINT_wdata),
+    .CLINT_wready   (CLINT_wready),
+    .CLINT_wvalid   (CLINT_wvalid),
+    .CLINT_wstrb    (CLINT_wstrb),
+    .CLINT_bready   (CLINT_bready),
+    .CLINT_bvalid   (CLINT_bvalid)
+
+);
 
 
 
@@ -345,12 +510,6 @@ ysyx_25030093_pc u_ysyx_25030093_pc(
 
 
   //------------------------------------------//
-
-
-
-
-
-
 
 
 endmodule

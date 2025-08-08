@@ -38,7 +38,7 @@ always@(posedge clk)begin
            else state <= IDLE;
         end
         Prepare_data:begin
-            if(SRAM_IFU_rvalid) begin
+            if(SRAM_IFU_rvalid & IFU_SRAM_rready) begin
                  inst_wire <= SRAM_IFU_rdata;
                  state <= Occurrence_data;
             end
@@ -63,8 +63,21 @@ always@(posedge clk)begin
     end
 end
 
+
+// output declaration of module random_delay_generator
+wire IFU_arready;
+
+random_delay_generator u_random_delay_generator(
+    .dynamic_seed (8'd211),
+    .clk     	(clk      ),
+    .reset   	(rst    ),
+    .request 	(state == Prepare_data  ),
+    .ready   	(IFU_arready    )
+);
+
+
 always@(posedge clk)begin
-    if(state == Prepare_data)begin
+    if((state == Prepare_data)&IFU_arready)begin
         IFU_SRAM_araddr <= pc;
         IFU_SRAM_arvalid <= 1'b1;
     end

@@ -70,19 +70,19 @@ extern "C" int paddr_read(paddr_t addr) {
     #endif
     return  pmem_read(addr,4);}
    // printf("read now addr =0x%08x\n",addr);
-    if (addr == 0xa0000048 || addr == 0xa000004c) {
-      uint64_t us = get_time();
-      if (addr == 0xa0000048) {
-          return (uint32_t)(us & 0xFFFFFFFF);  // 返回低 32 位
-      } else {
-          return (uint32_t)(us >> 32);         // 返回高 32 位
-      }
-  }
+  //   if (addr == 0xa0000048 || addr == 0xa000004c) {
+  //     uint64_t us = get_time();
+  //     if (addr == 0xa0000048) {
+  //         return (uint32_t)(us & 0xFFFFFFFF);  // 返回低 32 位
+  //     } else {
+  //         return (uint32_t)(us >> 32);         // 返回高 32 位
+  //     }
+  // }
 
   // 处理串口输出 (UART)
-  if (addr == 0xa00003F8) {
-      return 0;  // 串口读取
-  }
+  // if (addr == 0xa00003F8) {
+  //     return 0;  // 串口读取
+  // }
 
 //  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
 //printf(ANSI_BG_RED "addr read\n" ANSI_NONE);
@@ -101,14 +101,14 @@ extern "C" void paddr_write(paddr_t addr, char wstrb, word_t data) {
     pmem_write(addr, wstrb, data); return; }
     // 处理串口输出
    // printf("now addr =0x%08x\n",addr);
-    if (addr == 0xa00003f8) {
-      putchar((char)data);  // 输出字符
-      return;
-  }
+  //   if (addr == 0xa00003f8) {
+  //     putchar((char)data);  // 输出字符
+  //     return;
+  // }
   // 处理计时器
-  if (addr == 0xa0000048 || addr == 0xa000004c) {
-      return;  
-  }
+  // if (addr == 0xa0000048 || addr == 0xa000004c) {
+  //     return;  
+  // }
    // printf("write\n\n");
  // IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
  //printf(ANSI_BG_RED "addr write\n" ANSI_NONE);

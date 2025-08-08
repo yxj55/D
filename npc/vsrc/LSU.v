@@ -104,6 +104,7 @@ reg ar_state;
 // output declaration of module random_delay_generator
 wire ar_ready;
 random_delay_generator ar_random_delay_generator(
+  .dynamic_seed (8'd124),
   .clk     	(clk      ),
   .reset   	(rst    ),
   .request 	( LOAD_single & in_ready & in_valid ),
@@ -111,17 +112,15 @@ random_delay_generator ar_random_delay_generator(
 );
 
 
-
-
 //读地址
 always@(posedge clk)begin
   if(LOAD_single & in_ready & in_valid)begin
-    ar_state <= 1'b1; 
+    ar_state = 1'b1; 
   end
   else if(ar_state & ar_ready)begin
     LSU_SRAM_araddr <= rd_data;
     LSU_SRAM_arvalid <= 1'b1;
-    ar_state <= 1'b0;
+    ar_state = 1'b0;
   end
   else if(SRAM_LSU_arready) begin //检查 arready 下周期拉低 arvalid
     LSU_SRAM_arvalid <=1'b0;
@@ -134,6 +133,7 @@ end
 wire r_ready;
 
 random_delay_generator r_random_delay_generator(
+  .dynamic_seed (8'd231),
   .clk     	(clk      ),
   .reset   	(rst    ),
   .request 	(SRAM_LSU_rvalid  ),
@@ -161,6 +161,7 @@ end
 wire aw_ready;
 
 random_delay_generator aw_random_delay_generator(
+  .dynamic_seed (8'd154),
   .clk     	(clk      ),
   .reset   	(rst    ),
   .request 	(in_ready & in_valid & STORE_single  ),
@@ -173,12 +174,12 @@ reg awaddr_state;
 
 always@(posedge clk)begin
    if(in_ready & in_valid & STORE_single)begin
-     awaddr_state <= 1'b1;
+     awaddr_state = 1'b1;
    end
    else if(awaddr_state & aw_ready)begin
     LSU_SRAM_awaddr <= rd_data;
     LSU_SRAM_awvalid <=1'b1;
-    awaddr_state <= 1'b0;
+    awaddr_state = 1'b0;
   end
   else if(SRAM_LSU_awready) begin
     LSU_SRAM_awvalid <= 1'b0;
@@ -190,6 +191,7 @@ end
 //写数据随机延迟
 wire w_ready;
 random_delay_generator w_random_delay_generator(
+  .dynamic_seed (8'd73),
   .clk     	(clk      ),
   .reset   	(rst    ),
   .request 	(in_ready & in_valid & STORE_single  ),
@@ -201,13 +203,14 @@ reg wdata_state;
 
 always@(posedge clk)begin
    if(in_ready & in_valid & STORE_single)begin
-     wdata_state <= 1'b1;
+     wdata_state = 1'b1;
    end
    if(wdata_state & w_ready )begin
+   // $strobe("wstrb = %h",wstrb);
     LSU_SRAM_wdata <= rs2_data;
     LSU_SRAM_wvalid <= 1'b1; 
     LSU_SRAM_wstrb <= wstrb;
-    wdata_state <= 1'b0;
+    wdata_state = 1'b0;
   end
   else if(SRAM_LSU_wready)begin
     LSU_SRAM_wvalid <= 1'b0;
@@ -219,6 +222,7 @@ end
 wire b_ready;
 
 random_delay_generator u_random_delay_generator(
+  .dynamic_seed (8'd2),
   .clk     	(clk      ),
   .reset   	(rst    ),
   .request 	(SRAM_LSU_bvalid  ),
