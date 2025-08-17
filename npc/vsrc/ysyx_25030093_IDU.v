@@ -17,12 +17,10 @@ module ysyx_25030093_IDU(
     output                  wen_csr,
     output      [1:0]       imm_or_rs2_other,
     output      [1:0]       rs1_pc_other,
-    input                   clk,
-    input                   rst,
-    input                   w_single,
+    input                   clock,
+    input                   reset,
     output      [3:0]       LSU_single,
     output                  rd_or_LSU_single,
-    output      [7:0]       wstrb,
     output                  LOAD_single,
     output                  STORE_single
 );
@@ -37,8 +35,8 @@ reg [1:0] state;
 
 
 
-always@(posedge clk)begin
-    if(rst)begin
+always@(posedge clock)begin
+    if(reset)begin
         state <= IDLE;
     end
     else begin
@@ -54,6 +52,9 @@ always@(posedge clk)begin
             state <= Occurrence_data;
         end
         Occurrence_data:begin
+            state <= IDLE;
+        end
+        default:begin
             state <= IDLE;
         end
         endcase
@@ -305,9 +306,6 @@ assign LSU_single = (lb)        ? 4'd0:
 
 assign rd_or_LSU_single = lb | lh | lw | lbu | lhu ;
 
-assign wstrb = sw ? 8'd4 :
-               sh ? 8'd2 :
-               8'd1;
 
 assign LOAD_single = lb | lh | lw | lbu | lhu;
 assign STORE_single = sb | sh | sw;

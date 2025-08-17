@@ -85,10 +85,10 @@ static int cmd_x(char *args){
 	vaddr_t address;
 	sscanf(N,"%d",&scan_len);
 	sscanf(EXPR,"%x",&address);
-	for(int i=0;i<scan_len;i++){
-		printf("0x%x:%x\n",address,vaddr_read(address,4));
-		address+=4;
-	}
+	// for(int i=0;i<scan_len;i++){
+	// 	printf("0x%x:%x\n",address,vaddr_read(address,4));
+	// 	address+=4;
+	// }
 	return 0;
 }
 static int cmd_p(char *args){

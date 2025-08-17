@@ -7,12 +7,23 @@ module ysyx_25030093_alu(
     input wire [31:0]       csr_data,
     output reg [31:0]       csr_wdata,
     input      [31:0]       alu_data2,
-    input      [31:0]       alu_data1
+    input      [31:0]       alu_data1,
+    input                   reset
     );
 reg [31:0] t;
 
 always@(*)begin
-    if(alu_run) begin
+        rd_data = 32'd0;
+        B_single = 1'b0;
+        csr_wdata = 32'd0;
+        t = 32'd0;
+    if(reset)begin
+        rd_data = 32'd0;
+        B_single = 1'b0;
+        csr_wdata = 32'd0;
+        t = 32'd0;
+    end
+    else if(alu_run) begin
     //$display("now alu_data1 = %h alu_data2 = %h",alu_data1,alu_data2);
     case(alu_single)
     5'd0: rd_data = alu_data1 + alu_data2;
@@ -47,6 +58,12 @@ always@(*)begin
     default: rd_data = 32'd0;
     endcase
     end
+   else begin
+        rd_data = 32'd0;
+        B_single = 1'b0;
+        csr_wdata = 32'd0;
+        t = 32'd0;
+   end
 end
 
 

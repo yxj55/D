@@ -1,5 +1,5 @@
 module ysyx_25030093_Register #(ADDR_WIDTH = 5, DATA_WIDTH = 32) (
-  input                   clk,
+  input                   clock,
   input [DATA_WIDTH-1:0]  wdata,
   input [ADDR_WIDTH-1:0]  waddr,
   input                   wen,
@@ -12,7 +12,7 @@ module ysyx_25030093_Register #(ADDR_WIDTH = 5, DATA_WIDTH = 32) (
 );
 
   reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
-  always @(posedge clk) begin
+  always @(posedge clock) begin
 
      if ((wen & waddr != 0) & in_valid) begin
   //  $display("Write: addr=%d, wdata=%h, stored=%h wen=%d", waddr, wdata, rf[waddr],wen);
@@ -28,7 +28,7 @@ module ysyx_25030093_Register #(ADDR_WIDTH = 5, DATA_WIDTH = 32) (
 endmodule
 
 module ysyx_25030093_CSR_REG(
-  input                  clk,
+  input                  clock,
   output wire [31:0]     csr_data,
   output wire [31:0]     csr_data_pc,
   input       [31:0]     imm_csr,
@@ -48,14 +48,14 @@ module ysyx_25030093_CSR_REG(
   32'h342: begin position = 2'd2;end //mcause
   32'h300: begin position = 2'd3;end//mstatus
   default: begin
-    
+    position = 2'd3;
   end
   endcase
 end
 initial begin
   csr[3] = 32'h1800;
 end
-always@(posedge clk)begin
+always@(posedge clock)begin
   if(wen_csr & in_valid) begin
     csr[position] <= csr_wdata;
   end
@@ -65,6 +65,10 @@ always@(*)begin
   if(ecall_single)begin
     csr[2] = 32'd11;
     csr[1] = ecall_now_pc;
+  end
+  else begin
+    csr[2] = 32'd0;
+    csr[1] = 32'b0;
   end
 end
 assign csr_data_pc = (ecall_single)?csr[0]:csr[1];//ecall -> mtvec  mret -> mepc

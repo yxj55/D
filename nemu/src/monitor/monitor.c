@@ -12,7 +12,7 @@
 *
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
-
+#include <stdio.h>
 #include <isa.h>
 #include <memory/paddr.h>
 
@@ -114,6 +114,7 @@ void init_monitor(int argc, char *argv[]) {
   init_log(log_file);
 
   /* Initialize memory. */
+  
   init_mem();
 
   /* Initialize devices. */
@@ -124,7 +125,7 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Load the image to memory. This will overwrite the built-in image. */
   long img_size = load_img();
-
+  printf("here\n\n");
   /* Initialize differential testing. */
   init_difftest(diff_so_file, img_size, difftest_port);
 

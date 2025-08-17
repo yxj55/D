@@ -343,12 +343,12 @@ uint32_t eval(int p,int q){
 	if(tokens[op].type==TK_DEREF){
 		if(tokens[op+1].type==TK_H){
 				char *con=tokens[op+1].str; 
-				return vaddr_read(hex(con),4);			
+				// return vaddr_read(hex(con),4);			
 		}
 		else if(tokens[op+1].type==TK_ACRG){
 			bool success=true;
 			word_t der_reg=isa_reg_str2val(tokens[op+1].str,&success);
-			return vaddr_read(der_reg,4);
+			// return vaddr_read(der_reg,4);
 		}
 	}
     uint32_t val1 = eval(p, op - 1);

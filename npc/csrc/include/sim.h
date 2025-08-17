@@ -6,6 +6,8 @@
 
 extern "C" void npc_ebreak();
 
+
+
 void step_and_dump_wave();
  
 void single_clk();

@@ -22,8 +22,8 @@
 
 #include "verilated.h"
 #include "verilated_vcd_c.h"
-#include "Vysyx_25030093_top.h"
-#include "Vysyx_25030093_top___024root.h"
+#include "VysyxSoCFull.h"
+#include "VysyxSoCFull___024root.h"
 // Located at src/isa/$(GUEST_ISA)/include/isa-def.h
 //#include <isa-def.h>
 
@@ -38,7 +38,7 @@ void init_isa();
 
 extern VerilatedContext* contextp ;
 extern VerilatedVcdC* tfp ;
-extern Vysyx_25030093_top *top;
+extern VysyxSoCFull *top;
 
 //reg
 extern CPU_state cpu;

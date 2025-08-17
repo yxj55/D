@@ -28,14 +28,14 @@ static const uint32_t img [] = {
 
 VerilatedContext* contextp = NULL;  
 VerilatedVcdC* tfp = NULL;         
-Vysyx_25030093_top *top = NULL;    
+VysyxSoCFull *top = NULL;    
 
 
 
 void sim_init() {
   contextp = new VerilatedContext;
   tfp = new VerilatedVcdC;
-  top = new Vysyx_25030093_top;
+  top = new VysyxSoCFull;
 
   contextp->traceEverOn(true);
   top->trace(tfp, 5);
@@ -43,7 +43,7 @@ void sim_init() {
 }
 static void restart() {
   /* Set the initial program counter. */
-  top->pc = RESET_VECTOR;
+  cpu.pc = RESET_VECTOR;
 
   /* The zero register is always 0. */
   

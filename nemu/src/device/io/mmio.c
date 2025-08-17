@@ -37,7 +37,7 @@ void add_mmio_map(const char *name, paddr_t addr, void *space, uint32_t len, io_
   assert(nr_map < NR_MAP);
   paddr_t left = addr, right = addr + len - 1;
   //检查物理地址是否重叠
-  if (in_pmem(left) || in_pmem(right)) {
+  if (in_mrom(left) || in_mrom(right)) {
     report_mmio_overlap(name, left, right, "pmem", PMEM_LEFT, PMEM_RIGHT);
   }
   //检查MMIO区域是否重叠

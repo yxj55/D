@@ -16,9 +16,9 @@
 #include <cpu.h>
 #include </home/yuanxiao/ysyx-workbench/npc/csrc/include/reg.h>
 #include <locale.h>
-#include <ifetch.h>
 #include <common.h>
 #include <memory/paddr.h>
+#include "svdpi.h"
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -26,6 +26,8 @@
  * You can modify this value as you want.
  */
 #define MAX_INST_TO_PRINT 10
+
+static int now_state;
 
 IFDEF(CONFIG_ITRACE, char logbuf[128]);
 CPU_state cpu ={};
@@ -47,9 +49,10 @@ static void trace_and_difftest() {
 */
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(logbuf)); }
 #ifdef CONFIG_DIFFTEST
-if(top->inst_done){
-  single_clk();
-  difftest_step(top->pc, top->pc );
+if(now_state){
+   single_clk();
+
+  difftest_step(cpu.pc  , cpu.pc  );
 }
 #endif
 #ifdef CONFIG_WATCHPOINT
@@ -67,7 +70,7 @@ static void exec_once(){
 
 #ifdef CONFIG_ITRACE
   char *p = logbuf;
-  p += snprintf(p, sizeof(logbuf), FMT_WORD ":", top->pc);
+  p += snprintf(p, sizeof(logbuf), FMT_WORD ":", cpu.pc);
   int ilen = 4;
   int i;
   uint8_t *inst = (uint8_t *)&top->inst;
@@ -145,6 +148,15 @@ void cpu_exec(uint64_t n) {
            (npc_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           npc_state.halt_pc);
+
+          #ifdef CONFIG_OPEN_FAIL
+          if(npc_state.state == NPC_ABORT){
+            sim_exit();
+            assert(0);
+          }
+          #endif
+
+
           #ifdef CONFIG_ITRACE
           if((npc_state.state==NPC_END)){
           // printf("itrace right\n");
@@ -153,4 +165,10 @@ void cpu_exec(uint64_t n) {
           #endif
           
   }
+}
+extern "C" void get_pc(uint32_t pc){
+  cpu.pc = pc;
+}
+extern "C" void get_inst_done(int single){
+  now_state = single;
 }

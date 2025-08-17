@@ -1,6 +1,6 @@
 #include <isa.h>
 #include<sim.h>
-#include "Vysyx_25030093_top___024root.h"
+#include "VysyxSoCFull___024root.h"
 #include<cpu.h>
 #include <reg.h>
 
@@ -13,21 +13,21 @@ void step_and_dump_wave(){
 }
 void single_clk(){
   // 上升沿
-    top->clk = 1;
+    top->clock = 1;
     top->eval();
     tfp->dump(contextp->time());  // 记录下降沿波形
     contextp->timeInc(1);
 
     // 下降沿
-    top->clk = 0;
+    top->clock = 0;
     top->eval();
     tfp->dump(contextp->time());  // 记录上升沿波形
     contextp->timeInc(1);
 }
 void reset(int n){
-  top->rst=1;
+  top->reset=1;
   while(n--) single_clk();
-  top->rst=0;
+  top->reset=0;
 }
 void sim_exit(){
   single_clk();
@@ -36,7 +36,7 @@ void sim_exit(){
 extern "C" void npc_ebreak(){
 
  // printf("ebreak here\n");
-  NPCTRAP(top->pc,cpu.gpr[10]);
+  NPCTRAP(cpu.pc,cpu.gpr[10]);
   //printf("NOW NPC_state %d\n",npc_state.state);
  // isa_reg_display();
  //printf("here error\n");
@@ -44,3 +44,4 @@ extern "C" void npc_ebreak(){
  sim_exit();
  free(top);
 }
+

@@ -2,8 +2,8 @@ module ysyx_25030093_WBU(
    input                in_valid,
    output               out_valid,
    output               out_ready,
-   input                rst,
-   input                clk,
+   input                reset,
+   input                clock,
    input   [31:0]       rd_data,
    input   [31:0]       LSU_data,
    input                rd_or_LSU_single,
@@ -15,8 +15,8 @@ parameter IDLE =2'b00,Prepare_data = 2'b01,Occurrence_data = 2'b10;
 reg [1:0] state;
 
 
-always@(posedge clk)begin
-    if(rst)begin
+always@(posedge clock)begin
+    if(reset)begin
         state <= IDLE;
     end
     else begin
@@ -34,6 +34,9 @@ always@(posedge clk)begin
             state <= Occurrence_data;
         end
         Occurrence_data:begin
+            state <= IDLE;
+        end
+        default:begin
             state <= IDLE;
         end
         endcase

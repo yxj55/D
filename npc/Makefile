@@ -6,6 +6,8 @@ MAKE = make
 WORK_DIR = $(shell pwd)
 BUILD_DIR = $(WORK_DIR)/build
 INC_PATH := $(wildcard $(WORK_DIR)/csrc/include/ $(WORK_DIR)/csrc/include/**/ $(WORK_DIR)/include/ $(WORK_DIR)/include/**/ )
+INC_PATH += /home/yuanxiao/ysyx-workbench/ysyxSoC/perip/uart16550/rtl/
+INC_PATH += /home/yuanxiao/ysyx-workbench/ysyxSoC/perip/spi/rtl/
 INCFLAGS := $(addprefix -I, $(INC_PATH))
 
 DIFF_REF_PATH = $(NEMU_HOME)/build
@@ -16,24 +18,30 @@ DIFF_REF_SO = $(DIFF_REF_PATH)/riscv32-nemu-interpreter-so
 
 # Verilator 编译选项
 VERILATOR_FLAGS += --cc --exe --build
-VERILATOR_FLAGS += -CFLAGS "$(INCFLAGS)"
+VERILATOR_FLAGS += -CFLAGS "$(INCFLAGS)-g"
 VERILATOR_FLAGS += -LDFLAGS "-lreadline -lhistory -lrt"
-VERILATOR_FLAGS += -Wno-lint -Wno-style --x-assign unique
+VERILATOR_FLAGS += -Wno-UNUSED --x-assign unique
 VERILATOR_FLAGS += --Mdir $(BUILD_DIR) \
                    --build \
                    -CFLAGS "$(INCFLAGS)"
 VERILATOR_FLAGS += -O3 --x-assign fast --x-initial fast --noassert 
 VERILATOR_FLAGS += --trace   # 可选：生成波形支持
-#VERILATOR_FLAGS += --timescale-override "1ps/1ps" --timing
+VERILATOR_FLAGS += --timescale "1ns/1ns" --no-timing -autoflush
 
 
 # 源文件设置
 VSRC_DIR = vsrc
 CSRC_DIR = csrc
-TOP_MODULE = ysyx_25030093_top  # 修改为你的顶层模块名
+TOP_MODULE = ysyxSoCFull  # 修改为你的顶层模块名
 
 # 自动查找所有 Verilog 文件
 VSOURCES = $(shell find $(VSRC_DIR) -name "*.v")
+VSOURCES += $(abspath $(shell find ../ysyxSoC/perip -type f -name "*.v"))
+VSOURCES += $(abspath ../ysyxSoC/build/ysyxSoCFull.v)
+
+
+#$(info VSOURCES = $(VSOURCES))
+
 CSRCS = $(wildcard $(WORK_DIR)/csrc/src/*.c $(WORK_DIR)/csrc/src/**/*.c $(WORK_DIR)/csrc/*.cpp $(WORK_DIR)/csrc/src/**/**/*.c )
 
 #$(info CSRCS : $(CSRCS))
@@ -55,10 +63,12 @@ $(info IMGELF =$(IMGELF))
 #ARGS += $(IMGELF) 
 ARGS += -d $(DIFF_REF_SO)
 
-#ARGS += -b
+ARGS += -b
 ARGS += $(IMG)
+#ARGS += /home/yuanxiao/ysyx-workbench/am-kernels/tests/cpu-tests/build/char-test-riscv32e-ysyxsoc.bin
 $(info ARGS = $(ARGS))
-
+GDB ?= 0  # 默认为0，不启动GDB
+GDB_CMD ?= gdb  # 可替换为cgdb等调试器
 # 默认目标
 all: compile run verilator
 
@@ -68,21 +78,29 @@ include $(NPC_HOME)/scripts/config.mk
 
 verilator:$(VSOURCES) $(CSRCS)
 	@echo "Verilating $(VSOURCES)..."
-	$(VERILATOR) $(VERILATOR_FLAGS) \
+	@$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOP_MODULE) \
 		$(VSOURCES) $(CSRCS) $(INCFLAGS)
 
 # 编译仿真程序
 run:verilator 
 	@echo "making"
-	make -C build -f Vysyx_25030093_top.mk Vysyx_25030093_top
+	make -C build -f VysyxSoCFull.mk VysyxSoCFull
 	@echo "Running simulation..."
-	./build/Vysyx_25030093_top $(ARGS)
+	@if [ $(GDB) -eq 1 ]; then \
+		echo "Starting with GDB..."; \
+		$(GDB_CMD) --args ./$(EXE) $(ARGS); \
+	else \
+	./build/VysyxSoCFull $(ARGS);\
+	fi
 
 gtkwave:
-	sed -i 's/\$timescale 1s/\$timescale 1ps/' dump.vcd
-	gtkwave dump.vcd
+	gtkwave dump.vcd &
+
+gdb:
+	@make run GDB=1
 # 清理生成文件
+
 clean:
 	rm -rf $(OBJ_DIR) 
 	rm -f *.vcd

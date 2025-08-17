@@ -1,10 +1,10 @@
 #include "verilated.h"
 #include "verilated_vcd_c.h"
-#include "Vysyx_25030093_top.h"
+#include "VysyxSoCFull.h"
 #include <common.h>
 #include <memory/paddr.h>
 #include <isa.h>
-#include <ifetch.h>
+
 
 
 
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 
 // uint32_t *memory = init_mem(4);
  //printf("right\n");
-  reset(2);
+  reset(11);
 
  sdb_mainloop();
  

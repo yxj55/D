@@ -1,7 +1,7 @@
 // 基于LFSR的随机延迟生成器
 module random_delay_generator (
     input wire [LFSR_WIDTH-1:0] dynamic_seed,  // 新增种子输入
-    input wire clk,          // 时钟信号
+    input wire clock,          // 时钟信号
     input wire reset,      // 异步低电平复位
     input wire request,       // 使能信号，开始生成随机延迟
     output reg ready    // 延迟完成标志
@@ -22,7 +22,7 @@ module random_delay_generator (
     wire lfsr_feedback = lfsr[7] ^ lfsr[5] ^ lfsr[4] ^ lfsr[3];
     
     // 主逻辑
-    always @(posedge clk ) begin
+    always @(posedge clock ) begin
         if (reset) begin
             // 异步复位
             lfsr <= dynamic_seed;

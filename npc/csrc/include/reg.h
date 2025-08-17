@@ -18,7 +18,7 @@
 
 #include <common.h>
 #include <isa.h>
-extern Vysyx_25030093_top___024root* rootp ;
+extern VysyxSoCFull___024root* rootp ;
 
 /*
 static inline int csr_name(int i){

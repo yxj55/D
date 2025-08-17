@@ -4,10 +4,9 @@ module ysyx_25030093_EXU(
     output wire                 out_ready,
     input                       in_valid,
     input                       in_ready,
-    input                       clk,
-    input                       rst,
+    input                       clock,
+    input                       reset,
     input      [4:0]            alu_single,
-    input wire [31:0]           rs2_data,
     output reg [31:0]           rd_data,
     output reg                  B_single,
     input wire [31:0]           csr_data,
@@ -22,8 +21,8 @@ reg [1:0] state;
 reg alu_run;
 
 
-always@(posedge clk)begin
-    if(rst)begin
+always@(posedge clock)begin
+    if(reset)begin
         state <= IDLE;
     end
     else begin
@@ -31,9 +30,10 @@ always@(posedge clk)begin
         IDLE:begin
            if(in_ready & in_valid) begin
                 state <= Prepare_data;
+                 alu_run <= 1'b0;
            end
            else begin
-            alu_run <= 1'b0;
+           // alu_run <= 1'b0;
             state <= IDLE;
         end
            end 
@@ -43,7 +43,10 @@ always@(posedge clk)begin
         end
         Occurrence_data:begin
             state <= IDLE;
-            alu_run <= 1'b0;
+           // alu_run <= 1'b0;
+        end
+        default:begin
+            state <= IDLE;
         end
         endcase
     end
@@ -62,13 +65,12 @@ ysyx_25030093_alu u_ysyx_25030093_alu(
    .alu_run     (alu_run),
     .alu_single  (alu_single),
     .rd_data      	(rd_data       ),
-    
+    .reset          (reset),
     .B_single        (B_single),
      .csr_data   (csr_data),
     .csr_wdata  (csr_wdata),
     .alu_data2  (alu_data2),
     .alu_data1  ( alu_data1)
 );
-
 
 endmodule
