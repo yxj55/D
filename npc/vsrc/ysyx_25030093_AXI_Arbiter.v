@@ -1,4 +1,5 @@
 module ysyx_25030093_AXI_Arbiter(
+    input       [31:0]    offset,
     input                 clock,
     input                 reset,
 //---------------IFU读地址----------------//     
@@ -142,7 +143,12 @@ module ysyx_25030093_AXI_Arbiter(
     input       [3:0]      A_CLINT_bid
 
 );
-parameter IFU = 3'b000, LSU_ar_IDLE = 3'b001, LSU_aw_IDLE = 3'b010 ,LSU_ar_Soc = 3'b011,LSU_aw_Soc = 3'b100,LSU_ar_CLINT = 3'b101,LSU_aw_CLINT = 3'b110,IDLE= 3'b111;
+parameter IFU = 4'b0000,
+ LSU_ar_IDLE = 4'b0001, LSU_aw_IDLE = 4'b0010 ,
+ LSU_ar_Soc_RAM = 4'b0011,LSU_aw_Soc_RAM = 4'b0100,
+ LSU_ar_CLINT = 4'b0101,LSU_aw_CLINT = 4'b0110,IDLE= 4'b0111,
+ LSU_ar_Soc_UART = 4'b1000,LSU_aw_Soc_UART = 4'b1001;
+ 
 
 
 reg aw_state,w_state;
@@ -164,7 +170,7 @@ end
 
 
 
-reg [2:0] state;
+reg [3:0] state;
 
 always @(posedge clock) begin
     if(reset)begin
@@ -194,21 +200,33 @@ always @(posedge clock) begin
         if((LSU_araddr == 32'ha0000048)||(LSU_araddr == 32'ha000004c))begin
             state <= LSU_ar_CLINT;
         end
-        else state <= LSU_ar_Soc;
+        else if((LSU_araddr >= 32'h10000000)&(LSU_araddr <= 32'h10000fff))begin
+            state <= LSU_ar_Soc_UART;
+        end
+        else state <= LSU_ar_Soc_RAM;
     end
     LSU_aw_IDLE:begin
         if((LSU_awaddr == 32'ha0000048)||(LSU_awaddr == 32'ha000004c))begin
             state <= LSU_aw_CLINT;
         end
+        else if((LSU_awaddr >= 32'h10000000)&(LSU_awaddr <= 32'h10000fff))begin
+            state <= LSU_aw_Soc_UART;
+        end
         else begin
-            state <= LSU_aw_Soc;     
+            state <= LSU_aw_Soc_RAM;     
         end 
     end
-    LSU_ar_Soc:begin
+    LSU_ar_Soc_RAM:begin
         if(LSU_rvalid & LSU_rready)begin
             state <= IDLE;
         end
-        else state <= LSU_ar_Soc;
+        else state <= LSU_ar_Soc_RAM;
+    end
+    LSU_ar_Soc_UART:begin
+         if(LSU_rvalid & LSU_rready)begin
+            state <= IDLE;
+        end
+        else state <= LSU_ar_Soc_UART;
     end
     LSU_ar_CLINT:begin
         if(LSU_rvalid & LSU_rready)begin
@@ -216,15 +234,15 @@ always @(posedge clock) begin
         end
         else state <= LSU_ar_CLINT;
     end
-    LSU_aw_Soc:begin
+    LSU_aw_Soc_RAM:begin
         if(LSU_bvalid & LSU_bready )begin
             state <= IDLE;
              aw_state <= 1'b0;
             w_state <= 1'b0;
         end
         else begin 
-            state <= LSU_aw_Soc;
-              aw_state <= 1'b0;
+            state <= LSU_aw_Soc_RAM;
+            aw_state <= 1'b0;
             w_state <= 1'b0;
         end
     end
@@ -236,6 +254,18 @@ always @(posedge clock) begin
         end
         else begin
             state <= LSU_aw_CLINT;
+            aw_state <= 1'b0;
+            w_state <= 1'b0;
+        end
+    end
+    LSU_aw_Soc_UART:begin
+         if(LSU_bvalid & LSU_bready)begin
+            state <= IDLE;
+            aw_state <= 1'b0;
+            w_state <= 1'b0;
+        end
+        else begin
+            state <= LSU_aw_Soc_UART;
             aw_state <= 1'b0;
             w_state <= 1'b0;
         end
@@ -360,13 +390,13 @@ always@(*)begin
      A_CLINT_wvalid   = 1'b0;
             
   end  
-  LSU_ar_Soc:begin
+  LSU_ar_Soc_RAM:begin
    // $display("now LSU_awaddr = %h ",LSU_awaddr);
    // $display("LSU_araddr = %h",LSU_araddr);
    // $display("LSU_wstrb = %h",LSU_wstrb);
    // $display("now single %h",((LSU_awaddr > 32'h80000000) && (LSU_awaddr < 32'h80ffffff)) && (((LSU_araddr > 32'h80000000) && (LSU_araddr < 32'h80ffffff))));
              //    $display("here");
-                  araddr           = LSU_araddr;
+                  araddr           = {LSU_araddr[31:2],2'b00};
                   arvalid          = LSU_arvalid;
                   arburst          = LSU_arburst;
                   arid             = LSU_arid;
@@ -404,7 +434,86 @@ always@(*)begin
                   A_CLINT_awvalid  = 1'b0;
                   A_CLINT_wvalid   = 1'b0;
   end
-  LSU_aw_Soc:  begin
+  LSU_aw_Soc_RAM:  begin
+                  araddr           = 32'b0;
+                  arvalid          = 1'b0;
+                  arburst          = LSU_arburst;
+                  arid             = LSU_arid;
+                  arlen            = LSU_arlen;
+                  arsize           = LSU_arsize;
+                  LSU_arready      = 1'b0;
+
+                  rready           = LSU_rready;
+                  LSU_rvalid       = 1'b0;
+                  LSU_rdata        = rdata;
+                  LSU_rid          = rid;
+                  LSU_rlast        = rlast;
+                  LSU_rresp        = rresp;
+
+                  awaddr           ={LSU_awaddr[31:2],2'b00};
+                  awvalid          = LSU_awvalid;
+                  awburst          = LSU_awburst;
+                  awid             = LSU_awid;
+                  awlen            = LSU_awlen;
+                  awsize           = LSU_awsize;
+                  LSU_awready      = awready; 
+
+                  wdata            = LSU_wdata << offset;
+                  wstrb            = LSU_wstrb;
+                  wvalid           = LSU_wvalid;
+                  LSU_wready       = wready;
+                  wlast            = LSU_wlast;
+
+                  LSU_bvalid       = bvalid;
+                  LSU_bid          = bid;
+                  LSU_bresp        = bresp;
+                  bready           = LSU_bready;
+
+                  A_CLINT_arvalid  = 1'b0;
+                  A_CLINT_awvalid  = 1'b0;
+                  A_CLINT_wvalid   = 1'b0;  
+    
+    end
+    LSU_ar_Soc_UART:begin
+                  araddr           = LSU_araddr;
+                  arvalid          = LSU_arvalid;
+                  arburst          = LSU_arburst;
+                  arid             = LSU_arid;
+                  arlen            = LSU_arlen;
+                  arsize           = LSU_arsize;
+                  LSU_arready      = arready;
+
+                  rready           = LSU_rready;
+                  LSU_rvalid       = rvalid;
+                  LSU_rdata        = rdata;
+                  LSU_rid          = rid;
+                  LSU_rlast        = rlast;
+                  LSU_rresp        = rresp;
+
+                  awaddr           = 32'b0;
+                  awvalid          = 1'b0;
+                  awburst          = LSU_awburst;
+                  awid             = LSU_awid;
+                  awlen            = LSU_awlen;
+                  awsize           = LSU_awsize;
+                  LSU_awready      = awready; 
+
+                  wdata            = 32'b0;
+                  wstrb            = LSU_wstrb;
+                  wvalid           = 1'b0;
+                  LSU_wready       = wready;
+                  wlast            = LSU_wlast;
+
+                  LSU_bvalid       = bvalid;
+                  LSU_bid          = bid;
+                  LSU_bresp        = bresp;
+                  bready           = LSU_bready;
+
+                  A_CLINT_arvalid  = 1'b0;
+                  A_CLINT_awvalid  = 1'b0;
+                  A_CLINT_wvalid   = 1'b0;
+    end
+    LSU_aw_Soc_UART:begin
                   araddr           = 32'b0;
                   arvalid          = 1'b0;
                   arburst          = LSU_arburst;
@@ -428,7 +537,7 @@ always@(*)begin
                   awsize           = LSU_awsize;
                   LSU_awready      = awready; 
 
-                  wdata            = LSU_wdata;
+                  wdata            = LSU_wdata ;
                   wstrb            = LSU_wstrb;
                   wvalid           = LSU_wvalid;
                   LSU_wready       = wready;
@@ -441,8 +550,7 @@ always@(*)begin
 
                   A_CLINT_arvalid  = 1'b0;
                   A_CLINT_awvalid  = 1'b0;
-                  A_CLINT_wvalid   = 1'b0;  
-    
+                  A_CLINT_wvalid   = 1'b0;
     end
   LSU_ar_CLINT:begin
        // $display("CLINT");

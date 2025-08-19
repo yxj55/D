@@ -12,7 +12,7 @@ module ysyx_25030093_LSU(
     input       [3:0]    LSU_single,
     input                clock,
     input                reset,
-
+    output      [31:0]   offset,
 //---------------------读数据-------------------//
     input       [31:0]   LSU_rdata,  //   读数据
     input                LSU_rvalid, //读数据有效
@@ -158,7 +158,7 @@ always@(posedge clock)begin
     ar_state <= 1'b1; 
   end
   else if(ar_state )begin
-    LSU_araddr <= {rd_data[31:2], 2'b00};
+    LSU_araddr <= rd_data;
     LSU_arvalid <= 1'b1;
     LSU_arburst <= 2'b01;
     LSU_arlen <= 8'b0; 
@@ -230,7 +230,7 @@ always@(posedge clock)begin
    end
    else if(awaddr_state )begin
     // $display("addr =%h",{rd_data[31:2], 2'b00});
-    LSU_awaddr  <= {rd_data[31:2], 2'b00};
+    LSU_awaddr  <= rd_data;
     LSU_awvalid <=1'b1;
     LSU_awburst <= 2'b01;
     LSU_awlen   <= 8'd0;
@@ -251,7 +251,7 @@ always@(posedge clock)begin
  
 end
 
-wire [31:0] w_data;
+
 wire [3:0] wstrb;
 assign wstrb  =   ((rd_data[1:0] == 2'b00) & (LSU_single == 4'd5)) ? 4'b0001 :
                   ((rd_data[1:0] == 2'b01) & (LSU_single == 4'd5)) ? 4'b0010 :
@@ -263,13 +263,13 @@ assign wstrb  =   ((rd_data[1:0] == 2'b00) & (LSU_single == 4'd5)) ? 4'b0001 :
                   ((rd_data[1:0] == 2'b11) & (LSU_single == 4'd6)) ? 4'b1100 :
                   (LSU_single == 4'd7) ? 4'b1111 :
                   4'b0001;
-assign w_data =   ((wstrb == 4'b0001) & (LSU_single == 4'd5) &(wdata_state)) ?  rs2_data :
-                  ((wstrb == 4'b0010) & (LSU_single == 4'd5) &(wdata_state)) ?  rs2_data << 32'd8 :
-                  ((wstrb == 4'b0100) & (LSU_single == 4'd5) &(wdata_state)) ?  rs2_data << 32'd16 :
-                  ((wstrb == 4'b1000) & (LSU_single == 4'd5) &(wdata_state)) ?  rs2_data << 32'd24 :
-                  ((wstrb == 4'b0011) & (LSU_single == 4'd6) &(wdata_state)) ?  rs2_data :
-                  ((wstrb == 4'b1100) & (LSU_single == 4'd6) &(wdata_state)) ?  rs2_data << 16 :
-                  (LSU_single == 4'd7) ? rs2_data : 32'd0;
+assign offset =   ((wstrb == 4'b0001) & (LSU_single == 4'd5) &(LSU_wvalid)) ?  32'd0 :
+                  ((wstrb == 4'b0010) & (LSU_single == 4'd5) &(LSU_wvalid)) ?  32'd8 :
+                  ((wstrb == 4'b0100) & (LSU_single == 4'd5) &(LSU_wvalid)) ?  32'd16 :
+                  ((wstrb == 4'b1000) & (LSU_single == 4'd5) &(LSU_wvalid)) ?  32'd24 :
+                  ((wstrb == 4'b0011) & (LSU_single == 4'd6) &(LSU_wvalid)) ?  32'd0  :
+                  ((wstrb == 4'b1100) & (LSU_single == 4'd6) &(LSU_wvalid)) ?  32'd16 :
+                  (LSU_single == 4'd7) ? 32'd0 : 32'd0;
                  
 
 //写数据随机延迟
@@ -291,7 +291,7 @@ always@(posedge clock)begin
    end
    if(wdata_state  )begin
    // $strobe("wstrb = %h",wstrb);
-    LSU_wdata <= w_data;
+    LSU_wdata <= rs2_data;
     LSU_wvalid <= 1'b1; 
     LSU_wlast <= 1'b1;
     LSU_wstrb <= wstrb;

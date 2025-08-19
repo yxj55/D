@@ -5,6 +5,8 @@
 
 #define UART_BASE 0x10000000L
 #define UART_TX   0
+#define UART_LCR  UART_BASE + 3
+#define UART_LSR  UART_BASE + 5
 
 # define Soc_trap(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
 
@@ -20,10 +22,29 @@ int main(const char *args);
 //  Area heap = RANGE(&_heap_start, PMEM_END);//指示堆区的开头结尾
 static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined in CFLAGS
 
+
+void wait_fifo_empty()
+{
+  while((inb(UART_LSR) & 0x20) == 0){
+
+  }
+  return;
+}
+
 void putch(char ch) {
 
-outb(UART_BASE + UART_TX,ch);
+     wait_fifo_empty();
+     outb(UART_BASE + UART_TX,ch);
+}
 
+
+void init_div_uart(uint16_t divisor){
+  outb(UART_LCR,128);//LCR第七位设置为1,开始访问除数寄存器
+
+  outb(UART_BASE + 1,(divisor >> 8) & 0xFF);//高8
+  outb(UART_BASE ,divisor & 0xFF);//低8
+  
+  outb(UART_LCR,0);//LCR第七位设置为0,停止访问除数寄存器,开始访问正常寄存器
 }
 
 void halt(int code) {
@@ -46,6 +67,8 @@ void _trm_init() {
   if (bss_len > 0) {
     memset(_bss_start, 0, bss_len);
   }
+
+  init_div_uart(200);
   int ret = main(mainargs);
   halt(ret);
 }

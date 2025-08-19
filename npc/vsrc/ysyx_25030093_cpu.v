@@ -295,6 +295,7 @@ ysyx_25030093_mux41 u_ysyx_25030093_mux41(
 ysyx_25030093_AXI_Arbiter 
 
 AXI_Arbiter(
+    .offset                 (offset),
     .clock            	    (clock             ),
     .reset            	    (reset             ),
     .IFU_araddr     	    (IFU_araddr      ),
@@ -455,6 +456,9 @@ wire        LSU_bready;
 wire        LSU_bvalid;
 wire [1:0]  LSU_bresp;
 wire [3:0]  LSU_bid;
+
+
+wire [31:0] offset;
 //LSU
 ysyx_25030093_LSU LSU(
     .in_valid    	  (out_valid_EXU_LSU     ),
@@ -466,6 +470,7 @@ ysyx_25030093_LSU LSU(
     .LSU_data   	  (LSU_data    ),
     .LSU_single 	  (LSU_single  ),
     .clock        	  (clock         ),
+    .offset             (offset),
     .reset              (reset),
     .LOAD_single      (LOAD_single),
     .STORE_single     (STORE_single),
