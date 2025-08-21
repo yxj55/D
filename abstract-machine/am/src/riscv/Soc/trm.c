@@ -23,7 +23,7 @@ int main(const char *args);
 static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined in CFLAGS
 
 
-void wait_fifo_empty()
+void wait_fifo_empty()//轮询
 {
   while((inb(UART_LSR) & 0x20) == 0){
 
