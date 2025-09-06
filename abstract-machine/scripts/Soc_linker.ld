@@ -47,7 +47,7 @@ SECTIONS {
   } >sram AT> mrom
 
   _stack_top = ALIGN(16);
-  . = _stack_top + 0x800 ;
+  . = _stack_top + 4k ;
   _stack_pointer = .;
 
     /* _heap_start = _ebss;

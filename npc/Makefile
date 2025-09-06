@@ -63,7 +63,7 @@ $(info IMGELF =$(IMGELF))
 #ARGS += $(IMGELF) 
 ARGS += -d $(DIFF_REF_SO)
 
-ARGS += -b
+#ARGS += -b
 ARGS += $(IMG)
 #ARGS += /home/yuanxiao/ysyx-workbench/am-kernels/tests/cpu-tests/build/char-test-riscv32e-ysyxsoc.bin
 $(info ARGS = $(ARGS))

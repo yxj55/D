@@ -1,7 +1,7 @@
 #include <am.h>
 #include <klib-macros.h>
 #include <klib.h>
-#include</home/yuanxiao/ysyx-workbench/abstract-machine/am/src/riscv/riscv.h>
+#include<Soc.h>
 
 #define UART_BASE 0x10000000L
 #define UART_TX   0
@@ -22,6 +22,8 @@ int main(const char *args);
 //  Area heap = RANGE(&_heap_start, PMEM_END);//指示堆区的开头结尾
 static const char mainargs[MAINARGS_MAX_LEN] = MAINARGS_PLACEHOLDER; // defined in CFLAGS
 
+void SPI_Flash_init();
+void SPI_Bitrev_init();
 
 void wait_fifo_empty()//轮询
 {
@@ -30,6 +32,7 @@ void wait_fifo_empty()//轮询
   }
   return;
 }
+
 
 void putch(char ch) {
 
@@ -52,6 +55,9 @@ void halt(int code) {
   while (1);
 }
 
+
+
+
 void _trm_init() {
   extern uint8_t _sidata[];  /* ROM中的源地址 */
   extern uint8_t _sdata[];   /* SRAM中的目标地址 */
@@ -67,8 +73,11 @@ void _trm_init() {
   if (bss_len > 0) {
     memset(_bss_start, 0, bss_len);
   }
-
+  
+  
   init_div_uart(200);
+
+  SPI_Flash_init(); 
   int ret = main(mainargs);
   halt(ret);
 }

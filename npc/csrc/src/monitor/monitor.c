@@ -5,6 +5,7 @@
 
 void init_isa();
 void init_mem();
+void init_flash_mem();
 void sim_init();
 void init_sdb();
 void init_disasm();
@@ -95,7 +96,7 @@ void init_monitor(int argc, char *argv[]) {
   sim_init();
   /* Initialize memory. */
   init_mem();
-
+  init_flash_mem();
   /* Initialize devices. */
   //IFDEF(CONFIG_DEVICE, init_device());
 

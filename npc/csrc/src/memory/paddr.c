@@ -26,7 +26,14 @@
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE + CONFIG_SSIZE] PG_ALIGN = {};
+static uint8_t pmem_flash[4096] = {};
 #endif
+
+
+uint8_t*Flash_guest_to_host(uint32_t addr){
+  return pmem_flash + addr;
+}
+
 
 uint8_t* guest_to_host(uint32_t addr) { 
   uint32_t op=0;
@@ -74,12 +81,18 @@ printf("inin_mem right\n");
   assert(pmem);
 #endif
   IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), (CONFIG_MSIZE + CONFIG_SSIZE)));
+  IFDEF(CONFIG_MEM_RANDOM, memset(pmem_flash, rand(), 4096));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
 
 
-extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void flash_read(int32_t addr, int32_t *data) { 
+  printf("addr = %x\n",addr);
+  *data = host_read(Flash_guest_to_host(addr) ,1);
+
+
+ }
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
 
 

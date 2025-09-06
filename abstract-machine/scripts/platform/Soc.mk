@@ -1,7 +1,10 @@
 AM_SRCS := riscv/Soc/start.S \
-           riscv/Soc/trm.c 
+           riscv/Soc/trm.c \
+		   riscv/Soc/spi.c\
+		   riscv/Soc/flash_read.c
 
 CFLAGS    += -fdata-sections -ffunction-sections
+CFLAGS    += -I$(AM_HOME)/am/src/riscv/Soc/include
 LDSCRIPTS += $(AM_HOME)/scripts/Soc_linker.ld
 LDFLAGS   += --defsym=_pmem_start=0x20000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
