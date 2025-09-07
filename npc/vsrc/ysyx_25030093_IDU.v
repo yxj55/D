@@ -79,84 +79,39 @@ assign rs2 = inst[24:20];
 //------------------------------------------//opcode
 //R-type opcode
 wire RISCV_ADD_OP                               = (inst[6:0] == 7'b0110011);
-wire RISCV_SUB_OP                               = (inst[6:0] == 7'b0110011);
-wire RISCV_SLL_OP                               = (inst[6:0] == 7'b0110011);
-wire RISCV_SLT_OP                               = (inst[6:0] == 7'b0110011);
-wire RISCV_OR_OP                                = (inst[6:0] == 7'b0110011);
-wire RISCV_XOR_OP                               = (inst[6:0] == 7'b0110011);
-wire RISCV_SRL_OP                               = (inst[6:0] == 7'b0110011);
-wire RISCV_SRA_OP                               = (inst[6:0] == 7'b0110011);
-wire RISCV_AND_OP                               = (inst[6:0] == 7'b0110011);
-wire RISCV_SLTU_OP                              = (inst[6:0] == 7'b0110011);
+
 
 //U-type opcode
-wire RISCV_AUIPC_OP                             = (inst[6:0] == 7'b0010111);
 wire RISCV_LUI_OP                               = (inst[6:0] == 7'b0110111);
 
 //I-type opcode
 wire RISCV_ADDI_OP                              = (inst[6:0] == 7'b0010011);
-wire RISCV_SLTI_OP                              = (inst[6:0] == 7'b0010011);
-wire RISCV_SLTIU_OP                             = (inst[6:0] == 7'b0010011);
 wire RISCV_JALR_OP                              = (inst[6:0] == 7'b1100111);
-wire RISCV_LB_OP                                = (inst[6:0] == 7'b0000011);
-wire RISCV_LH_OP                                = (inst[6:0] == 7'b0000011);
 wire RISCV_LW_OP                                = (inst[6:0] == 7'b0000011);
 wire RISCV_LBU_OP                               = (inst[6:0] == 7'b0000011);
-wire RISCV_LHU_OP                               = (inst[6:0] == 7'b0000011);
-wire RISCV_SLLI_OP                              = (inst[6:0] == 7'b0010011);
-wire RISCV_XORI_OP                              = (inst[6:0] == 7'b0010011);
-wire RISCV_ORI_OP                               = (inst[6:0] == 7'b0010011);
-wire RISCV_ANDI_OP                              = (inst[6:0] == 7'b0010011);
-wire RISCV_SRLI_OP                              = (inst[6:0] == 7'b0010011);
-wire RISCV_SRAI_OP                              = (inst[6:0] == 7'b0010011);
 
 wire RISCV_ECALL_OP                             = (inst[6:0] == 7'b1110011);
 wire RISCV_MRET_OP                              = (inst[6:0] == 7'b1110011);
 wire RISCV_CSRRW_OP                             = (inst[6:0] == 7'b1110011);
 wire RISCV_CSRRS_OP                             = (inst[6:0] == 7'b1110011);
 //J-type opcode
-wire RISCV_JAL_OP                               = (inst[6:0] == 7'b1101111);
+
 
 //S-type opcode
 wire RISCV_SW_OP                                = (inst[6:0] == 7'b0100011);
 wire RISCV_SB_OP                                = (inst[6:0] == 7'b0100011);
-wire RISCV_SH_OP                                = (inst[6:0] == 7'b0100011);
-//B-type opcode
-wire RISCV_BEQ_OP                               = (inst[6:0] == 7'b1100011);//相等则分支
-wire RISCV_BNE_OP                               = (inst[6:0] == 7'b1100011);//不等则分支
-wire RISCV_BGE_OP                               = (inst[6:0] == 7'b1100011);//大于等于分支
-wire RISCV_BLT_OP                               = (inst[6:0] == 7'b1100011);//有符合小于则分支
-wire RISCV_BLTU_OP                              = (inst[6:0] == 7'b1100011);//无符合小于则分支
-wire RISCV_BGEU_OP                              = (inst[6:0] == 7'b1100011);//无符号大于等于分支
+
 //------------------------------------------//funt3
 //R-type funt3
 wire RISCV_ADD_FUNT3                            = (inst[14:12] == 3'b000);
-wire RISCV_SUB_FUNT3                            = (inst[14:12] == 3'b000);
-wire RISCV_SLL_FUNT3                            = (inst[14:12] == 3'b001);
-wire RISCV_SLT_FUNT3                            = (inst[14:12] == 3'b010);
-wire RISCV_OR_FUNT3                             = (inst[14:12] == 3'b110);
-wire RISCV_XOR_FUNT3                            = (inst[14:12] == 3'b100);
-wire RISCV_SRL_FUNT3                            = (inst[14:12] == 3'b101);
-wire RISCV_SRA_FUNT3                            = (inst[14:12] == 3'b101);
-wire RISCV_AND_FUNT3                            = (inst[14:12] == 3'b111);
-wire RISCV_SLTU_FUNT3                           = (inst[14:12] == 3'b011);
+
 
 //I-type funt3
 wire RISCV_ADDI_FUNT3                           = (inst[14:12] == 3'b000);
-wire RISCV_SLTI_FUNT3                           = (inst[14:12] == 3'b010);
-wire RISCV_SLTIU_FUNT3                          = (inst[14:12] == 3'b011);
 wire RISCV_JALR_FUNT3                           = (inst[14:12] == 3'b000);
-wire RISCV_LB_FUNT3                             = (inst[14:12] == 3'b000);
-wire RISCV_LH_FUNT3                             = (inst[14:12] == 3'b001);
 wire RISCV_LW_FUNT3                             = (inst[14:12] == 3'b010);
 wire RISCV_LBU_FUNT3                            = (inst[14:12] == 3'b100);
-wire RISCV_LHU_FUNT3                            = (inst[14:12] == 3'b101);
-wire RISCV_SLLI_FUNT3                           = (inst[14:12] == 3'b001);
-wire RISCV_XORI_FUNT3                           = (inst[14:12] == 3'b100);
-wire RISCV_ORI_FUNT3                            = (inst[14:12] == 3'b110);
-wire RISCV_ANDI_FUNT3                           = (inst[14:12] == 3'b111);
-wire RISCV_SRLI_FUNT3                           = (inst[14:12] == 3'b101);
-wire RISCV_SRAI_FUNT3                           = (inst[14:12] == 3'b101);
+
 
 wire RISCV_ECALL_FUNT3                          = (inst[14:12] == 3'b000);
 wire RISCV_MRET_FUNT3                           = (inst[14:12] == 3'b000);
@@ -165,85 +120,37 @@ wire RISCV_CSRRS_FUNT3                          = (inst[14:12] == 3'b010);
 //S-type funt3
 wire RISCV_SW_FUNT3                             = (inst[14:12] == 3'b010);
 wire RISCV_SB_FUNT3                             = (inst[14:12] == 3'b000);
-wire RISCV_SH_FUNT3                             = (inst[14:12] == 3'b001);
-//B-type funt3
-wire RISCV_BEQ_FUNT3                            = (inst[14:12] == 3'b000);
-wire RISCV_BNE_FUNT3                            = (inst[14:12] == 3'b001);
-wire RISCV_BGE_FUNT3                            = (inst[14:12] == 3'b101);
-wire RISCV_BLT_FUNT3                            = (inst[14:12] == 3'b100);
-wire RISCV_BLTU_FUNT3                           = (inst[14:12] == 3'b110);
-wire RISCV_BGEU_FUNT3                           = (inst[14:12] == 3'b111);
+
 //------------------------------------------//funt7
 //R-type funt7
 wire RISCV_ADD_FUNT7                            = (inst[31:25] == 7'b0000000);
-wire RISCV_SUB_FUNT7                            = (inst[31:25] == 7'b0100000);
-wire RISCV_SLL_FUNT7                            = (inst[31:25] == 7'b0000000);
-wire RISCV_SLT_FUNT7                            = (inst[31:25] == 7'b0000000);
-wire RISCV_OR_FUNT7                             = (inst[31:25] == 7'b0000000);
-wire RISCV_XOR_FUNT7                            = (inst[31:25] == 7'b0000000);
-wire RISCV_SRL_FUNT7                            = (inst[31:25] == 7'b0000000);
-wire RISCV_SRA_FUNT7                            = (inst[31:25] == 7'b0100000);
-wire RISCV_AND_FUNT7                            = (inst[31:25] == 7'b0000000);
-wire RISCV_SLTU_FUNT7                           = (inst[31:25] == 7'b0000000);
-//I-type funt7
-wire RISCV_SLLI_FUNT7                           = (inst[31:25] == 7'b0000000);
-wire RISCV_SRLI_FUNT7                           = (inst[31:25] == 7'b0000000);
-wire RISCV_SRAI_FUNT7                           = (inst[31:25] == 7'b0100000);
+
+
 
 wire RISCV_ECALL_FUNT7                          = (inst[31:25] == 7'b0000000);
 wire RISCV_MRET_FUNT7                           = (inst[31:25] == 7'b0011000);
 //------------------------------------------//
 //R-type
 wire add                                        =(RISCV_ADD_OP & RISCV_ADD_FUNT3 & RISCV_ADD_FUNT7);
-wire sub                                        =(RISCV_SUB_OP & RISCV_SUB_FUNT3 & RISCV_SUB_FUNT7);
-wire sll                                        =(RISCV_SLL_OP & RISCV_SLL_FUNT3 & RISCV_SLL_FUNT7);
-wire slt                                        =(RISCV_SLT_OP & RISCV_SLT_FUNT3 & RISCV_SLT_FUNT7);
-wire OR                                         =(RISCV_OR_OP & RISCV_OR_FUNT3 & RISCV_OR_FUNT7);
-wire XOR                                        =(RISCV_XOR_OP & RISCV_XOR_FUNT3 & RISCV_XOR_FUNT7);
-wire srl                                        =(RISCV_SRL_OP & RISCV_SRL_FUNT3 & RISCV_SRL_FUNT7);
-wire sra                                        =(RISCV_SRA_OP & RISCV_SRA_FUNT3 & RISCV_SRA_FUNT7);
-wire AND                                        =(RISCV_AND_OP & RISCV_AND_FUNT3 & RISCV_AND_FUNT7);
-wire sltu                                       =(RISCV_SLTU_OP & RISCV_SLTU_FUNT3 & RISCV_SLTU_FUNT7);
 
 //U-type
-wire auipc                                      = RISCV_AUIPC_OP;
 wire lui                                        = RISCV_LUI_OP;
 
 //I-type
 wire addi                                       =(RISCV_ADDI_OP & RISCV_ADDI_FUNT3); 
 wire jalr                                       =(RISCV_JALR_OP & RISCV_JALR_FUNT3);
-wire lb                                         =(RISCV_LB_OP & RISCV_LB_FUNT3);
-wire lh                                         =(RISCV_LH_OP & RISCV_LH_FUNT3); 
 wire lw                                         =(RISCV_LW_OP & RISCV_LW_FUNT3);
 wire lbu                                        =(RISCV_LBU_OP & RISCV_LBU_FUNT3);
-wire lhu                                        =(RISCV_LHU_OP & RISCV_LHU_FUNT3);
-wire slti                                       =(RISCV_SLTI_OP & RISCV_SLTI_FUNT3);
-wire sltiu                                      =(RISCV_SLTIU_OP & RISCV_SLTIU_FUNT3);
-wire slli                                       =(RISCV_SLLI_OP & RISCV_SLLI_FUNT3 & RISCV_SLLI_FUNT7);
-wire xori                                       =(RISCV_XORI_OP & RISCV_XORI_FUNT3);
-wire ori                                        =(RISCV_ORI_OP & RISCV_ORI_FUNT3);
-wire andi                                       =(RISCV_ANDI_OP & RISCV_ANDI_FUNT3);
-wire srli                                       =(RISCV_SRLI_OP & RISCV_SRLI_FUNT3 & RISCV_SRLI_FUNT7);
-wire srai                                       =(RISCV_SRAI_OP & RISCV_SRAI_FUNT3 & RISCV_SRAI_FUNT7);
 wire csrrw                                      =(RISCV_CSRRW_OP & RISCV_CSRRW_FUNT3);
 wire csrrs                                      =(RISCV_CSRRS_OP & RISCV_CSRRS_FUNT3);
 //N-type
 wire ecall                                      =(RISCV_ECALL_OP & RISCV_ECALL_FUNT3 & RISCV_ECALL_FUNT7);
 wire mret                                       =(RISCV_MRET_OP & RISCV_MRET_FUNT3 & RISCV_MRET_FUNT7);
-//J-type
-wire jal                                        = RISCV_JAL_OP;
 
 //S-type
 wire sw                                         =(RISCV_SW_OP & RISCV_SW_FUNT3);
 wire sb                                         =(RISCV_SB_OP & RISCV_SB_FUNT3);
-wire sh                                         =(RISCV_SH_OP & RISCV_SH_FUNT3);
-//B-type
-wire beq                                        =(RISCV_BEQ_OP & RISCV_BEQ_FUNT3);
-wire bne                                        =(RISCV_BNE_OP & RISCV_BNE_FUNT3);
-wire bge                                        =(RISCV_BGE_OP & RISCV_BGE_FUNT3);
-wire blt                                        =(RISCV_BLT_OP & RISCV_BLT_FUNT3);
-wire bltu                                       =(RISCV_BLTU_OP & RISCV_BLTU_FUNT3);
-wire bgeu                                       =(RISCV_BGEU_OP & RISCV_BGEU_FUNT3);
+
 //------------------------------------------//
 
 //00 -> imm  01 -> rs2  10 -> 4
