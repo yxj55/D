@@ -24,6 +24,10 @@ module ysyx_25030093_LSU(
 assign  lsu_wen = ((LSU_single == 2'b10) | (LSU_single == 2'b11)) ? 1'b1 : 1'b0;
 assign  lsu_size= ((LSU_single == 2'b00) | (LSU_single == 2'b10)) ? 2'b10 : 2'b00;//lw sw 4字节  lbu sb 1字节
 
+wire  UART_or_RAM;
+
+assign UART_or_RAM = (rd_data >= 32'h10000000) & (rd_data <= 32'h10000fff) ? 1'b1 : 1'b0;
+
 parameter IDLE =2'b00,Prepare_data = 2'b01,Occurrence_data = 2'b10;
 
 reg [1:0] state;
@@ -37,7 +41,7 @@ always@(posedge clock)begin
 IDLE:begin
   if(in_valid & in_ready)begin
     state        <= Prepare_data;
-    lsu_addr     <= rd_data;
+    lsu_addr     <= UART_or_RAM ? rd_data : {rd_data[31:2],2'b00};
     lsu_reqValid <= 1'b1;
     lsu_wmask    <= wstrb;
     lsu_wdata    <= rs2_data;
@@ -97,16 +101,13 @@ assign wstrb  =   ((rd_data[1:0] == 2'b00) & (LSU_single == 2'b11)) ? 4'b0001 :
                   ((rd_data[1:0] == 2'b01) & (LSU_single == 2'b11)) ? 4'b0010 :
                   ((rd_data[1:0] == 2'b10) & (LSU_single == 2'b11)) ? 4'b0100 :
                   ((rd_data[1:0] == 2'b11) & (LSU_single == 2'b11)) ? 4'b1000 :
-                  
                   (LSU_single == 2'b10) ? 4'b1111 :
                   4'b0001;
-assign offset =   ((wstrb == 4'b0001) & (LSU_single == 2'd5)) ?  32'd0 :
-                  ((wstrb == 4'b0010) & (LSU_single == 2'd5)) ?  32'd8 :
-                  ((wstrb == 4'b0100) & (LSU_single == 2'd5)) ?  32'd16 :
-                  ((wstrb == 4'b1000) & (LSU_single == 2'd5)) ?  32'd24 :
-                  ((wstrb == 4'b0011) & (LSU_single == 2'd6)) ?  32'd0  :
-                  ((wstrb == 4'b1100) & (LSU_single == 2'd6)) ?  32'd16 :
-                  (LSU_single == 4'd7) ? 32'd0 : 32'd0;
+assign offset =   ((wstrb == 4'b0001) & (LSU_single == 2'b11)) ?  32'd0 :
+                  ((wstrb == 4'b0010) & (LSU_single == 2'b11)) ?  32'd8 :
+                  ((wstrb == 4'b0100) & (LSU_single == 2'b11)) ?  32'd16 :
+                  ((wstrb == 4'b1000) & (LSU_single == 2'b11)) ?  32'd24 :
+                  (LSU_single == 2'b10) ? 32'd0 : 32'd0;
                  
 
 
