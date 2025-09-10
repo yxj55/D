@@ -26,18 +26,18 @@
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE + CONFIG_SSIZE] PG_ALIGN = {};
-static uint8_t pmem_flash[4096] = {};
+// static uint8_t pmem_flash[16 * 1024 * 1024] = {};
 #endif
 
 
-uint8_t*Flash_guest_to_host(uint32_t addr){
-  return pmem_flash + addr;
-}
+// uint8_t *Flash_guest_to_host(uint32_t addr){
+//   return pmem_flash + addr;
+// }
 
 
 uint8_t* guest_to_host(uint32_t addr) { 
   uint32_t op=0;
-  if(((addr >= 0x20000000) & (addr < 0x20000fff))){
+  if(((addr >= 0x30000000) & (addr < 0x3fffffff))){
    
     op = addr -CONFIG_MBASE;
     // printf("here and now op == %d\n",op);
@@ -48,7 +48,7 @@ uint8_t* guest_to_host(uint32_t addr) {
  }
   
   return pmem + op;
-  return pmem + op; }
+ }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 static int pmem_read(paddr_t addr,int len) {
@@ -88,8 +88,8 @@ printf("inin_mem right\n");
 
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { 
-  printf("addr = %x\n",addr);
-  *data = host_read(Flash_guest_to_host(addr) ,1);
+  //printf("addr = %x\n",addr);
+  *data = host_read(guest_to_host(addr) ,4);
 
 
  }
