@@ -81,7 +81,6 @@ printf("inin_mem right\n");
   assert(pmem);
 #endif
   IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), (CONFIG_MSIZE + CONFIG_SSIZE)));
-  IFDEF(CONFIG_MEM_RANDOM, memset(pmem_flash, rand(), 4096));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 

@@ -18,7 +18,7 @@ static const uint32_t flash_img[] = {
 };
 
 
-void init_flash_mem(){
-  //  printf("right inst = %x\n",flash_img[0]);
-    memcpy(Flash_guest_to_host(0),flash_img,sizeof(flash_img));
-}
+// void init_flash_mem(){
+//   //  printf("right inst = %x\n",flash_img[0]);
+//     memcpy(Flash_guest_to_host(0),flash_img,sizeof(flash_img));
+// }

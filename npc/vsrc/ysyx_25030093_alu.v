@@ -31,7 +31,7 @@ always@(*)begin
         rd_data = t;
         csr_wdata = alu_data1;
     end
-    2'd10: begin
+    2'b10: begin
         t = csr_data;
         rd_data = t; 
         csr_wdata = alu_data1 | t;
