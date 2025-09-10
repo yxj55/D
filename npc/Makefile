@@ -37,7 +37,7 @@ TOP_MODULE = ysyxSoCFull  # 修改为你的顶层模块名
 # 自动查找所有 Verilog 文件
 VSOURCES = $(shell find $(VSRC_DIR) -name "*.v")
 VSOURCES += $(abspath $(shell find ../ysyxSoC/perip -type f -name "*.v"))
-VSOURCES += $(abspath ../ysyxSoC/build/ysyxSoCFull.v)
+VSOURCES += $(abspath ../ysyxSoC/ready-to-run/D-stage/ysyxSoCFull.v)
 
 
 #$(info VSOURCES = $(VSOURCES))

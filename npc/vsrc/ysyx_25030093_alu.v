@@ -1,9 +1,8 @@
 
 module ysyx_25030093_alu(
     input                   alu_run,
-    input      [4:0]        alu_single,
+    input      [1:0]        alu_single,
     output reg [31:0]       rd_data,
-    output reg              B_single,
     input wire [31:0]       csr_data,
     output reg [31:0]       csr_wdata,
     input      [31:0]       alu_data2,
@@ -12,45 +11,27 @@ module ysyx_25030093_alu(
     );
 reg [31:0] t;
 
+
+
 always@(*)begin
         rd_data = 32'd0;
-        B_single = 1'b0;
         csr_wdata = 32'd0;
         t = 32'd0;
     if(reset)begin
         rd_data = 32'd0;
-        B_single = 1'b0;
         csr_wdata = 32'd0;
         t = 32'd0;
     end
     else if(alu_run) begin
     //$display("now alu_data1 = %h alu_data2 = %h",alu_data1,alu_data2);
     case(alu_single)
-    5'd0: rd_data = alu_data1 + alu_data2;
-    5'd1: B_single= (alu_data1 == alu_data2);
-    5'd2: rd_data = alu_data1 < alu_data2 ? 32'd1 : 32'd0;
-    5'd3: B_single= (alu_data1 != alu_data2);
-    5'd4: rd_data = alu_data1 - alu_data2;
-    5'd5: rd_data = alu_data1 | alu_data2;
-    5'd6: rd_data = alu_data1 ^ alu_data2;
-    5'd7: B_single = ($signed(alu_data1)  >= $signed(alu_data2)) ;
-    5'd8: rd_data = alu_data1 << alu_data2[4:0];
-    5'd9: rd_data = alu_data1 & alu_data2;
-    5'd10: rd_data = alu_data1 >> alu_data2[4:0];
-    5'd11: rd_data = ($signed(alu_data1) < $signed(alu_data2)) ? 32'd1 : 32'd0;
-    5'd12: B_single= ($signed(alu_data1) < $signed(alu_data2));
-    5'd13: B_single= (alu_data1 < alu_data2);
-    5'd14: B_single= (alu_data1 >= alu_data2);
-    5'd15: rd_data = alu_data1 << alu_data2;
-    5'd16: rd_data = $signed(alu_data1) >>> alu_data2[4:0];
-    5'd17: rd_data = $signed(alu_data1) >>> alu_data2;
-    5'd18: rd_data = alu_data1 >> alu_data2;
-    5'd19: begin
+    2'b00: rd_data = alu_data1 + alu_data2;
+    2'b01: begin
         t = csr_data;
         rd_data = t;
         csr_wdata = alu_data1;
     end
-    5'd20: begin
+    2'd10: begin
         t = csr_data;
         rd_data = t; 
         csr_wdata = alu_data1 | t;
@@ -60,7 +41,6 @@ always@(*)begin
     end
    else begin
         rd_data = 32'd0;
-        B_single = 1'b0;
         csr_wdata = 32'd0;
         t = 32'd0;
    end
