@@ -95,10 +95,10 @@ assign out_valid = (state == Occurrence_data);
 wire [3:0] wstrb;
 assign wstrb  =   ((rd_data[1:0] == 2'b00) & (LSU_single == 2'b11)) ? 4'b0001 :
                   ((rd_data[1:0] == 2'b01) & (LSU_single == 2'b11)) ? 4'b0010 :
-                  ((rd_data[1:0] == 2'b10) & (LSU_single == 2'd5)) ? 4'b0100 :
-                  ((rd_data[1:0] == 2'b11) & (LSU_single == 2'd5)) ? 4'b1000 :
+                  ((rd_data[1:0] == 2'b10) & (LSU_single == 2'b11)) ? 4'b0100 :
+                  ((rd_data[1:0] == 2'b11) & (LSU_single == 2'b11)) ? 4'b1000 :
                   
-                  (LSU_single == 4'd7) ? 4'b1111 :
+                  (LSU_single == 2'b10) ? 4'b1111 :
                   4'b0001;
 assign offset =   ((wstrb == 4'b0001) & (LSU_single == 2'd5)) ?  32'd0 :
                   ((wstrb == 4'b0010) & (LSU_single == 2'd5)) ?  32'd8 :
