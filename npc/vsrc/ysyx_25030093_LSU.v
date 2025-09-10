@@ -44,7 +44,7 @@ IDLE:begin
     lsu_addr     <= UART_or_RAM ? rd_data : {rd_data[31:2],2'b00};
     lsu_reqValid <= 1'b1;
     lsu_wmask    <= wstrb;
-    lsu_wdata    <= rs2_data;
+    lsu_wdata    <= UART_or_RAM ? rs2_data << offset : rd_data;
   end
   else begin
     state <= IDLE;
