@@ -39,9 +39,9 @@ always@(posedge clock)begin
            else state <= IDLE;
         end
         Prepare_data:begin
+            IFU_reqValid <= 1'b0;
             if(IFU_respValid) begin
                  inst_wire <= IFU_rdata;
-                 IFU_reqValid <= 1'b0;
                  state <= Occurrence_data;
             end
             else state <= Prepare_data;

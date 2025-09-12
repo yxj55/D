@@ -25,6 +25,7 @@
 
 uint8_t* Flash_guest_to_host(uint32_t addr);
 
+static int Flash_done;
 
 /* convert the guest physical address in the guest program to host virtual address in NPC */
 uint8_t* guest_to_host(uint32_t addr);

@@ -42,7 +42,7 @@ f(30) f(31)
 __am_asm_trap:
   addi sp, sp, -CONTEXT_SIZE
 
-  MAP(REGS, PUSH)
+  MAP(REGS, PUSH)//保存上下文
 
   csrr t0, mcause
   csrr t1, mstatus
@@ -60,12 +60,13 @@ __am_asm_trap:
   mv a0, sp
   call __am_irq_handle
 
+  mv sp, a0
   LOAD t1, OFFSET_STATUS(sp)
   LOAD t2, OFFSET_EPC(sp)
   csrw mstatus, t1
   csrw mepc, t2
 
-  MAP(REGS, POP)
+  MAP(REGS, POP)//恢复上下文
 
   addi sp, sp, CONTEXT_SIZE
   mret

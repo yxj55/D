@@ -49,7 +49,7 @@ static void trace_and_difftest() {
 */
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(logbuf)); }
 #ifdef CONFIG_DIFFTEST
-if(now_state){
+if(now_state ){
    single_clk();
 
   difftest_step(cpu.pc  , cpu.pc  );

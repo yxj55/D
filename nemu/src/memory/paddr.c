@@ -28,16 +28,17 @@ static uint8_t pmem[CONFIG_MSIZE + CONFIG_SSIZE] PG_ALIGN = {};
 
 uint8_t* guest_to_host(uint32_t addr) {
   uint32_t op=0;
-  if(((addr >= 0x20000000) & (addr < 0x20000fff))){
-   
-    op = addr -CONFIG_MBASE;
-    // printf("here and now op == %d\n",op);
- }
- else{
-   op = addr -CONFIG_SBASE + CONFIG_MSIZE;
-  //  printf("SBASE here and now op == %d\n",op);
- }
-  
+ printf("now addr = %08x\n",addr);
+   if(((addr >= 0x30000000) & (addr < 0x30ffffff))){
+
+     op = addr -CONFIG_MBASE;
+     // printf("here and now op == %d\n",op);
+  }
+  else{
+    op = addr -CONFIG_SBASE ;
+   //  printf("SBASE here and now op == %d\n",op);
+  }
+  printf("NEMU op = %x\n",op);  
   return pmem + op; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
@@ -75,7 +76,7 @@ void init_mem() {
   pmem = malloc(CONFIG_MSIZE);
   assert(pmem);
 #endif
-  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), (CONFIG_MSIZE + CONFIG_SSIZE)  ));
+  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), (CONFIG_MSIZE + CONFIG_SSIZE )  ));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
@@ -88,6 +89,9 @@ word_t paddr_read(paddr_t addr, int len) {
     #endif
     return pmem_read(addr, len);}
     IFDEF(CONFIG_DEVICE, return mmio_read(addr, len););
+    if ((addr >= 0x10000000)&(addr <=0x10000fff)) {
+      return 3;
+   }
   //   if (addr == 0xa0000048 || addr == 0xa000004c) {
   //     uint64_t us = get_time();
   //      if (addr == 0xa0000048) {
@@ -114,13 +118,13 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     #endif
     pmem_write(addr, len, data); return; }
     IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
-  //   if (addr == 0xa00003f8) {
-  //     return;
-  //  }
-  //  // 处理计时器
-  //  if (addr == 0xa0000048 || addr == 0xa000004c) {
-  //     return;  
-  //  }
+    if ((addr >= 0x10000000)&(addr <=0x10000fff)) {
+      return;
+   }
+   // 处理计时器
+   if (addr == 0xa0000048 || addr == 0xa000004c) {
+      return;  
+   }
   
      //npc diff 
    // printf("other addr=0x%08x\n",addr);

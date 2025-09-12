@@ -19,7 +19,7 @@ module ysyx_25030093_IDU(
     output      [1:0]       rs1_pc_other,
     input                   clock,
     input                   reset,
-    output      [1:0]       LSU_single,
+    output      [2:0]       LSU_single,
     output                  rd_or_LSU_single
 );
 import "DPI-C" function void npc_ebreak();
@@ -155,8 +155,8 @@ wire sb                                         =(RISCV_SB_OP & RISCV_SB_FUNT3);
 assign imm_or_rs2_other[0] = addi | lui | lw | sw | lbu | sb;
 assign imm_or_rs2_other[1] = jalr;
 
-//00 rs1    01 pc 10 0
-assign rs1_pc_other[0] = jalr;
+//00 rs1    01 pc 11 0
+assign rs1_pc_other[0] = jalr | lui;
 assign rs1_pc_other[1] = lui;
 
 //------------------------------------------//
@@ -168,9 +168,10 @@ assign alu_single[1] = csrrs;
 
 //------------------------------------------//
 
-//00 lw 01 lbu 10 sw 11 sb
-assign LSU_single[0] = lbu | sb;
-assign LSU_single[1] = sw | sb;
+//001 lw 010 lbu 011 sw 100 sb
+assign LSU_single[0] = lw | sw;
+assign LSU_single[1] = lbu | sw;
+assign LSU_single[2] = sb;
 
 
 

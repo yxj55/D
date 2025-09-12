@@ -65,7 +65,7 @@ ARGS += -d $(DIFF_REF_SO)
 
 #ARGS += -b
 ARGS += $(IMG)
-#ARGS += /home/yuanxiao/ysyx-workbench/am-kernels/tests/cpu-tests/build/char-test-riscv32e-ysyxsoc.bin
+ARGS +=/home/yuanxiao/ysyx-workbench/ysyxSoC/ready-to-run/D-stage/new.bin
 $(info ARGS = $(ARGS))
 GDB ?= 0  # 默认为0，不启动GDB
 GDB_CMD ?= gdb  # 可替换为cgdb等调试器

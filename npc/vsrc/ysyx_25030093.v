@@ -69,7 +69,7 @@ wire [1:0] pc_single; //控制pc +4 信号
 wire [4:0] rd,rs1,rs2;
 
 wire rd_or_LSU_single;
-wire [1:0] LSU_single;
+wire [2:0] LSU_single;
 wire wen;//控制写入
 wire wen_read;//控制读
 wire [31:0] imm_data;
@@ -167,8 +167,6 @@ ysyx_25030093_mux41 u_ysyx_25030093_mux41(
 
 
 
-
-wire [31:0] offset;
 //LSU
 ysyx_25030093_LSU LSU(
     .in_valid    	  (out_valid_EXU_LSU     ),
@@ -180,12 +178,11 @@ ysyx_25030093_LSU LSU(
     .LSU_data   	  (LSU_data    ),
     .LSU_single 	  (LSU_single  ),
     .clock        	  (clock         ),
-    .offset             (offset),
     .reset              (reset),
     .lsu_addr           (io_lsu_addr),
     .lsu_rdata          (io_lsu_rdata),
     .lsu_reqValid       (io_lsu_reqValid),
-    .lsu_respValid      (io_ifu_respValid),
+    .lsu_respValid      (io_lsu_respValid),
     .lsu_size           (io_lsu_size),
     .lsu_wdata          (io_lsu_wdata),
     .lsu_wen            (io_lsu_wen),

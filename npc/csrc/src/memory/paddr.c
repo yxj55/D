@@ -25,7 +25,7 @@
 #if   defined(CONFIG_PMEM_MALLOC)
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
-static uint8_t pmem[CONFIG_MSIZE + CONFIG_SSIZE] PG_ALIGN = {};
+static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 // static uint8_t pmem_flash[16 * 1024 * 1024] = {};
 #endif
 
@@ -37,22 +37,21 @@ static uint8_t pmem[CONFIG_MSIZE + CONFIG_SSIZE] PG_ALIGN = {};
 
 uint8_t* guest_to_host(uint32_t addr) { 
   uint32_t op=0;
-  if(((addr >= 0x30000000) & (addr < 0x3fffffff))){
+ 
    
-    op = addr -CONFIG_MBASE;
+    op = addr ;
     // printf("here and now op == %d\n",op);
- }
- else{
-   op = addr -CONFIG_SBASE + CONFIG_MSIZE;
-  //  printf("SBASE here and now op == %d\n",op);
- }
+//  else{
+//    op = addr -CONFIG_SBASE + CONFIG_MSIZE;
+//   //  printf("SBASE here and now op == %d\n",op);
+//  }
   
   return pmem + op;
  }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 static int pmem_read(paddr_t addr,int len) {
-  if(addr ==0){return 0;}
+  
 
  // printf("now addr = 0x%08x\n",addr);
 // printf("now addr 0x%08x\n",addr);
@@ -80,7 +79,7 @@ printf("inin_mem right\n");
   pmem = malloc(CONFIG_MSIZE);
   assert(pmem);
 #endif
-  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), (CONFIG_MSIZE + CONFIG_SSIZE)));
+  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE ));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
 }
 
@@ -88,10 +87,15 @@ printf("inin_mem right\n");
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { 
   //printf("addr = %x\n",addr);
-  *data = host_read(guest_to_host(addr) ,4);
+  // assert(0);
 
-
+    *data =  pmem_read(addr,4);
+    return;
+  
  }
+
+
+
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
 
 
@@ -105,7 +109,7 @@ extern "C" void mrom_read(int32_t addr, int32_t *data) {
   // printf("%02x\n",pmem[7+8]);
  // printf("%02x\n",pmem[8]);
   // printf("end\n\n");
-//printf("now addr = 0x%08x\n",addr);
+printf("now addr = 0x%08x\n",addr);
 
   if(likely(in_mrom(addr)|(in_sram(addr)))) {
 

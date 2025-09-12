@@ -17,14 +17,14 @@ module ysyx_25030093_pc(
 
 
 initial begin
-    pc = 32'h20000000;
+    pc = 32'h30000000;
 end
 
 
 reg [31:0] pc_current;
 always@(posedge clock)begin
     if(reset) begin
-        pc_current <=32'h20000000;
+        pc_current <=32'h30000000;
     end
     else begin
       if(in_valid_WBU) begin
