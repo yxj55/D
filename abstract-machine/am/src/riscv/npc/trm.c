@@ -4,6 +4,13 @@
 
 # define npc_trap(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
 
+
+#define UART_BASE 0x10000000L
+#define UART_TX   0
+#define UART_LCR  UART_BASE + 3
+#define UART_LSR  UART_BASE + 5
+
+
 extern char _heap_start;
 int main(const char *args);
 
@@ -24,8 +31,17 @@ void init_div_uart(uint16_t divisor){
   outb(UART_LCR,0);//LCR第七位设置为0,停止访问除数寄存器,开始访问正常寄存器
 }
 
+void wait_fifo_empty()//轮询
+{
+  while((inb(UART_LSR) & 0x20) == 0){
+
+  }
+  return;
+}
+
 
 void putch(char ch) {
+  wait_fifo_empty();
   outb(SERIAL_PORT, ch);
 }
 

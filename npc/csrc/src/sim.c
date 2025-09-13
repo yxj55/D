@@ -15,14 +15,14 @@ void single_clk(){
   // 上升沿
     top->clock = 1;
     top->eval();
-    tfp->dump(contextp->time());  // 记录下降沿波形
-    contextp->timeInc(1);
+    //tfp->dump(contextp->time());  // 记录下降沿波形
+   // contextp->timeInc(1);
 
     // 下降沿
     top->clock = 0;
     top->eval();
-    tfp->dump(contextp->time());  // 记录上升沿波形
-    contextp->timeInc(1);
+   // tfp->dump(contextp->time());  // 记录上升沿波形
+    //contextp->timeInc(1);
 }
 void reset(int n){
   top->reset=1;
