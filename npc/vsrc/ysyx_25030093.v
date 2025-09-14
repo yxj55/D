@@ -211,6 +211,7 @@ ysyx_25030093_Register Register(
 //CSR_REG
 ysyx_25030093_CSR_REG CSR_REG(
     .clock          	(clock           ),
+    .reset              (reset),
     .csr_data     	(csr_data      ),
     .csr_data_pc  	(csr_data_pc   ),
     .imm_csr      	(imm_data      ),

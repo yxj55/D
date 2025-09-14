@@ -42,7 +42,7 @@ VSOURCES += $(abspath ../ysyxSoC/ready-to-run/D-stage/ysyxSoCFull.v)
 
 #$(info VSOURCES = $(VSOURCES))
 
-CSRCS = $(wildcard $(WORK_DIR)/csrc/src/*.c $(WORK_DIR)/csrc/src/**/*.c $(WORK_DIR)/csrc/*.cpp $(WORK_DIR)/csrc/src/**/**/*.c )
+SRCS = $(wildcard $(WORK_DIR)/csrc/src/*.c $(WORK_DIR)/csrc/src/**/*.c $(WORK_DIR)/csrc/*.cpp $(WORK_DIR)/csrc/src/**/**/*.c )
 
 #$(info CSRCS : $(CSRCS))
 
@@ -65,7 +65,7 @@ ARGS += -d $(DIFF_REF_SO)
 
 #ARGS += -b
 ARGS += $(IMG)
-ARGS +=/home/yuanxiao/ysyx-workbench/ysyxSoC/ready-to-run/D-stage/new2.bin
+#ARGS +=/home/yuanxiao/ysyx-workbench/ysyxSoC/ready-to-run/D-stage/new2.bin
 $(info ARGS = $(ARGS))
 GDB ?= 0  # 默认为0，不启动GDB
 GDB_CMD ?= gdb  # 可替换为cgdb等调试器
@@ -76,11 +76,11 @@ all: compile run verilator
 include $(NPC_HOME)/scripts/config.mk
 
 
-verilator:$(VSOURCES) $(CSRCS)
+verilator:$(VSOURCES) $(SRCS)
 	@echo "Verilating $(VSOURCES)..."
 	@$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOP_MODULE) \
-		$(VSOURCES) $(CSRCS) $(INCFLAGS)
+		$(VSOURCES) $(SRCS) $(INCFLAGS)
 
 # 编译仿真程序
 run:verilator 

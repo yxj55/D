@@ -88,7 +88,6 @@ printf("inin_mem right\n");
 extern "C" void flash_read(int32_t addr, int32_t *data) { 
   //printf("addr = %x\n",addr);
   // assert(0);
-
     *data =  pmem_read(addr,4);
     return;
   

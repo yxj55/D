@@ -1,5 +1,6 @@
 #include <am.h>
 #include <klib-macros.h>
+#include <klib.h>
 #include "/home/yuanxiao/ysyx-workbench/abstract-machine/am/src/riscv/npc/npc.h"
 
 # define npc_trap(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
@@ -9,6 +10,21 @@
 #define UART_TX   0
 #define UART_LCR  UART_BASE + 3
 #define UART_LSR  UART_BASE + 5
+
+
+
+static inline uint64_t read_mcycle(void) {
+  uint32_t low, high, high2;
+  
+  // 安全读取64位计数器防止进位问题
+ 
+      __asm__ volatile ("csrr %0, mcycleh" : "=r"(high));
+      __asm__ volatile ("csrr %0, mcycle" : "=r"(low));
+      __asm__ volatile ("csrr %0, mcycleh" : "=r"(high2));
+ 
+  
+  return ((uint64_t)high << 32) | low;
+}
 
 
 extern char _heap_start;
@@ -42,7 +58,7 @@ void wait_fifo_empty()//轮询
 
 void putch(char ch) {
   wait_fifo_empty();
-  outb(SERIAL_PORT, ch);
+  outb(UART_BASE + UART_TX, ch);
 }
 
 void halt(int code) {
@@ -51,7 +67,10 @@ void halt(int code) {
 }
 
 void _trm_init() {
-  init_div_uart(200);
+  // uint64_t prev_cycle = read_mcycle();
+  // printf("Initial mcycle value: 0x%d", prev_cycle);
+  init_div_uart(2);
+  // prev_cycle = read_mcycle();
   int ret = main(mainargs);
   halt(ret);
 }

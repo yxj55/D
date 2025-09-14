@@ -112,8 +112,8 @@ $(DST_DIR)/%.o: %.cpp
 
 ### Rule (compile): a single `.S` -> `.o` (gcc, which preprocesses and calls as)
 $(DST_DIR)/%.o: %.S
-	@mkdir -p $(dir $@) && echo + AS $<
-	@$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
+	mkdir -p $(dir $@) && echo + AS $<
+	$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
 
 ifeq ($(MAKECMDGOALS),archive)
 ### Rule (archive): objects (`*.o`) -> `ARCHIVE.a` (ar)
