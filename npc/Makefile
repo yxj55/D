@@ -63,7 +63,7 @@ $(info IMGELF =$(IMGELF))
 #ARGS += $(IMGELF) 
 ARGS += -d $(DIFF_REF_SO)
 
-#ARGS += -b
+ARGS += -b
 ARGS += $(IMG)
 #ARGS +=/home/yuanxiao/ysyx-workbench/ysyxSoC/ready-to-run/D-stage/new2.bin
 $(info ARGS = $(ARGS))

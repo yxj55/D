@@ -3,9 +3,9 @@
 #include "VysyxSoCFull___024root.h"
 #include<cpu.h>
 #include <reg.h>
+#include<common.h>
 
-
-
+static int count =0;
 
 void step_and_dump_wave(){
   contextp->timeInc(1);
@@ -15,14 +15,21 @@ void single_clk(){
   // 上升沿
     top->clock = 1;
     top->eval();
-    //tfp->dump(contextp->time());  // 记录下降沿波形
-   // contextp->timeInc(1);
+  //   tfp->dump(contextp->time());  // 记录下降沿波形
+  //  contextp->timeInc(1);
 
     // 下降沿
     top->clock = 0;
     top->eval();
-   // tfp->dump(contextp->time());  // 记录上升沿波形
-    //contextp->timeInc(1);
+  //  tfp->dump(contextp->time());  // 记录上升沿波形
+  //   contextp->timeInc(1);
+    time_count +=1;
+    if(time_count == 100000000){
+      count +=1;
+      printf("time_count = %d\n",time_count);
+      printf("time num   = %d\n",count);
+      time_count =0;
+    }
 }
 void reset(int n){
   top->reset=1;

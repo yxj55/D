@@ -27,11 +27,13 @@ always@(*)begin
     case(alu_single)
     2'b00: rd_data = alu_data1 + alu_data2;
     2'b01: begin
+       // $display("now csrrw and csr_data= %h",csr_data);
         t = csr_data;
         rd_data = t;
         csr_wdata = alu_data1;
     end
     2'b10: begin
+      //  $display("now csrrs and csr_data= %h",csr_data);
         t = csr_data;
         rd_data = t; 
         csr_wdata = alu_data1 | t;

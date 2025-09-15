@@ -2,25 +2,24 @@
 #include <klib.h>
 #include "npc.h"
 
+#define CPU_FREQ 10000000  // 15 MHz
+#define US_PER_SEC 1000000   // 1秒 = 1,000,000微秒
 
 void __am_timer_init() {
-  outl(mcycle_ADDR, 0);
-  outl(mcycleh_ADDR, 0);
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
   uint32_t high;
   uint32_t low ;
-  __asm__ volatile ("csrr %0, mcycleh" : "=r"(high));
-  __asm__ volatile ("csrr %0, mcycle" : "=r"(low));
+  __asm__ volatile ("csrr %0, %1" : "=r"(high) : "i"(mcycleh_ADDR));
+  __asm__ volatile ("csrr %0, %1" : "=r"(low) : "i"(mcycle_ADDR));
   uint64_t cycles = ((uint64_t)high << 32) | low;
  
  
-  // 避免溢出的计算方法：先除后乘
-  uptime->us =cycles / 50;
 
+  uptime->us = (cycles * US_PER_SEC) / CPU_FREQ;
  
-  //  printf("now AM us = %d\n",uptime->us);
+   // printf("now AM us = %d\n",uptime->us);
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {

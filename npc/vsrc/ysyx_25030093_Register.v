@@ -42,18 +42,19 @@ module ysyx_25030093_CSR_REG(
 );
   reg [31:0] csr[7];
   reg [2:0] position;
-  localparam mtvec = 3'd0,mepc = 3'd1, mcause = 3'd2,mstatus = 3'd3,
-            mvendorid = 3'd4 ,marchid = 3'd5,mcycle = 3'd6,mcycleh = 3'd7;
+  localparam mtvec = 3'd0,mepc = 3'd1, mcause = 3'd2,mstatus = 3'd3;
+  localparam mvendorid = 3'd4 ,marchid = 3'd5,mcycle = 3'd6,mcycleh = 3'd7;
   always@(*)begin
-  case(imm_csr)
-  32'h305: begin position = mtvec;end//mtvec 
-  32'h341: begin position = mepc;end//mepc
-  32'h342: begin position = mcause;end //mcause
-  32'h300: begin position = mstatus;end//mstatus
-  32'hf11: begin position = mvendorid;end//mvendorid
-  32'hf12: begin position = marchid;end//marchid
-  32'hb00: begin position = mcycle;end//mcyle
-  32'hb80: begin position = mcycleh;end//mcyleh
+  // $display("now imm_csr =%h",imm_csr);
+  case(imm_csr[11:0])
+  12'h305: begin position = mtvec;end//mtvec 
+  12'h341: begin position = mepc;end//mepc
+  12'h342: begin position = mcause;end //mcause
+  12'h300: begin position = mstatus;end//mstatus
+  12'hf11: begin position = mvendorid;end//mvendorid
+  12'hf12: begin position = marchid;end//marchid
+  12'hb00: begin position = mcycle;end//mcyle
+  12'hb80: begin position = mcycleh;end//mcyleh
   default: begin
     position = 3'd3;
   end
@@ -61,9 +62,12 @@ module ysyx_25030093_CSR_REG(
 end
 initial begin
   csr[3] = 32'h1800;
+  csr[mvendorid] = 32'h79737978;
+  csr[marchid]   = 32'd25030093;
 end
 always@(posedge clock)begin
   if(wen_csr & in_valid) begin
+   // $display("position = %h",position);
     csr[position] <= csr_wdata;
   end
   

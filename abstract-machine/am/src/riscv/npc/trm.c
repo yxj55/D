@@ -6,25 +6,14 @@
 # define npc_trap(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
 
 
+#define CSR_MVENDORID 0xF11
+#define CSR_MARCHID   0xF12
+
 #define UART_BASE 0x10000000L
 #define UART_TX   0
 #define UART_LCR  UART_BASE + 3
 #define UART_LSR  UART_BASE + 5
 
-
-
-static inline uint64_t read_mcycle(void) {
-  uint32_t low, high, high2;
-  
-  // 安全读取64位计数器防止进位问题
- 
-      __asm__ volatile ("csrr %0, mcycleh" : "=r"(high));
-      __asm__ volatile ("csrr %0, mcycle" : "=r"(low));
-      __asm__ volatile ("csrr %0, mcycleh" : "=r"(high2));
- 
-  
-  return ((uint64_t)high << 32) | low;
-}
 
 
 extern char _heap_start;
@@ -56,6 +45,18 @@ void wait_fifo_empty()//轮询
 }
 
 
+
+void read_csr(){
+  uint32_t mvendorid_data,marchid_data;
+  __asm__ volatile ("csrr %0, %1" : "=r"(mvendorid_data) : "i"(0xF11));
+  __asm__ volatile ("csrr %0, %1" : "=r"(marchid_data) : "i"(0xF12));
+    
+    // 可以使用读取到的值
+     printf("MVENDORID: 0x%d\n", mvendorid_data);
+     printf("MARCHID: 0x%d\n", marchid_data);
+
+}
+
 void putch(char ch) {
   wait_fifo_empty();
   outb(UART_BASE + UART_TX, ch);
@@ -67,10 +68,9 @@ void halt(int code) {
 }
 
 void _trm_init() {
-  // uint64_t prev_cycle = read_mcycle();
-  // printf("Initial mcycle value: 0x%d", prev_cycle);
+ 
   init_div_uart(2);
-  // prev_cycle = read_mcycle();
+ // read_csr();
   int ret = main(mainargs);
   halt(ret);
 }

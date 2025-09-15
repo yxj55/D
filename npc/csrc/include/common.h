@@ -16,6 +16,11 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+
+
+static int time_count =0;
+
+
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdbool.h>
