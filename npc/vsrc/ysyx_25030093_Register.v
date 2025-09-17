@@ -60,26 +60,21 @@ module ysyx_25030093_CSR_REG(
   end
   endcase
 end
-initial begin
-  csr[3] = 32'h1800;
-  csr[mvendorid] = 32'h79737978;
-  csr[marchid]   = 32'd25030093;
-end
+
+
 always@(posedge clock)begin
-  if(wen_csr & in_valid) begin
-   // $display("position = %h",position);
-    csr[position] <= csr_wdata;
-  end
-  
-end
-always@(*)begin
-  if(ecall_single)begin
-    csr[2] = 32'd11;
-    csr[1] = ecall_now_pc;
-  end
-  else begin
-    csr[2] = 32'd0;
-    csr[1] = 32'b0;
+  if (reset) begin
+    // 复位操作
+    csr[1] <= 32'b0; // mepc
+    csr[2] <= 32'b0; // mcause
+  end else if (ecall_single) begin
+    // 发生异常时，更新mepc和mcause
+    csr[1] <= ecall_now_pc;
+    csr[2] <= 32'd11;
+  end else if (wen_csr & in_valid) begin
+    // CSR写操作（注意：避免写入只读寄存器）
+    if (position != mcycle && position != mcycleh) // 避免写入计数器
+      csr[position] <= csr_wdata;
   end
 end
 assign csr_data_pc = (ecall_single)?csr[0]:csr[1];//ecall -> mtvec  mret -> mepc
@@ -90,6 +85,9 @@ assign csr_data = csr[position];
 
 always @(posedge clock) begin
   if(reset)begin
+    csr[3]         <= 32'h1800;      // mstatus
+    csr[mvendorid] <= 32'h79737978;
+    csr[marchid]   <= 32'd25030093;
     csr[mcycle] <= 32'd0;
     csr[mcycleh] <= 32'd0;
   end

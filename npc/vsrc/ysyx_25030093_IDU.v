@@ -202,55 +202,7 @@ ysyx_25030093_imm u_ysyx_25030093_imm(
 
 assign ecall_single = ecall;
 
-//imm_type 3'd1:U  3'd2:I
-/*
-always@(inst)begin
-    case(opcode)
-    //auipc
-    7'b0010111:begin
-        wen =1'b1;
-        imm_type = 3'd1;
-        Control_single =6'd1;
-    end
-    //lui
-    7'b0110111:begin
-        wen = 1'b1;
-        imm_type = 3'd1;
-        Control_single = 6'd2;
-    end
-    //I-type
-    7'b0010011:begin
-        case(funt)
-        //addi
-        3'b000:begin
-            imm_type = 3'd0;
-            wen = 1'b1;
-            Control_single = 6'd0;
-        end
-        default:begin
-            //TDOO()
-            wen = 1'b0;
-        end
-        endcase
-    end
-    7'b1100111:begin
-        case(funt)
-        //jalr
-        3'b000:begin
-            wen = 1'b1;
-            imm_type = 3'd0;
-            Control_single = 6'd3;
-        end
-        default: wen = 1'b0;
-        endcase
-    end
-    default:begin
-        wen = 1'b0;
-        //TD
-    end
-    endcase
-end
-*/
+
 
 
 
