@@ -18,16 +18,16 @@ module ysyx_25030093(
     input   [31:0]       io_lsu_rdata     
 
 );
-import "DPI-C" function void get_pc(input int pc);
-import "DPI-C" function void get_inst_done(input bit inst_done);
+// import "DPI-C" function void get_pc(input int pc);
+// import "DPI-C" function void get_inst_done(input bit inst_done);
 reg [31:0] pc;
 wire inst_done = out_valid_WBU;
-always@(*)begin
-    get_pc(pc);
-end
-always@(*)begin
-    get_inst_done(inst_done);
-end
+// always@(*)begin
+//     get_pc(pc);
+// end
+// always@(*)begin
+//     get_inst_done(inst_done);
+// end
 
 wire [31:0] inst_wire;
 

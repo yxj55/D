@@ -22,7 +22,7 @@ module ysyx_25030093_IDU(
     output      [2:0]       LSU_single,
     output                  rd_or_LSU_single
 );
-import "DPI-C" function void npc_ebreak();
+// import "DPI-C" function void npc_ebreak();
 
 
 reg [31:0] inst;
@@ -210,11 +210,11 @@ assign ecall_single = ecall;
 
 
 
-always@(inst)begin
-    if(inst[31:20]==12'b000000000001&&inst[6:0]==7'b1110011)begin
-        npc_ebreak();
-    end
-end
+// always@(inst)begin
+//     if(inst[31:20]==12'b000000000001&&inst[6:0]==7'b1110011)begin
+//         npc_ebreak();
+//     end
+// end
 
 
 
