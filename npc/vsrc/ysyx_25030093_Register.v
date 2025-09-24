@@ -11,17 +11,17 @@ module ysyx_25030093_Register #(ADDR_WIDTH = 5, DATA_WIDTH = 32) (
  input                    in_valid
 );
 
-  reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
+  reg [DATA_WIDTH-1:0] rf [15:0];
   always @(posedge clock) begin
 
      if ((wen & waddr != 0) & in_valid) begin
   //  $display("Write: addr=%d, wdata=%h, stored=%h wen=%d", waddr, wdata, rf[waddr],wen);
-       rf[waddr] <= wdata;
+       rf[waddr[3:0]] <= wdata;
     end
   end
 
-  assign rs1_data =((rs1_addr == 0)&(wen_read == 1'b1))?0:rf[rs1_addr];
-  assign rs2_data =((rs2_addr == 0)&(wen_read == 1'b1))?0:rf[rs2_addr];
+  assign rs1_data =((rs1_addr == 0)&(wen_read == 1'b1))?0:rf[rs1_addr[3:0]];
+  assign rs2_data =((rs2_addr == 0)&(wen_read == 1'b1))?0:rf[rs2_addr[3:0]];
  
 
 
